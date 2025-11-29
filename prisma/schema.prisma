@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql" // sqlite yerine bunu yaz
+  url      = env("DATABASE_URL")
 }
 
 // ENUM KISMINI SİLDİK (SQLite desteklemediği için)
