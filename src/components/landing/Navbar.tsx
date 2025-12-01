@@ -1,28 +1,28 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import Image from "next/image"; // Image bileşenini ekledik
+import Image from "next/image";
 
 export default function Navbar() {
   return (
     <nav className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
-        {/* --- LOGO ALANI (GÜNCELLENDİ) --- */}
+        {/* --- LOGO ALANI (BÜYÜTÜLDÜ) --- */}
         <div className="flex items-center">
           <Link href="/">
             <Image 
               src="/eduqrlogo.png" 
               alt="EduQR Logo" 
-              width={150} // Genişliği logonun oranına göre artırıp azaltabilirsin
-              height={50} 
-              className="object-contain h-10 w-auto" // Yüksekliği navbar'a sığdırır, genişlik otomatik ayarlanır
-              priority // Sayfa açılır açılmaz yüklensin
+              width={200} // Genişlik artırıldı
+              height={70} // Yükseklik artırıldı
+              className="object-contain h-14 w-auto" // h-10 yerine h-14 yaptık (Daha büyük)
+              priority 
             />
           </Link>
         </div>
 
-        {/* SAĞ TARAF (Giriş Butonları) */}
+        {/* SAĞ TARAF */}
         <div className="flex items-center gap-4">
           <SignedOut>
             <Link href="/sign-in">
