@@ -15,8 +15,8 @@ export default function Navbar() {
               src="/eduqrlogo2.png" 
               alt="EduQR Logo" 
               width={150} // Genişliği logonun oranına göre artırıp azaltabilirsin
-              height={50} 
-              className="object-contain h-18 w-18" // Yüksekliği navbar'a sığdırır, genişlik otomatik ayarlanır
+              height={100} 
+              className="object-contain h-18 w-auto" // Yüksekliği navbar'a sığdırır, genişlik otomatik ayarlanır
               priority // Sayfa açılır açılmaz yüklensin
             />
           </Link>
