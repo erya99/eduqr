@@ -33,7 +33,11 @@ export default function Hero() {
               
               {/* GÜNCELLENEN BUTON */}
               <Link href="/ornekmenu1" target="_blank">
-                <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full border-gray-300 hover:bg-gray-50 text-gray-700 w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="h-14 px-8 text-lg rounded-full w-full sm:w-auto border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:bg-white dark:text-gray-700 dark:border-gray-300 dark:hover:bg-gray-50"
+                > 
                     <Eye className="mr-2 h-5 w-5" />
                     Menüye Göz At
                 </Button>
