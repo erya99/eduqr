@@ -10,7 +10,7 @@ export default function Navbar() {
          h-20 (80px) -> Mobil için ideal
          md:h-24 (96px) -> PC için daha ferah ve büyük
       */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-24 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-30 md:h-48 flex items-center justify-between">
         
         {/* --- LOGO ALANI (MOBİL VE PC İÇİN ÖZEL AYARLANDI) --- */}
         <div className="flex items-center flex-shrink-0">
