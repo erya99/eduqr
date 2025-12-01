@@ -16,7 +16,7 @@ export default function Navbar() {
               alt="EduQR Logo" 
               width={200} // Genişlik artırıldı
               height={70} // Yükseklik artırıldı
-              className="object-contain h-18 w-auto" // h-10 yerine h-14 yaptık (Daha büyük)
+              className="object-contain h-14 w-auto" // h-10 yerine h-14 yaptık (Daha büyük)
               priority 
             />
           </Link>
