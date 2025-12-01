@@ -8,15 +8,17 @@ export default function Navbar() {
     <nav className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
-        {/* --- LOGO ALANI (BÜYÜTÜLDÜ) --- */}
+{/* --- LOGO ALANI (HASSAS AYAR) --- */}
         <div className="flex items-center">
           <Link href="/">
             <Image 
-              src="/eduqrlogo2.png" 
+              src="/eduqrlogo.png" 
               alt="EduQR Logo" 
-              width={200} // Genişlik artırıldı
-              height={70} // Yükseklik artırıldı
-              className="object-contain h-17 w-auto" // h-10 yerine h-14 yaptık (Daha büyük)
+              width={250} // Genişliği bol tutalım, height'a göre orantılı küçülür
+              height={80} 
+              // BURASI KRİTİK: h-[70px] yaptık. 
+              // Eğer hala küçükse 72px, büyükse 68px yapabilirsin.
+              className="object-contain h-[70px] w-auto" 
               priority 
             />
           </Link>
