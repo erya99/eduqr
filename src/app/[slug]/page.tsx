@@ -3,23 +3,20 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag, Phone } from "lucide-react";
+import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/menu/ProductCard";
 
 const prisma = new PrismaClient();
 
-// searchParams özelliği ile URL'deki ?cat=... bilgisini alıyoruz
-export default async function MenuPage({ 
-  params, 
-  searchParams 
-}: { 
-  params: Promise<{ slug: string }>,
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const { slug } = await params;
-  const { cat } = await searchParams; // Seçili kategori ID'si (varsa)
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-  // Restoranı çek
+export default async function MenuPage({ params, searchParams }: Props) {
+  const { slug } = await params;
+  const { cat } = await searchParams;
+
   const restaurant: any = await prisma.restaurant.findUnique({
     where: { slug: slug, isActive: true },
     include: {
@@ -37,42 +34,39 @@ export default async function MenuPage({
 
   if (!restaurant) return notFound();
 
-  // Aktif kategoriyi bul (Eğer URL'de cat=... varsa)
   const activeCategory = cat 
     ? restaurant.categories.find((c: any) => c.id === cat)
     : null;
 
-  // Sadece ürün içeren kategorileri filtrele
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24">
+    // Arka plan rengini düzelttik: Dark modda tam siyah değil, çok koyu gri (daha modern)
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24">
       
-      {/* --- HEADER --- */}
+      {/* HEADER */}
       <header className="relative">
-        {/* Kapak Resmi */}
-        <div className="relative h-48 md:h-64 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden rounded-b-[2rem] shadow-md z-10">
+        <div className="relative h-48 md:h-64 w-full bg-gray-200 dark:bg-gray-900 overflow-hidden rounded-b-[2.5rem] shadow-sm z-10">
           {restaurant.coverUrl ? (
             <Image src={restaurant.coverUrl} alt="Kapak" fill className="object-cover" priority />
           ) : (
-             <div className="w-full h-full bg-gradient-to-r from-slate-800 to-slate-900" />
+             <div className="w-full h-full bg-gradient-to-r from-slate-900 to-slate-800" />
           )}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/30" />
           
-          {/* Eğer bir kategori içindeysek Geri Butonu Göster */}
           {activeCategory && (
             <Link 
               href={`/${slug}`} 
-              className="absolute top-4 left-4 z-20 bg-white/20 backdrop-blur-md p-2 rounded-full text-white hover:bg-white/30 transition"
+              className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-md p-2.5 rounded-full text-white hover:bg-white/20 transition border border-white/10"
             >
               <ArrowLeft className="w-6 h-6" />
             </Link>
           )}
         </div>
 
-        {/* Logo ve İsim */}
-        <div className="relative -mt-16 z-20 text-center px-4">
-             <div className="relative w-28 h-28 mx-auto rounded-2xl border-4 border-white dark:border-gray-950 overflow-hidden bg-white shadow-xl">
+        {/* Logo */}
+        <div className="relative -mt-14 z-20 text-center px-4">
+             <div className="relative w-28 h-28 mx-auto rounded-3xl border-4 border-white dark:border-[#0a0a0a] overflow-hidden bg-white shadow-2xl">
                 {restaurant.logoUrl ? (
                     <Image src={restaurant.logoUrl} alt="Logo" fill className="object-cover"/>
                 ) : (
@@ -82,24 +76,26 @@ export default async function MenuPage({
                 )}
             </div>
             {!activeCategory && (
-              <div className="mt-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h1 className="text-2xl font-bold">{restaurant.name}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Hoş geldiniz, lezzetleri keşfedin.</p>
+              <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h1 className="text-2xl font-bold tracking-tight">{restaurant.name}</h1>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">Hoş geldiniz 👋</p>
               </div>
             )}
         </div>
       </header>
 
-      {/* --- İÇERİK ALANI --- */}
+      {/* İÇERİK */}
       <main className="container mx-auto px-4 mt-8">
         
         {activeCategory ? (
-          // --- DURUM 1: KATEGORİ SEÇİLMİŞSE (ÜRÜNLERİ GÖSTER) ---
-          <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-            <h2 className="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-800">
+          // --- ÜRÜN LİSTESİ ---
+          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <span className="w-1 h-8 bg-blue-600 rounded-full inline-block"></span>
               {activeCategory.name}
             </h2>
-            <div className="space-y-0 divide-y divide-gray-100 dark:divide-gray-800">
+            {/* Ürünler arası boşluk ve grid yapısı */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeCategory.products.map((product: any) => (
                 <ProductCard
                   key={product.id}
@@ -113,17 +109,22 @@ export default async function MenuPage({
           </div>
 
         ) : (
-          // --- DURUM 2: ANA SAYFA (KATEGORİLERİ GÖSTER) ---
+          // --- KATEGORİ LİSTESİ ---
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
             {nonEmptyCategories.map((category: any) => {
-              // Kategorinin resmi varsa onu kullan, yoksa içindeki ilk ürünün resmini, o da yoksa varsayılan
-              const catImage = category.imageUrl || category.products[0]?.imageUrl;
+              // MANTIK DÜZELTİLDİ:
+              // 1. Önce kategori resmine bak.
+              // 2. Yoksa ilk ürünün resmine bak.
+              // 3. O da yoksa boş.
+              const catImage = category.imageUrl && category.imageUrl !== "" 
+                ? category.imageUrl 
+                : category.products[0]?.imageUrl;
 
               return (
                 <Link 
                   href={`/${slug}?cat=${category.id}`} 
                   key={category.id}
-                  className="group relative h-40 rounded-2xl overflow-hidden shadow-sm active:scale-95 transition-all duration-200"
+                  className="group relative h-36 sm:h-44 rounded-3xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-lg border border-transparent dark:border-gray-800"
                 >
                   {catImage ? (
                      <Image
@@ -133,56 +134,43 @@ export default async function MenuPage({
                        className="object-cover group-hover:scale-110 transition-transform duration-700"
                      />
                   ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900" />
+                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
                   )}
                   
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                    <h2 className="text-white text-lg font-bold text-center px-2">{category.name}</h2>
+                  {/* Modern Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
+                    <h2 className="text-white text-lg font-bold leading-tight">{category.name}</h2>
+                    <p className="text-white/70 text-xs mt-1">{category.products.length} Ürün</p>
                   </div>
                 </Link>
               )
             })}
-            
-            {nonEmptyCategories.length === 0 && (
-                <div className="col-span-full text-center py-10 text-gray-500">
-                    Menü hazırlanıyor...
-                </div>
-            )}
           </div>
         )}
       </main>
 
-      {/* --- ALT MENÜ (SABİT) --- */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50">
+      {/* FOOTER */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50">
         <div className="container mx-auto flex items-center justify-between max-w-md">
-          
-          {/* Sosyal Medya Butonu (Açılır Menü Gibi Davranabilir veya Direkt Link) */}
-          <div className="flex gap-4">
-             {restaurant.instagramUrl && (
-                 <a href={restaurant.instagramUrl} target="_blank" className="flex flex-col items-center gap-1 text-gray-500 hover:text-pink-500 transition">
-                    <Instagram size={20} />
-                    <span className="text-[10px]">Sosyal</span>
-                 </a>
-             )}
-             
-             {/* Ana Sayfa Butonu (Kategorilere döner) */}
-             <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400">
-                <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full -mt-6 border-4 border-white dark:border-gray-950">
-                    <ShoppingBag size={24} />
-                </div>
-                <span className="text-[10px] font-semibold">Menü</span>
+          <div className="flex gap-6 items-center">
+             {/* Ana Sayfa Butonu */}
+             <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                <ShoppingBag size={20} />
              </Link>
 
-             {/* İletişim / Web */}
+             {/* Sosyal Medya */}
+             {restaurant.instagramUrl && (
+                 <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500 transition">
+                    <Instagram size={20} />
+                 </a>
+             )}
              {restaurant.websiteUrl && (
-                 <a href={restaurant.websiteUrl} target="_blank" className="flex flex-col items-center gap-1 text-gray-500 hover:text-green-500 transition">
+                 <a href={restaurant.websiteUrl} target="_blank" className="text-gray-400 hover:text-green-500 transition">
                     <Globe size={20} />
-                    <span className="text-[10px]">Web</span>
                  </a>
              )}
           </div>
 
-          {/* Tema */}
           <ThemeToggle />
         </div>
       </footer>
