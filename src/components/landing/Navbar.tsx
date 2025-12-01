@@ -12,7 +12,7 @@ export default function Navbar() {
         <div className="flex items-center flex-shrink-0 h-full py-2">
           <Link href="/" className="relative block h-full">
             <Image 
-              src="/eduqrlogo.png" 
+              src="/eduqrlogo3.png" 
               alt="EduQR Logo" 
               width={0}
               height={0}
