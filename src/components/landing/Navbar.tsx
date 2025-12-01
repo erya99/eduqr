@@ -12,7 +12,7 @@ export default function Navbar() {
         <div className="flex items-center">
           <Link href="/">
             <Image 
-              src="/eduqrlogo.png" 
+              src="/eduqrlogo2.png" 
               alt="EduQR Logo" 
               width={250} // Genişliği bol tutalım, height'a göre orantılı küçülür
               height={80} 
