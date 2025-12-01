@@ -8,35 +8,68 @@ export default function Navbar() {
     <nav className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-28 flex items-center justify-between">
         
-        <div className="flex items-center">
-          <Link href="/">
+        {/* --- LOGO ALANI --- */}
+        <div className="flex items-center flex-shrink-0 h-full py-2">
+          <Link href="/" className="relative block h-full">
             <Image 
-              src="/eduqrlogo3.png" 
+              src="/eduqrlogo.png" 
               alt="EduQR Logo" 
-              width={250}
-              height={90} 
-              // Mobilde h-16, PC'de h-24 (Çok daha büyük)
-              className="object-contain h-16 md:h-24 w-auto"
+              width={0}
+              height={0}
+              sizes="100vw"
+              className="h-full w-auto object-contain" 
               priority 
             />
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* SAĞ TARAF (BUTONLAR) */}
+        {/* Gap'i de artırdık: md:gap-8 */}
+        <div className="flex items-center gap-3 md:gap-8">
           <SignedOut>
+            
+            {/* GİRİŞ YAP BUTONU */}
             <Link href="/sign-in">
-              <Button variant="ghost" className="text-gray-700 hover:text-gray-900 hover:bg-gray-100">Giriş Yap</Button>
+              <Button 
+                variant="ghost" 
+                // Mobilde: text-sm, px-3
+                // PC'de (md): text-lg (Büyük yazı), px-6 (Geniş), h-12 (Yüksek)
+                className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 font-medium px-3 md:px-6 text-sm md:text-lg md:h-12"
+              >
+                <span className="md:hidden">Giriş</span>
+                <span className="hidden md:inline">Giriş Yap</span>
+              </Button>
             </Link>
+
+            {/* ÜCRETSİZ DENE BUTONU */}
             <Link href="/sign-up">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white border-0">Ücretsiz Dene</Button>
+              <Button 
+                // Mobilde: h-10, px-5, text-sm
+                // PC'de (md): h-14 (Daha yüksek), px-9 (Daha geniş), text-lg (Büyük yazı)
+                className="bg-blue-600 hover:bg-blue-700 text-white border-0 px-5 md:px-9 text-sm md:text-lg h-10 md:h-14 rounded-full shadow-md font-semibold transition-transform hover:scale-105"
+              >
+                <span className="md:hidden">Başla</span>
+                <span className="hidden md:inline">Ücretsiz Dene</span>
+              </Button>
             </Link>
           </SignedOut>
 
           <SignedIn>
+            {/* PANELE GİT BUTONU (Giriş Yapmışsa) */}
             <Link href="/admin">
-              <Button variant="outline" className="text-gray-700 border-gray-300 hover:bg-gray-50">Panele Git</Button>
+              <Button 
+                variant="outline" 
+                // PC'de (md): h-14, px-8, text-lg
+                className="text-gray-700 border-gray-300 hover:bg-gray-50 h-10 md:h-14 px-4 md:px-8 text-sm md:text-lg rounded-full font-medium"
+              >
+                Panele Git
+              </Button>
             </Link>
-            <UserButton />
+            
+            {/* User Avatarı PC'de biraz daha büyük */}
+            <div className="scale-110 md:scale-125">
+                <UserButton />
+            </div>
           </SignedIn>
         </div>
       </div>
