@@ -1,19 +1,22 @@
-"use client"; // Bu bileşen tarayıcıda çalışacak (indirme işlemi için)
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QRCodeSVG } from "qrcode.react";
 import { Download } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function QRCodeCard({ slug }: { slug: string }) {
-  // QR kodun yönleneceği tam adres (Canlıda kendi domainin olacak)
-  // Şimdilik localhost IP adresini veya localhost:3000'i kullanıyoruz.
-  // Not: Telefonda görmek için bilgisayarının IP adresini yazman gerekebilir 
-  // (örn: 192.168.1.35:3000/...) ama şimdilik localhost kalsın.
-  const menuUrl = `http://localhost:3000/${slug}`;
-  
   const qrRef = useRef<HTMLDivElement>(null);
+  
+  // URL'i state içinde tutuyoruz ki hydration hatası olmasın
+  const [menuUrl, setMenuUrl] = useState("");
+
+  useEffect(() => {
+    // Tarayıcıdaki güncel ana domaini al (https://eduqr.tr veya localhost:3000)
+    // ve sonuna restoranın slug'ını ekle.
+    setMenuUrl(`${window.location.origin}/${slug}`);
+  }, [slug]);
 
   const downloadQRCode = () => {
     const svg = qrRef.current?.querySelector("svg");
@@ -23,7 +26,6 @@ export default function QRCodeCard({ slug }: { slug: string }) {
       const ctx = canvas.getContext("2d");
       const img = new Image();
       
-      // SVG'yi Canvas'a çizip indiriyoruz
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
@@ -50,17 +52,24 @@ export default function QRCodeCard({ slug }: { slug: string }) {
         
         {/* QR Kodun Kendisi */}
         <div ref={qrRef} className="p-4 bg-white border rounded-lg shadow-sm">
-          <QRCodeSVG 
-            value={menuUrl} 
-            size={150}
-            level="H" // Hata düzeltme seviyesi (High)
-            includeMargin={true}
-          />
+          {menuUrl ? (
+            <QRCodeSVG 
+              value={menuUrl} 
+              size={150}
+              level="H"
+              includeMargin={true}
+            />
+          ) : (
+            <div className="w-[150px] h-[150px] bg-gray-100 animate-pulse rounded" />
+          )}
         </div>
 
         <div className="text-center">
           <p className="text-xs text-muted-foreground mb-2">
             Bu kodu indirip masalara yapıştırabilirsiniz.
+          </p>
+          <p className="text-[10px] text-gray-400 break-all px-4">
+            {menuUrl}
           </p>
           <Button variant="outline" size="sm" onClick={downloadQRCode}>
             <Download className="mr-2 h-4 w-4" /> PNG İndir
