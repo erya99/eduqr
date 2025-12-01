@@ -1,18 +1,24 @@
+import Header from "@/components/menu/Header";
+import ProductCard from "@/components/menu/ProductCard";
 import { PrismaClient } from "@prisma/client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ThemeToggle"; // Birazdan oluşturacağız
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Instagram, Facebook, Twitter, Globe } from "lucide-react";
 
 const prisma = new PrismaClient();
 
-export default async function MenuPage({ params }: { params: { slug: string } }) {
-  const { slug } = await params; // Next.js 15 için await eklendi
+// Next.js 15 Type Çözümü: Params'ı Promise olarak açıkça belirtiyoruz
+type Props = {
+  params: Promise<{ slug: string }>;
+};
 
-  // 1. Veritabanından restoranı çek
-  // Hata almamak için :any kullanıyoruz veya düzgün type tanımı yapıyoruz.
-  // Prisma generate yaptıysan tip tanımlarına gerek kalmayabilir.a
+export default async function MenuPage({ params }: Props) {
+  // Params'ı await ile çözümlüyoruz
+  const { slug } = await params;
+
+  // Veritabanı sorgusu
   const restaurant: any = await prisma.restaurant.findUnique({
     where: { 
       slug: slug,
@@ -35,13 +41,12 @@ export default async function MenuPage({ params }: { params: { slug: string } })
     return notFound();
   }
 
-  // İçinde ürün olmayan kategorileri filtrele (Boş kutu göstermemek için)
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 pb-24">
       
-      {/* --- HEADER (Kapak & Logo) --- */}
+      {/* HEADER */}
       <header className="relative">
         <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
           {restaurant.coverUrl ? (
@@ -75,16 +80,13 @@ export default async function MenuPage({ params }: { params: { slug: string } })
         </div>
       </header>
 
-      {/* --- KATEGORİLER (Grid) --- */}
+      {/* KATEGORİLER */}
       <main className="container mx-auto px-4 mt-10">
         {nonEmptyCategories.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {nonEmptyCategories.map((category: any) => {
-              // Kategorinin kapağı olarak içindeki ilk ürünün resmini kullanıyoruz
               const coverImage = category.products[0]?.imageUrl;
-
               return (
-                // Bu linki ileride kategori detay sayfasına yönlendirebilirsin (şimdilik #)
                 <Link 
                   href={`#`} 
                   key={category.id}
@@ -100,8 +102,6 @@ export default async function MenuPage({ params }: { params: { slug: string } })
                   ) : (
                       <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-200 dark:from-slate-700 dark:to-slate-800" />
                   )}
-                  
-                  {/* Yazı Alanı (Karartmalı) */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
                     <div className="absolute bottom-0 left-0 p-4 w-full text-center">
                       <h2 className="text-white text-lg md:text-xl font-bold truncate">{category.name}</h2>
@@ -118,11 +118,9 @@ export default async function MenuPage({ params }: { params: { slug: string } })
         )}
       </main>
 
-      {/* --- FOOTER (Sabit Alt Menü) --- */}
+      {/* FOOTER */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50">
         <div className="container mx-auto flex items-center justify-between">
-          
-          {/* Sosyal Medya İkonları */}
           <div className="flex items-center space-x-6">
             {restaurant.instagramUrl && (
               <a href={restaurant.instagramUrl} target="_blank" className="text-gray-500 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-500 transition-colors">
@@ -145,8 +143,6 @@ export default async function MenuPage({ params }: { params: { slug: string } })
               </a>
             )}
           </div>
-
-          {/* Tema Değiştirme */}
           <div>
             <ThemeToggle />
           </div>
