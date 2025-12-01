@@ -36,7 +36,7 @@ export default function Navbar() {
                 // PC'de (md): text-lg (Büyük yazı), px-6 (Geniş), h-12 (Yüksek)
                 className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 font-medium px-3 md:px-6 text-sm md:text-lg md:h-12"
               >
-                <span className="md:hidden">Giriş</span>
+                <span className="md:hidden">Giriş Yap</span>
                 <span className="hidden md:inline">Giriş Yap</span>
               </Button>
             </Link>
@@ -48,7 +48,7 @@ export default function Navbar() {
                 // PC'de (md): h-14 (Daha yüksek), px-9 (Daha geniş), text-lg (Büyük yazı)
                 className="bg-blue-600 hover:bg-blue-700 text-white border-0 px-5 md:px-9 text-sm md:text-lg h-10 md:h-14 rounded-full shadow-md font-semibold transition-transform hover:scale-105"
               >
-                <span className="md:hidden">Başla</span>
+                <span className="md:hidden">Ücretsiz Dene</span>
                 <span className="hidden md:inline">Ücretsiz Dene</span>
               </Button>
             </Link>
