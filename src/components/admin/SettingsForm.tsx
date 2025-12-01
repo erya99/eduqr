@@ -2,20 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// Prisma tipini kullanmak için (schema.prisma'dan generate ettiğin tip)
-import { Restaurant } from "@prisma/client"; 
+import { Restaurant } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CldUploadButton } from "next-cloudinary";
+// CldUploadButton yerine CldUploadWidget kullanıyoruz (Daha stabil)
+import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
-// DÜZELTİLDİ: Import yolu src/actions/...
 import { updateRestaurant } from "@/actions/restaurant-actions";
-import { Loader2, Upload, Instagram, Facebook, Twitter, Globe, Image as ImageIcon } from "lucide-react";
-
-// Eğer toast bildirim bileşenin yoksa basit bir alert kullanabilirsin veya shadcn sonner ekleyebilirsin.a
-// Şimdilik alert ile ilerleyelim, hata almazsın.
-// import { toast } from "sonner"; 
+import { Loader2, Upload, Instagram, Facebook, Twitter, Globe, Image as ImageIcon, X } from "lucide-react";
 
 interface SettingsFormProps {
   restaurant: Restaurant;
@@ -39,15 +34,22 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Yükleme Fonksiyonu (Generic)
   const handleUpload = (result: any, field: "logoUrl" | "coverUrl") => {
-    setFormData({ ...formData, [field]: result.info.secure_url });
+    if (result.info && result.info.secure_url) {
+        setFormData(prev => ({ ...prev, [field]: result.info.secure_url }));
+    }
+  };
+
+  // Resmi Kaldırma Fonksiyonu
+  const handleRemoveImage = (field: "logoUrl" | "coverUrl") => {
+    setFormData(prev => ({ ...prev, [field]: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Basit slug kontrolü
     const slugRegex = /^[a-z0-9-]+$/;
     if (!slugRegex.test(formData.slug)) {
       alert("Hata: Restoran bağlantısı sadece küçük harf, rakam ve tire (-) içerebilir.");
@@ -69,6 +71,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-lg shadow-sm border">
+      
       {/* --- Temel Bilgiler --- */}
       <div className="space-y-4 pb-4 border-b">
         <h3 className="text-lg font-semibold">Temel Bilgiler</h3>
@@ -96,7 +99,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
                 className="rounded-l-none"
               />
             </div>
-            <p className="text-xs text-gray-500">Örn: kahve-dunyasi (Türkçe karakter ve boşluk kullanmayın)</p>
+            <p className="text-xs text-gray-500">Örn: kahve-dunyasi</p>
           </div>
         </div>
       </div>
@@ -106,51 +109,92 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
         <h3 className="text-lg font-semibold">Görseller</h3>
         <div className="grid gap-8 md:grid-cols-2">
           
-          {/* Logo */}
+          {/* 1. LOGO YÜKLEME ALANI */}
           <div className="space-y-2">
             <Label>Restoran Logosu</Label>
             <div className="flex items-start gap-4">
-              <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-50 shrink-0">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-50 shrink-0 group">
                 {formData.logoUrl ? (
-                  <Image src={formData.logoUrl} alt="Logo" fill className="object-cover" />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400"><Upload /></div>
-                )}
-              </div>
-              <div className="flex flex-col gap-2 w-full">
-                 <CldUploadButton
-                    onUpload={(result) => handleUpload(result, "logoUrl")}
-                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} 
-                    className="w-full"
-                  >
-                    <Button type="button" variant="outline" size="sm" className="w-full">
-                      <Upload className="w-4 h-4 mr-2"/> {formData.logoUrl ? "Logoyu Değiştir" : "Logo Yükle"}
-                    </Button>
-                  </CldUploadButton>
-              </div>
-            </div>
-          </div>
-
-          {/* Kapak Görseli */}
-          <div className="space-y-2">
-            <Label>Kapak Görseli</Label>
-             <div className="flex flex-col gap-3">
-              <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
-                {formData.coverUrl ? (
-                  <Image src={formData.coverUrl} alt="Kapak" fill className="object-cover" />
+                  <>
+                    <Image src={formData.logoUrl} alt="Logo" fill className="object-cover" />
+                    <button 
+                        type="button"
+                        onClick={() => handleRemoveImage("logoUrl")}
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                    >
+                        <X size={20} />
+                    </button>
+                  </>
                 ) : (
                   <div className="flex items-center justify-center h-full text-gray-400"><ImageIcon /></div>
                 )}
               </div>
-              <CldUploadButton
-                onUpload={(result) => handleUpload(result, "coverUrl")}
+              
+              <div className="flex flex-col gap-2 w-full">
+                 <CldUploadWidget
+                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                    onSuccess={(result) => handleUpload(result, "logoUrl")}
+                 >
+                    {({ open }) => {
+                      return (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => open()}
+                        >
+                          <Upload className="w-4 h-4 mr-2"/> 
+                          {formData.logoUrl ? "Logoyu Değiştir" : "Logo Yükle"}
+                        </Button>
+                      );
+                    }}
+                 </CldUploadWidget>
+                 <p className="text-xs text-gray-500">Kare (1:1) format önerilir.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. KAPAK FOTOĞRAFI YÜKLEME ALANI */}
+          <div className="space-y-2">
+            <Label>Kapak Görseli</Label>
+             <div className="flex flex-col gap-3">
+              <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50 group">
+                {formData.coverUrl ? (
+                  <>
+                    <Image src={formData.coverUrl} alt="Kapak" fill className="object-cover" />
+                    <button 
+                        type="button"
+                        onClick={() => handleRemoveImage("coverUrl")}
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                    >
+                        <X size={24} />
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400"><ImageIcon className="w-8 h-8" /></div>
+                )}
+              </div>
+              
+              <CldUploadWidget
                 uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-                className="w-full"
+                onSuccess={(result) => handleUpload(result, "coverUrl")}
               >
-                 <Button type="button" variant="outline" size="sm" className="w-full">
-                  <Upload className="w-4 h-4 mr-2"/> {formData.coverUrl ? "Kapağı Değiştir" : "Kapak Yükle"}
-                </Button>
-              </CldUploadButton>
+                {({ open }) => {
+                  return (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => open()}
+                    >
+                      <Upload className="w-4 h-4 mr-2"/> 
+                      {formData.coverUrl ? "Kapağı Değiştir" : "Kapak Yükle"}
+                    </Button>
+                  );
+                }}
+              </CldUploadWidget>
             </div>
           </div>
         </div>
@@ -179,7 +223,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
         </div>
       </div>
 
-      <div className="flex justify-end pt-4 border-t">
+      <div className="flex justify-end pt-4 border-t sticky bottom-0 bg-white p-4 -mx-6 -mb-6 shadow-t">
         <Button type="submit" disabled={isLoading} className="min-w-[150px]">
           {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Kaydediliyor...</> : "Ayarları Kaydet"}
         </Button>
