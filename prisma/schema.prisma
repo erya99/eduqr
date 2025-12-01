@@ -46,17 +46,15 @@ model Restaurant {
 }
 
 model Category {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   name         String
-  order        Int      @default(0)
+  imageUrl     String?    // <--- YENİ EKLENEN SATIR
+  order        Int        @default(0)
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  
   products     Product[]
-
-  // --- BU İKİ SATIRI EKLE ---
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Product {

@@ -6,7 +6,7 @@ import { currentUser } from "@clerk/nextjs/server";
 
 const prisma = new PrismaClient();
 
-// --- 1. KATEGORİ EKLEME ---
+// --- 1. KATEGORİ EKLEME (Resim Destekli) ---
 export async function createCategory(formData: FormData) {
   const user = await currentUser();
   if (!user) throw new Error("Yetkisiz işlem");
@@ -18,10 +18,12 @@ export async function createCategory(formData: FormData) {
   if (!restaurant) throw new Error("Restoran bulunamadı");
 
   const name = formData.get("name") as string;
+  const imageUrl = formData.get("image") as string; // Resim URL'ini al
 
   await prisma.category.create({
     data: {
       name,
+      imageUrl, // Veritabanına kaydet (Prisma generate yapınca hata gidecek)
       restaurantId: restaurant.id,
       order: 0 
     }
@@ -44,7 +46,7 @@ export async function deleteCategory(formData: FormData) {
   revalidatePath("/admin/categories");
 }
 
-// --- 3. KATEGORİLERİ GETİRME (Ürün Ekleme Formu İçin) ---
+// --- 3. KATEGORİLERİ GETİRME ---
 export async function getCategories() {
   const user = await currentUser();
   if (!user) return [];
@@ -57,7 +59,7 @@ export async function getCategories() {
 
   const categories = await prisma.category.findMany({
     where: { restaurantId: restaurant.id },
-    orderBy: { createdAt: 'desc' } // En son eklenen en üstte gelsin
+    orderBy: { createdAt: 'desc' }
   });
 
   return categories;
