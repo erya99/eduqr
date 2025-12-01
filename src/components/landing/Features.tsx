@@ -1,46 +1,88 @@
-import { Smartphone, Zap, DollarSign } from "lucide-react";
-
-const features = [
-  {
-    icon: <Smartphone className="h-8 w-8 text-blue-600" />,
-    title: "Tamamen Mobil Uyumlu",
-    desc: "Müşterileriniz uygulama indirmeden, sadece kamerayı açarak menünüze ulaşır.",
-  },
-  {
-    icon: <Zap className="h-8 w-8 text-blue-600" />,
-    title: "Anında Güncelleme",
-    desc: "Fiyat değişti mi? Yeni ürün mü geldi? Admin panelinden değiştirin, anında yansısın.",
-  },
-  {
-    icon: <DollarSign className="h-8 w-8 text-blue-600" />,
-    title: "Maliyet Dostu",
-    desc: "Sürekli menü bastırma derdine son. Kağıt israfını önleyin ve tasarruf edin.",
-  },
-];
+import Image from "next/image";
+import { CheckCircle2 } from "lucide-react";
 
 export default function Features() {
   return (
-    <section id="features" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900">Neden QR Menü?</h2>
-          <p className="mt-4 text-gray-600">İşletmenizi büyütmek için ihtiyacınız olan her şey.</p>
-        </div>
+    <section className="py-24 bg-white space-y-24 lg:space-y-32">
+      
+      {/* BAŞLIK ALANI */}
+      <div className="container mx-auto px-4 text-center max-w-3xl">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          Dijital Menü & QR Kod Sistemi
+        </h2>
+        <p className="text-lg text-gray-600">
+          İşletmenize maliyet ve zaman tasarrufu sağlarken, aynı zamanda daha esnek ve güncel bir menü sunmanızı sağlar. Rekabet gücünüzü artırın.
+        </p>
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-10">
-          {features.map((feature, index) => (
-            <div key={index} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
-              <div className="mb-4 bg-white w-14 h-14 rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-gray-600 leading-relaxed">
-                {feature.desc}
-              </p>
-            </div>
-          ))}
+      {/* --- ÖZELLİK 1: GÖRSEL SAĞDA, YAZI SOLDA --- */}
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <h3 className="text-3xl font-bold text-gray-900">
+            Müşterilerinizi Memnun Ederek Gelirinizi Arttırın
+          </h3>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            Dijital menü kullanımı, işletmenizin esnekliğini ve hızını artırır. 
+            Örneğin, yeni bir ürün eklemek veya mevcut bir ürünün fiyatını değiştirmek istediğinizde, 
+            hemen yönetim paneline girerek bu değişiklikleri yapabilirsiniz.
+          </p>
+          <ul className="space-y-3">
+            {[
+              "Anında Fiyat Güncelleme", 
+              "Ürün Fotoğrafları Ekleme", 
+              "Kategori Yönetimi"
+            ].map((item, i) => (
+              <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
+                <CheckCircle2 className="text-green-500 w-5 h-5" /> {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="relative h-[400px] bg-gray-100 rounded-3xl overflow-hidden shadow-xl border border-gray-100">
+           {/* BURAYA KENDİ GÖRSELİNİ KOYACAKSIN */}
+           <Image 
+             src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=800&q=80" 
+             alt="Müşteri Deneyimi"
+             fill
+             className="object-cover"
+           />
         </div>
       </div>
+
+      {/* --- ÖZELLİK 2: GÖRSEL SOLDA, YAZI SAĞDA --- */}
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="relative h-[400px] bg-gray-100 rounded-3xl overflow-hidden shadow-xl border border-gray-100 order-2 lg:order-1">
+           {/* BURAYA KENDİ GÖRSELİNİ KOYACAKSIN (Masa üstü QR kodu görseli gibi) */}
+           <Image 
+             src="https://images.unsplash.com/photo-1595079676339-1534801fafde?w=800&q=80" 
+             alt="Kolay Yönetim"
+             fill
+             className="object-cover"
+           />
+        </div>
+        <div className="space-y-6 order-1 lg:order-2">
+          <h3 className="text-3xl font-bold text-gray-900">
+            Tüm Hizmetleriniz Anlaşılır ve Kusursuz Olsun
+          </h3>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            Adisyo yönetim panelinde, ürünlerinizi kolaylıkla düzenleyebilirsiniz. 
+            Menünüzdeki ürünleri ekleyebilir, çıkarabilir, fiyatlarını güncelleyebilir 
+            ve görsellerini değiştirebilirsiniz. Bu işlemi yapmak için sadece birkaç dakikanızı ayırmanız yeterli olacaktır.
+          </p>
+          <ul className="space-y-3">
+            {[
+              "Mobil Uyumlu Tasarım", 
+              "QR Kod Oluşturucu", 
+              "Karanlık Mod Desteği"
+            ].map((item, i) => (
+              <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
+                <CheckCircle2 className="text-blue-500 w-5 h-5" /> {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
     </section>
   );
 }
