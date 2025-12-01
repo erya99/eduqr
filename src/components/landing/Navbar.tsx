@@ -1,19 +1,25 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Image from "next/image"; // Image bileşenini ekledik
 
 export default function Navbar() {
   return (
-    // 'light' sınıfı ve bg-white ile temayı zorluyoruz
     <nav className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* LOGO */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-            E
-          </div>
-          {/* Yazı rengini siyah (gray-900) olarak sabitledik */}
-          <span className="font-bold text-xl tracking-tight text-gray-900">EduQR</span>
+        
+        {/* --- LOGO ALANI (GÜNCELLENDİ) --- */}
+        <div className="flex items-center">
+          <Link href="/">
+            <Image 
+              src="/eduqrlogo.png" 
+              alt="EduQR Logo" 
+              width={150} // Genişliği logonun oranına göre artırıp azaltabilirsin
+              height={50} 
+              className="object-contain h-10 w-auto" // Yüksekliği navbar'a sığdırır, genişlik otomatik ayarlanır
+              priority // Sayfa açılır açılmaz yüklensin
+            />
+          </Link>
         </div>
 
         {/* SAĞ TARAF (Giriş Butonları) */}

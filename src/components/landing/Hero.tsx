@@ -41,7 +41,7 @@ export default function Hero() {
             </div>
 
             <div className="pt-4 flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-500">
-              <span className="flex items-center gap-1">✓ Kredi Kartı Gerekmez</span>
+              <span className="flex items-center gap-1">✓ Kolay Yönetim</span>
               <span className="flex items-center gap-1">✓ 7/24 Destek</span>
             </div>
           </div>

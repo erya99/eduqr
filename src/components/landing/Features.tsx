@@ -43,7 +43,7 @@ export default function Features() {
         {/* YENİ GÖRSEL: anasayfapanel.png */}
         <div className="relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-50 flex items-center justify-center">
            <Image 
-             src="/anasayfapanel.png" 
+             src="/anasayfamekan.png" 
              alt="Yönetim Paneli"
              fill
              className="object-contain p-4"
@@ -56,7 +56,7 @@ export default function Features() {
         {/* YENİ GÖRSEL: anasayfamekan.png */}
         <div className="relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-50 order-2 lg:order-1 flex items-center justify-center">
            <Image 
-             src="/anasayfamekan.png" 
+             src="/anasayfapanel.png" 
              alt="Mekan ve QR Kullanımı"
              fill
              className="object-cover"
