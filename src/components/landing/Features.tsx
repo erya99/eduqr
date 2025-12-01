@@ -16,7 +16,7 @@ export default function Features() {
       </div>
 
       {/* --- BÖLÜM 1: MEKAN GÖRSELİ (Sağda) --- */}
-      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="space-y-6">
           <h3 className="text-3xl font-bold text-gray-900">
             Müşterilerinizi Memnun Ederek Gelirinizi Arttırın
@@ -35,28 +35,32 @@ export default function Features() {
           </ul>
         </div>
         
-        {/* DÜZELTME: Mekan görseli çerçevesi ve gölgesi iyileştirildi */}
-        <div className="relative h-[300px] md:h-[450px] rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
+        {/* DÜZELTME 1: Mekan görseli için sabit yükseklik kaldırıldı. */}
+        {/* 'w-full h-auto' ile resim kendi orantısında büyüyüp küçülecek, kesilmeyecek. */}
+        <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
            <Image 
              src="/anasayfamekan.png" 
              alt="Mekan Atmosferi"
-             fill
-             className="object-cover" // Resmi kutuya tam doldurur
+             width={800}  // Next.js'in en boy oranını anlaması için temsili değerler
+             height={600} 
+             className="w-full h-auto" // Kritik kısım burası: Genişliğe uyar, yüksekliği otomatik ayarlar.
            />
         </div>
       </div>
 
-      {/* --- BÖLÜM 2: PANEL GÖRSELİ (Solda) --- */}
-      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+      {/* --- BÖLÜM 2: PANEL GÖRSELİ (Solda - Esas Sorunlu Kısım) --- */}
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         
-        {/* DÜZELTME: Panel görseli için kutu büyütüldü ve hizalama üst-sol yapıldı */}
-        <div className="relative h-[300px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 bg-white order-2 lg:order-1">
+        {/* DÜZELTME 2: Panel görseli için sabit yükseklik kaldırıldı. */}
+        <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200 bg-gray-50 order-2 lg:order-1 flex items-center justify-center p-2">
+           {/* Bu görsel uzun olduğu için height değerini width'ten büyük vererek orantıyı belirttik */}
            <Image 
              src="/anasayfapanel.png" 
              alt="Yönetim Paneli"
-             fill
-             // object-left-top: Resmin sol üst köşesini (menüyü) baz alarak yerleştirir, aşağısı kesilse de önemli yer görünür.
-             className="object-cover object-left-top" 
+             width={600}
+             height={900} // Uzun bir görsel olduğunu belirttik
+             // 'w-full h-auto' sayesinde görselin tamamı gösterilecek, asla kesilmeyecek.
+             className="w-full h-auto drop-shadow-lg rounded-xl" 
            />
         </div>
         
