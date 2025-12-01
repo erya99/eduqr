@@ -3,7 +3,8 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function Features() {
   return (
-    <section className="py-24 bg-white space-y-24 lg:space-y-32">
+    // bg-white ve text-gray-900 ile temayı sabitledik
+    <section className="py-24 bg-white text-gray-900 space-y-24 lg:space-y-32">
       
       {/* BAŞLIK ALANI */}
       <div className="container mx-auto px-4 text-center max-w-3xl">
@@ -15,7 +16,7 @@ export default function Features() {
         </p>
       </div>
 
-      {/* --- ÖZELLİK 1: GÖRSEL SAĞDA, YAZI SOLDA --- */}
+      {/* --- ÖZELLİK 1: PANEL GÖRSELİ --- */}
       <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6">
           <h3 className="text-3xl font-bold text-gray-900">
@@ -38,34 +39,37 @@ export default function Features() {
             ))}
           </ul>
         </div>
-        <div className="relative h-[400px] bg-gray-100 rounded-3xl overflow-hidden shadow-xl border border-gray-100">
-           {/* BURAYA KENDİ GÖRSELİNİ KOYACAKSIN */}
+        
+        {/* YENİ GÖRSEL: anasayfapanel.png */}
+        <div className="relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-50 flex items-center justify-center">
            <Image 
-             src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=800&q=80" 
-             alt="Müşteri Deneyimi"
+             src="/anasayfapanel.png" 
+             alt="Yönetim Paneli"
              fill
-             className="object-cover"
+             className="object-contain p-4"
            />
         </div>
       </div>
 
-      {/* --- ÖZELLİK 2: GÖRSEL SOLDA, YAZI SAĞDA --- */}
+      {/* --- ÖZELLİK 2: MEKAN GÖRSELİ --- */}
       <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="relative h-[400px] bg-gray-100 rounded-3xl overflow-hidden shadow-xl border border-gray-100 order-2 lg:order-1">
-           {/* BURAYA KENDİ GÖRSELİNİ KOYACAKSIN (Masa üstü QR kodu görseli gibi) */}
+        {/* YENİ GÖRSEL: anasayfamekan.png */}
+        <div className="relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-50 order-2 lg:order-1 flex items-center justify-center">
            <Image 
-             src="https://images.unsplash.com/photo-1595079676339-1534801fafde?w=800&q=80" 
-             alt="Kolay Yönetim"
+             src="/anasayfamekan.png" 
+             alt="Mekan ve QR Kullanımı"
              fill
              className="object-cover"
            />
         </div>
+        
         <div className="space-y-6 order-1 lg:order-2">
+          {/* Adisyo yerine EduQR yazıldı */}
           <h3 className="text-3xl font-bold text-gray-900">
-            Tüm Hizmetleriniz Anlaşılır ve Kusursuz Olsun
+            EduQR Dijital Menü ile Hizmetleriniz Kusursuz Olsun
           </h3>
           <p className="text-lg text-gray-600 leading-relaxed">
-            Adisyo yönetim panelinde, ürünlerinizi kolaylıkla düzenleyebilirsiniz. 
+            EduQR yönetim panelinde, ürünlerinizi kolaylıkla düzenleyebilirsiniz. 
             Menünüzdeki ürünleri ekleyebilir, çıkarabilir, fiyatlarını güncelleyebilir 
             ve görsellerini değiştirebilirsiniz. Bu işlemi yapmak için sadece birkaç dakikanızı ayırmanız yeterli olacaktır.
           </p>
