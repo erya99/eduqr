@@ -6,35 +6,37 @@ import Image from "next/image";
 export default function Navbar() {
   return (
     <nav className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-28 flex items-center justify-between">      
-        {/* --- LOGO ALANI --- */}
-        <div className="flex items-center flex-shrink-0 h-full py-2">
-          <Link href="/" className="relative block h-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-28 flex items-center justify-between">
+        
+        {/* --- SOL TARAF (Logo + Menü Linkleri) --- */}
+        <div className="flex items-center h-full">
+          
+          {/* Logo Alanı */}
+          <Link href="/" className="relative block h-full flex-shrink-0 mr-8 md:mr-12">
             <Image 
               src="/eduqrlogo3.png" 
               alt="EduQR Logo" 
               width={0}
               height={0}
               sizes="100vw"
-              className="h-full w-auto object-contain" 
+              className="h-full w-auto object-contain py-2" // Logoya biraz üst/alt boşluk verdik
               priority 
             />
           </Link>
 
-          {/* --- YENİ EKLENEN ORTA MENÜ --- */}
-          {/* Sadece PC'de görünsün (md:flex), mobilde gizli olsun (hidden) */}
-          <div className="hidden md:flex gap-6">
-            <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+          {/* Orta Menü (Sadece PC'de görünür) */}
+          <div className="hidden md:flex items-center gap-8 h-full">
+            <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
                 Ana Sayfa
             </Link>
-            <Link href="/pricing" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/pricing" className="text-gray-600 hover:text-blue-600 font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
                 Fiyatlandırma
             </Link>
-            {/* İstersen buraya 'Özellikler' vs. de ekleyebilirsin */}
           </div>
+
         </div>
 
-        {/* SAĞ TARAF */}
+        {/* --- SAĞ TARAF (Butonlar) --- */}
         <div className="flex items-center gap-3 md:gap-8">
           <SignedOut>
             <Link href="/sign-in">
