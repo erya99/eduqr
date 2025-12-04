@@ -24,9 +24,9 @@ export default function Footer() {
         <p>© 2024 EduQr. EduXperts bünyesinde bir hizmettir. Tüm Hakları Saklıdır</p>
         
         <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="#" className="hover:text-gray-900">Gizlilik Politikası</Link>
-            <Link href="#" className="hover:text-gray-900">Kullanım Şartları</Link>
-            <Link href="#" className="hover:text-gray-900">İletişim</Link>
+            <Link href="/legal/privacy" className="hover:text-gray-900">Gizlilik Politikası</Link>
+            <Link href="/legal/terms" className="hover:text-gray-900">Kullanım Şartları</Link>
+            <Link href="/contact" className="hover:text-gray-900">İletişim</Link>
         </div>
       </div>
     </footer>
