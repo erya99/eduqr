@@ -5,6 +5,8 @@ import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import CategoryAddForm from "@/components/admin/CategoryAddForm";
 import { deleteCategory } from "@/actions/category-actions";
+import { redirect } from "next/navigation"; // Yönlendirme için eklendi
+import Image from "next/image"; // Görsel göstermek için eklendi
 
 const prisma = new PrismaClient();
 
@@ -18,7 +20,17 @@ export default async function AdminCategoriesPage() {
 
   if (!restaurant) return <div>Önce restoran oluşturun.</div>;
 
-  // Kategorileri ve içindeki ürün sayısını çekelim
+  // --- ABONELİK KONTROLÜ (GATEKEEPER) ---
+  const isSubscribed = 
+    restaurant.isSubscribed && 
+    restaurant.subscriptionEnds && 
+    restaurant.subscriptionEnds > new Date();
+
+  if (!isSubscribed) {
+    redirect("/admin/subscription");
+  }
+  // --------------------------------------
+
   const categories = await prisma.category.findMany({
     where: { restaurantId: restaurant.id },
     include: {
@@ -31,9 +43,8 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Kategoriler</h1>
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Kategoriler</h1>
 
-      {/* Kategori Ekleme Alanı */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Yeni Kategori Oluştur</CardTitle>
@@ -43,17 +54,29 @@ export default async function AdminCategoriesPage() {
         </CardContent>
       </Card>
 
-      {/* Kategori Listesi */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map((category) => (
-          <Card key={category.id} className="flex flex-col justify-between">
+          <Card key={category.id} className="flex flex-col justify-between overflow-hidden">
+            
+            {/* Varsa Kategori Görselini Göster */}
+            {category.imageUrl && (
+                <div className="relative w-full h-32 bg-gray-100 dark:bg-gray-800">
+                    <Image 
+                        src={category.imageUrl} 
+                        alt={category.name} 
+                        fill 
+                        className="object-cover"
+                    />
+                </div>
+            )}
+
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-base font-medium">
                 {category.name}
               </CardTitle>
               <form action={deleteCategory}>
                 <input type="hidden" name="id" value={category.id} />
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
                     <Trash2 className="h-4 w-4" />
                 </Button>
               </form>

@@ -5,17 +5,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // sqlite yerine bunu yaz
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// ENUM KISMINI SİLDİK (SQLite desteklemediği için)
 
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String
-  role      String   @default("RESTAURANT_OWNER") // Tipi String yaptık ve varsayılanı tırnak içine aldık
+  password  String?  // Clerk ile giriş yapıldığı için şifre boş olabilir, opsiyonel (?) yapabiliriz veya boş string atarız.
+  role      String   @default("RESTAURANT_OWNER")
   createdAt DateTime @default(now())
   
   restaurants Restaurant[]
@@ -36,19 +34,34 @@ model Restaurant {
   twitterUrl   String?
   websiteUrl   String?
 
+  // --- ABONELİK SİSTEMİ (YENİ EKLENENLER) ---
+  isSubscribed     Boolean   @default(false) // Abone mi?
+  subscriptionEnds DateTime?                 // Abonelik ne zaman bitiyor?
+  payments         Payment[]                 // Ödeme geçmişi
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
   user         User       @relation(fields: [userId], references: [id])
-  
   categories   Category[]
-  // products Product[]  <-- BU SATIRI SİL (veya yorum satırı yap)
+}
+
+// --- YENİ MODEL: Ödeme Kayıtları ---
+model Payment {
+  id           String     @id @default(cuid())
+  merchantOid  String     @unique // PayTR Sipariş ID'si (Benzersiz olmalı)
+  amount       Decimal    // Ödenen tutar
+  status       String     // 'success', 'failed', 'pending'
+  createdAt    DateTime   @default(now())
+  
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 }
 
 model Category {
   id           String     @id @default(cuid())
   name         String
-  imageUrl     String?    // <--- YENİ EKLENEN SATIR
+  imageUrl     String?
   order        Int        @default(0)
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
@@ -68,7 +81,6 @@ model Product {
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
 
-  // --- BU İKİ SATIRI EKLE ---
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

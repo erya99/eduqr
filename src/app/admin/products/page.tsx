@@ -10,6 +10,7 @@ import ProductActions from "@/components/admin/ProductActions";
 import ProductAddButton from "@/components/admin/ProductAddButton"; 
 import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation"; // Yönlendirme için eklendi
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,17 @@ export default async function AdminProductsPage() {
 
   if (!restaurant) return <div>Önce restoran oluşturun.</div>;
 
-  // 1. KATEGORİLERİ ÇEK (Yeni eklenen kısım)
+  // --- ABONELİK KONTROLÜ (GATEKEEPER) ---
+  const isSubscribed = 
+    restaurant.isSubscribed && 
+    restaurant.subscriptionEnds && 
+    restaurant.subscriptionEnds > new Date();
+
+  if (!isSubscribed) {
+    redirect("/admin/subscription"); // Abone değilse satın alma sayfasına at
+  }
+  // --------------------------------------
+
   const categories = await prisma.category.findMany({
     where: { restaurantId: restaurant.id },
     orderBy: { name: 'asc' }
@@ -45,14 +56,12 @@ export default async function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-800">Ürünler ({products.length})</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Ürünler ({products.length})</h1>
         
-        {/* Kategorileri buraya gönderiyoruz */}
         <ProductAddButton categories={categories} />
-
       </div>
 
-      <div className="rounded-md border bg-white">
+      <div className="rounded-md border bg-white dark:bg-gray-800 dark:border-gray-700">
         <Table>
           <TableHeader>
             <TableRow>
@@ -78,12 +87,11 @@ export default async function AdminProductsPage() {
                 <TableCell>{product.category.name}</TableCell>
                 <TableCell>{product.price} ₺</TableCell>
                 <TableCell>
-                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                     Aktif
                   </span>
                 </TableCell>
                 <TableCell className="text-right">
-                  {/* Kategorileri buraya da gönderiyoruz (Düzenleme için) */}
                   <ProductActions product={product} categories={categories} />
                 </TableCell>
               </TableRow>
