@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { toggleRestaurantStatus } from "@/actions/super-admin-actions";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
 
-// BU SATIR ÇOK ÖNEMLİ: Sayfanın her yenilendiğinde sunucuda canlı çalışmasını sağlar.
+// BU SATIR ÇOK KRİTİK! 
+// Sayfanın her girişinde sıfırdan çalışmasını (Cache tutmamasını) sağlar.
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const prisma = new PrismaClient();
 
@@ -22,22 +24,28 @@ export default async function SuperAdminPage() {
     return <div className="p-10 text-red-600 font-bold">Yetkisiz Erişim! 🚫</div>;
   }
 
-  // --- OTOMATİK KONTROL MEKANİZMASI (GÜÇLENDİRİLDİ) ---
   const now = new Date();
-  
-  // 1. Süresi dolmuş ama hala 'Aktif' görünenleri bul ve kapat
+
+  // --- OTOMATİK PASİFE ALMA MANTIĞI ---
+  // 1. Abonelik süresi geçmiş OLANLAR
+  // 2. VEYA Abonelik süresi hiç girilmemiş (null) OLANLAR
+  // 3. VE Şu an hala "Aktif" görünenler
   await prisma.restaurant.updateMany({
     where: {
-      subscriptionEnds: { lt: now }, // Bitiş tarihi 'şuan'dan küçük olanlar
-      isActive: true, // Ve hala aktif olanlar
+      isActive: true, // Sadece aktif olanlara bak
+      OR: [
+        { subscriptionEnds: { lt: now } }, // Süresi dolmuşlar
+        { subscriptionEnds: null }         // Süresi hiç olmayanlar
+      ]
     },
     data: {
       isActive: false,
       isSubscribed: false
     }
   });
-  // ----------------------------------------------------
+  // -------------------------------------
 
+  // Güncelleme bittikten sonra verileri çekiyoruz
   const restaurants = await prisma.restaurant.findMany({
     include: { user: true },
     orderBy: { createdAt: 'desc' }
@@ -64,7 +72,6 @@ export default async function SuperAdminPage() {
                 <TableCell className="font-medium">{restaurant.name}</TableCell>
                 <TableCell className="text-xs text-gray-500">{restaurant.user.email}</TableCell>
                 
-                {/* ABONELİK YÖNETİMİ SÜTUNU */}
                 <TableCell>
                     <SubscriptionManager 
                         restaurantId={restaurant.id} 
