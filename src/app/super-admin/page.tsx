@@ -10,7 +10,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toggleRestaurantStatus } from "@/actions/super-admin-actions";
-import SubscriptionManager from "@/components/admin/SubscriptionManager"; // YENİ BİLEŞEN
+import SubscriptionManager from "@/components/admin/SubscriptionManager";
+
+// BU SATIR ÇOK ÖNEMLİ: Sayfanın her yenilendiğinde sunucuda canlı çalışmasını sağlar.
+export const dynamic = 'force-dynamic';
 
 const prisma = new PrismaClient();
 
@@ -19,20 +22,21 @@ export default async function SuperAdminPage() {
     return <div className="p-10 text-red-600 font-bold">Yetkisiz Erişim! 🚫</div>;
   }
 
-  // --- OTOMATİK KONTROL MEKANİZMASI ---
-  // Sayfa her açıldığında süresi bitmiş olanları bul ve pasife çek
+  // --- OTOMATİK KONTROL MEKANİZMASI (GÜÇLENDİRİLDİ) ---
   const now = new Date();
+  
+  // 1. Süresi dolmuş ama hala 'Aktif' görünenleri bul ve kapat
   await prisma.restaurant.updateMany({
     where: {
-      subscriptionEnds: { lt: now }, // Süresi geçmiş olanlar
-      isActive: true, // Ama hala aktif görünenler
+      subscriptionEnds: { lt: now }, // Bitiş tarihi 'şuan'dan küçük olanlar
+      isActive: true, // Ve hala aktif olanlar
     },
     data: {
       isActive: false,
       isSubscribed: false
     }
   });
-  // ------------------------------------
+  // ----------------------------------------------------
 
   const restaurants = await prisma.restaurant.findMany({
     include: { user: true },
