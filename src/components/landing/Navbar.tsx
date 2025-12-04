@@ -59,10 +59,16 @@ export default function Navbar() {
           </SignedOut>
 
           <SignedIn>
+            {/* PANELE GİT BUTONU (DÜZELTİLDİ) */}
             <Link href="/admin">
               <Button 
                 variant="outline" 
-                className="text-gray-700 border-gray-300 hover:bg-gray-50 h-10 md:h-14 px-4 md:px-8 text-sm md:text-lg rounded-full font-medium"
+                // BURASI KRİTİK: 'dark:' sınıfları ile rengi zorla BEYAZ/GRİ yaptık.
+                // Artık karanlık modda siyahlaşıp kaybolmayacak.
+                className="
+                  text-gray-700 border-gray-300 hover:bg-gray-50 
+                  dark:bg-white dark:text-gray-700 dark:border-gray-300 dark:hover:bg-gray-50
+                  h-10 md:h-14 px-4 md:px-8 text-sm md:text-lg rounded-full font-medium"
               >
                 Panele Git
               </Button>
