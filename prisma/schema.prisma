@@ -12,7 +12,7 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String?  // Clerk ile giriş yapıldığı için şifre boş olabilir, opsiyonel (?) yapabiliriz veya boş string atarız.
+  password  String?  
   role      String   @default("RESTAURANT_OWNER")
   createdAt DateTime @default(now())
   
@@ -34,10 +34,10 @@ model Restaurant {
   twitterUrl   String?
   websiteUrl   String?
 
-  // --- ABONELİK SİSTEMİ (YENİ EKLENENLER) ---
-  isSubscribed     Boolean   @default(false) // Abone mi?
-  subscriptionEnds DateTime?                 // Abonelik ne zaman bitiyor?
-  payments         Payment[]                 // Ödeme geçmişi
+  // --- ABONELİK SİSTEMİ ---
+  isSubscribed     Boolean   @default(false) 
+  subscriptionEnds DateTime?                 
+  payments         Payment[]                 
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -46,12 +46,11 @@ model Restaurant {
   categories   Category[]
 }
 
-// --- YENİ MODEL: Ödeme Kayıtları ---
 model Payment {
   id           String     @id @default(cuid())
-  merchantOid  String     @unique // PayTR Sipariş ID'si (Benzersiz olmalı)
-  amount       Decimal    // Ödenen tutar
-  status       String     // 'success', 'failed', 'pending'
+  merchantOid  String     @unique 
+  amount       Decimal    
+  status       String     
   createdAt    DateTime   @default(now())
   
   restaurantId String
@@ -61,7 +60,7 @@ model Payment {
 model Category {
   id           String     @id @default(cuid())
   name         String
-  imageUrl     String?
+  imageUrl     String?    
   order        Int        @default(0)
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
@@ -81,6 +80,19 @@ model Product {
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
 
+  // --- YENİ: Ürün Varyasyonları (Porsiyonlar) ---
+  variants    ProductVariant[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// --- YENİ MODEL: Ürün Varyasyonları ---
+model ProductVariant {
+  id        String   @id @default(cuid())
+  name      String   // Örn: "1.5 Porsiyon", "200gr"
+  price     Decimal  // Örn: 300
+  
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
