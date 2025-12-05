@@ -17,75 +17,101 @@ export default async function MenuPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { cat } = await searchParams;
 
+  // 1. Veritabanından restoranı çek
   const restaurant: any = await prisma.restaurant.findUnique({
-    where: { slug: slug, isActive: true },
+    where: { 
+      slug: slug,
+      isActive: true 
+    },
     include: {
       categories: {
-        orderBy: { createdAt: 'asc' },
         include: {
           products: {
-            where: { isAvailable: true },
-            orderBy: { createdAt: 'desc' }
+            where: { isAvailable: true }, 
+            orderBy: { createdAt: 'desc' },
+            include: { variants: true } // Varyasyonları da çekiyoruz
           }
-        }
+        },
+        orderBy: { order: 'asc' } 
       }
     }
   });
 
-  if (!restaurant) return notFound();
+  if (!restaurant) {
+    return notFound();
+  }
 
+  // Hizmet dışı kontrolü
+  if (!restaurant.isActive) {
+     return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center p-4">
+            <h1 className="text-2xl font-bold text-gray-800">Hizmet Dışı</h1>
+            <p className="text-gray-600">Bu işletme şu an hizmet vermemektedir.</p>
+        </div>
+     )
+  }
+
+  // Aktif kategoriyi bul
   const activeCategory = cat 
     ? restaurant.categories.find((c: any) => c.id === cat)
     : null;
 
+  // İçinde ürün olmayan kategorileri filtrele
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
-    // Arka plan rengini düzelttik: Dark modda tam siyah değil, çok koyu gri (daha modern)
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24">
       
-      {/* HEADER */}
+      {/* --- HEADER --- */}
       <header className="relative">
-        <div className="relative h-48 md:h-64 w-full bg-gray-200 dark:bg-gray-900 overflow-hidden rounded-b-[2.5rem] shadow-sm z-10">
+        <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
           {restaurant.coverUrl ? (
-            <Image src={restaurant.coverUrl} alt="Kapak" fill className="object-cover" priority />
+            <Image
+              src={restaurant.coverUrl}
+              alt="Kapak Görseli"
+              fill
+              className="object-cover"
+              priority
+            />
           ) : (
-             <div className="w-full h-full bg-gradient-to-r from-slate-900 to-slate-800" />
+             <div className="w-full h-full bg-gradient-to-r from-blue-900 to-slate-900 opacity-90" />
           )}
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/40" />
           
           {activeCategory && (
-            <Link 
-              href={`/${slug}`} 
-              className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-md p-2.5 rounded-full text-white hover:bg-white/20 transition border border-white/10"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
+             <Link 
+               href={`/${slug}`} 
+               className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-md p-2.5 rounded-full text-white hover:bg-white/20 transition border border-white/10"
+             >
+               <ArrowLeft className="w-6 h-6" />
+             </Link>
           )}
         </div>
 
-        {/* Logo */}
-        <div className="relative -mt-14 z-20 text-center px-4">
-             <div className="relative w-28 h-28 mx-auto rounded-3xl border-4 border-white dark:border-[#0a0a0a] overflow-hidden bg-white shadow-2xl">
+        <div className="container mx-auto px-4 relative -mt-20 z-10 text-center">
+             <div className="relative w-32 h-32 mx-auto rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white shadow-xl">
                 {restaurant.logoUrl ? (
                     <Image src={restaurant.logoUrl} alt="Logo" fill className="object-cover"/>
                 ) : (
-                     <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-4xl font-bold">
-                        {restaurant.name.substring(0,1)}
+                     <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 font-bold text-4xl">
+                        {restaurant.name.substring(0,1).toUpperCase()}
                      </div>
                 )}
             </div>
+            
             {!activeCategory && (
               <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h1 className="text-2xl font-bold tracking-tight">{restaurant.name}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">Hoş geldiniz 👋</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{restaurant.name}</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm max-w-md mx-auto">
+                  Hoş geldiniz! Lezzetli menümüzü aşağıdan inceleyebilirsiniz.
+                </p>
               </div>
             )}
         </div>
       </header>
 
-      {/* İÇERİK */}
-      <main className="container mx-auto px-4 mt-8">
+      {/* --- ANA İÇERİK --- */}
+      <main className="container mx-auto px-4 mt-10">
         
         {activeCategory ? (
           // --- ÜRÜN LİSTESİ ---
@@ -94,7 +120,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
               <span className="w-1 h-8 bg-blue-600 rounded-full inline-block"></span>
               {activeCategory.name}
             </h2>
-            {/* Ürünler arası boşluk ve grid yapısı */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeCategory.products.map((product: any) => (
                 <ProductCard
@@ -103,6 +128,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                   description={product.description}
                   price={Number(product.price)}
                   imageUrl={product.imageUrl}
+                  variants={product.variants} // Varyasyonları gönderiyoruz
                 />
               ))}
             </div>
@@ -112,10 +138,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
           // --- KATEGORİ LİSTESİ ---
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
             {nonEmptyCategories.map((category: any) => {
-              // MANTIK DÜZELTİLDİ:
-              // 1. Önce kategori resmine bak.
-              // 2. Yoksa ilk ürünün resmine bak.
-              // 3. O da yoksa boş.
+              // GÖRSEL MANTIĞI: Kategori resmi > İlk Ürün resmi > Varsayılan
               const catImage = category.imageUrl && category.imageUrl !== "" 
                 ? category.imageUrl 
                 : category.products[0]?.imageUrl;
@@ -124,7 +147,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 <Link 
                   href={`/${slug}?cat=${category.id}`} 
                   key={category.id}
-                  className="group relative h-36 sm:h-44 rounded-3xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-lg border border-transparent dark:border-gray-800"
+                  className="group relative h-40 md:h-56 rounded-2xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-xl border border-transparent dark:border-gray-800"
                 >
                   {catImage ? (
                      <Image
@@ -137,31 +160,47 @@ export default async function MenuPage({ params, searchParams }: Props) {
                       <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
                   )}
                   
-                  {/* Modern Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
-                    <h2 className="text-white text-lg font-bold leading-tight">{category.name}</h2>
-                    <p className="text-white/70 text-xs mt-1">{category.products.length} Ürün</p>
+                    <h2 className="text-white text-lg md:text-xl font-bold leading-tight text-center">{category.name}</h2>
+                    <p className="text-white/70 text-xs mt-1 text-center">{category.products.length} Ürün</p>
                   </div>
                 </Link>
               )
             })}
+            
+            {nonEmptyCategories.length === 0 && (
+                <div className="col-span-full text-center py-20 text-gray-500">
+                    Menü henüz hazırlanmamış.
+                </div>
+            )}
           </div>
         )}
       </main>
 
-      {/* FOOTER */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50">
+      {/* --- FOOTER --- */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
         <div className="container mx-auto flex items-center justify-between max-w-md">
+          
           <div className="flex gap-6 items-center">
-             {/* Ana Sayfa Butonu */}
-             <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                <ShoppingBag size={20} />
+             <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition group">
+                <div className="p-1 rounded-full group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition">
+                    <ShoppingBag size={20} />
+                </div>
              </Link>
 
-             {/* Sosyal Medya */}
              {restaurant.instagramUrl && (
                  <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500 transition">
                     <Instagram size={20} />
+                 </a>
+             )}
+             {restaurant.facebookUrl && (
+                 <a href={restaurant.facebookUrl} target="_blank" className="text-gray-400 hover:text-blue-600 transition">
+                    <Facebook size={20} />
+                 </a>
+             )}
+             {restaurant.twitterUrl && (
+                 <a href={restaurant.twitterUrl} target="_blank" className="text-gray-400 hover:text-black dark:hover:text-white transition">
+                    <Twitter size={20} />
                  </a>
              )}
              {restaurant.websiteUrl && (
