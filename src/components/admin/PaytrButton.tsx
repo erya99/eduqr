@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { startSubscription } from "@/actions/payment-actions";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function PaytrButton() {
   const [loading, setLoading] = useState(false);
@@ -10,29 +10,27 @@ export default function PaytrButton() {
   const handlePayment = async () => {
     setLoading(true);
     try {
-      const data = await startSubscription();
+      // Server action'ı çağır
+      const result = await startSubscription();
       
-      // PayTR için form oluşturup post etmemiz lazım (Iframe açılması için)
-      const form = document.createElement("form");
-      form.action = "https://www.paytr.com/odeme/guvenli/" + data.paytr_token;
-      form.method = "POST";
-      form.target = "_self"; // Veya _blank yeni sekme
+      if (result.status === 'success' && result.iframe_token) {
+        // İframe açmak veya sayfaya yönlendirmek için form oluştur
+        const form = document.createElement("form");
+        // URL'ye dikkat: Token artık doğrulandı ve buraya eklenmeye hazır.
+        form.action = "https://www.paytr.com/odeme/guvenli/" + result.iframe_token;
+        form.method = "POST";
+        form.target = "_self"; // Aynı sayfada açılsın
 
-      // Gerekli alanları ekle
-      for (const [key, value] of Object.entries(data)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value as string;
-        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        alert("Ödeme başlatılamadı: Token alınamadı.");
       }
 
-      document.body.appendChild(form);
-      form.submit();
-
     } catch (error) {
-      alert("Ödeme başlatılamadı.");
+      alert("Bir hata oluştu. Lütfen konsolu kontrol edin.");
       console.error(error);
+    } finally {
       setLoading(false);
     }
   };
