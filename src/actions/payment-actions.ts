@@ -23,7 +23,7 @@ export async function startSubscription() {
   const merchant_salt = process.env.PAYTR_MERCHANT_SALT!;
   
   const price = 300 * 100; // 300 TL (Kuruş cinsinden)
-  const merchant_oid = "SIP_" + uuidv4().replace(/-/g, "").substring(0, 10);
+  const merchant_oid = "SIP" + uuidv4().replace(/-/g, "").substring(0, 10);
   const email = user.emailAddresses[0].emailAddress;
   const user_ip = "85.85.85.85"; // Test için sabit IP
   const user_name = user.firstName || "Kullanıcı";
