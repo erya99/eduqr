@@ -3,7 +3,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 import { getPaytrToken } from "@/lib/paytr";
-import { v4 as uuidv4 } from "uuid"; 
+import { v4 as uuidv4 } from "uuid";
 
 const prisma = new PrismaClient();
 
@@ -17,28 +17,42 @@ export async function startSubscription() {
 
   if (!restaurant) throw new Error("Restoran bulunamadı.");
 
-  const price = 300 * 100; 
+  const price = 300 * 100;
   const merchant_oid = "SIP_" + uuidv4().replace(/-/g, "").substring(0, 10);
 
   const email = user.emailAddresses[0].emailAddress;
-  const user_ip = "127.0.0.1"; 
+  
+  // --- DEĞİŞİKLİK 1: IP Adresini Rastgele Bir Gerçek IP Yapalım ---
+  // (PayTR localhost IP'sini bazen reddeder, test için bunu kullan)
+  const user_ip = "85.85.85.85"; 
+  
   const user_name = user.firstName || "Kullanıcı";
   const user_address = "Dijital Teslimat";
-  const user_phone = "05555555555"; 
+  const user_phone = "05555555555";
 
   const user_basket = [["1 Aylık EduQR Aboneliği", "300.00", 1]];
 
-  // --- DÜZELTME 1: getPaytrToken fonksiyonuna gönderilen son parametre 1 oldu ---
+  // --- DEBUG İÇİN LOGLAMA (PM2 loglarında göreceğiz) ---
+  console.log("PAYTR DEBUG BAŞLIYOR:");
+  console.log("ID:", process.env.PAYTR_MERCHANT_ID);
+  console.log("KEY (ilk 3 hane):", process.env.PAYTR_MERCHANT_KEY?.substring(0,3));
+  console.log("SALT (ilk 3 hane):", process.env.PAYTR_MERCHANT_SALT?.substring(0,3));
+  console.log("IP:", user_ip);
+  console.log("OID:", merchant_oid);
+  console.log("Sepet:", JSON.stringify(user_basket));
+  console.log("Fiyat:", price);
+  // -----------------------------------------------------
+
   const token = getPaytrToken(
     user_ip,
     merchant_oid,
     email,
     price,
     user_basket,
-    0, 
-    0, 
+    0,
+    0,
     "TL",
-    1 // <--- BURASI 1 OLMALI (TEST MODU)
+    1 // Test Modu: 1
   );
 
   await prisma.payment.create({
@@ -64,10 +78,10 @@ export async function startSubscription() {
     user_name,
     user_address,
     user_phone,
-    merchant_ok_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`, // Callback rotasını düzelttik (Admin paneli değil API olmalı)
+    merchant_ok_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`,
     merchant_fail_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/payment/fail`,
     timeout_limit: 30,
     currency: "TL",
-    test_mode: 1 // <--- BURASI DA 1 OLMALI (TEST MODU)
+    test_mode: 1
   };
 }
