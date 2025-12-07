@@ -45,7 +45,7 @@ export default async function SubscriptionPage() {
         <CardFooter>
             {isSubscribed ? (
                 <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
-                    Aboneliğiniz Aktif (Bitiş: {restaurant?.subscriptionEnds?.toLocaleDateString()})
+                    Aboneliğiniz Aktif (Bitiş: {restaurant?.subscriptionEnds?.toLocaleDateString('tr-TR')})
                 </Button>
             ) : (
                 // Ödeme Butonu Bileşeni
