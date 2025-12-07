@@ -15,9 +15,10 @@ export function getPaytrToken(
   const merchant_key = process.env.PAYTR_MERCHANT_KEY!;
   const merchant_salt = process.env.PAYTR_MERCHANT_SALT!;
 
-  // DEĞİŞİKLİK BURADA 👇
+  // --- DÜZELTME BAŞLANGICI ---
   // Eğer user_basket zaten string (Base64) ise aynen kullan, değilse JSON'a çevir.
   const basketStr = typeof user_basket === "string" ? user_basket : JSON.stringify(user_basket);
+  // --- DÜZELTME BİTİŞİ ---
 
   const concatStr =
     merchant_id +
