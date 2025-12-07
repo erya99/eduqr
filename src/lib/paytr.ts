@@ -15,8 +15,10 @@ export function getPaytrToken(
   const merchant_key = process.env.PAYTR_MERCHANT_KEY!;
   const merchant_salt = process.env.PAYTR_MERCHANT_SALT!;
 
-  // PayTR'ın istediği formatta birleştirme
-  const basketStr = JSON.stringify(user_basket);
+  // DEĞİŞİKLİK BURADA 👇
+  // Eğer user_basket zaten string (Base64) ise aynen kullan, değilse JSON'a çevir.
+  const basketStr = typeof user_basket === "string" ? user_basket : JSON.stringify(user_basket);
+
   const concatStr =
     merchant_id +
     user_ip +
@@ -29,7 +31,6 @@ export function getPaytrToken(
     currency +
     test_mode.toString();
 
-  // HMAC SHA256 ile şifreleme
   const token = crypto
     .createHmac("sha256", merchant_key)
     .update(concatStr + merchant_salt)
