@@ -72,7 +72,7 @@ export async function startSubscription() {
   formData.append("email", email);
   formData.append("payment_amount", price.toString());
   formData.append("paytr_token", paytr_token); // Hesapladığımız hash'i gönderiyoruz
-  formData.append("user_basket", user_basket_json);
+  formData.append("user_basket", Buffer.from(user_basket_json).toString("base64"));
   formData.append("debug_on", debug_on);
   formData.append("no_installment", no_installment);
   formData.append("max_installment", max_installment);
