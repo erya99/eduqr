@@ -80,8 +80,8 @@ export async function startSubscription() {
   formData.append("user_name", user_name);
   formData.append("user_address", user_address);
   formData.append("user_phone", user_phone);
-  formData.append("merchant_ok_url", `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`);
-  formData.append("merchant_fail_url", `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`);
+  formData.append("merchant_ok_url", `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings`);
+  formData.append("merchant_fail_url", `${process.env.NEXT_PUBLIC_APP_URL}/admin/subscription`);
   formData.append("timeout_limit", "30");
   formData.append("currency", currency);
   formData.append("test_mode", test_mode);
