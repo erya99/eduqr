@@ -35,7 +35,7 @@ export async function startSubscription(billingData: {
   const user_phone = billingData.phone;
   
   const currency = "TL";
-  const test_mode = "0"; // Canlı moddasın
+  const test_mode = "1"; // Canlı moddasın
   const no_installment = "0";
   const max_installment = "0";
   const debug_on = "1";
