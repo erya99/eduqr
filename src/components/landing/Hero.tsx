@@ -32,7 +32,7 @@ export default function Hero() {
               <Link href="/sign-up">
                 {/* Buton yazılarını da zorluyoruz */}
                 <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white dark:text-white shadow-lg shadow-blue-200 border-0">
-                  15 Gün Ücretsiz Dene
+                  Hemen Abone Ol
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
