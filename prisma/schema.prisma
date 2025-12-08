@@ -5,9 +5,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // Veya mysql/sqlite
   url      = env("DATABASE_URL")
 }
+
+// --- KULLANICI & RESTORAN ---
 
 model User {
   id        String   @id @default(cuid())
@@ -39,6 +41,10 @@ model Restaurant {
   subscriptionEnds DateTime?                 
   payments         Payment[]                 
 
+  // --- FATURA SİSTEMİ (YENİ EKLENDİ) ---
+  tempInvoiceRequests TempInvoiceRequest[] // Bekleyen fatura talepleri
+  invoiceLogs         InvoiceLog[]         // Kesilen fatura logları
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -56,6 +62,8 @@ model Payment {
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 }
+
+// --- MENÜ YÖNETİMİ ---
 
 model Category {
   id           String     @id @default(cuid())
@@ -80,14 +88,13 @@ model Product {
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
 
-  // --- YENİ: Ürün Varyasyonları (Porsiyonlar) ---
+  // Ürün Varyasyonları (Porsiyonlar)
   variants    ProductVariant[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-// --- YENİ MODEL: Ürün Varyasyonları ---
 model ProductVariant {
   id        String   @id @default(cuid())
   name      String   // Örn: "1.5 Porsiyon", "200gr"
@@ -95,4 +102,38 @@ model ProductVariant {
   
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// --- FATURA YÖNETİMİ (KVKK UYUMLU) ---
+
+// 1. Hassas verilerin GEÇİCİ olarak tutulduğu tablo.
+// Fatura kesildikten sonra bu satır SİLİNECEK.
+model TempInvoiceRequest {
+  id           String   @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  
+  // Hassas Veriler (Sadece işlem süresince tutulur)
+  legalName    String   // Ad Soyad veya Şirket Ünvanı
+  taxNumber    String   // TC veya Vergi No
+  taxOffice    String?  // Vergi Dairesi
+  address      String   // Açık Adres
+  amount       Decimal  // Tutar
+  
+  createdAt    DateTime @default(now())
+}
+
+// 2. Kalıcı ve GÜVENLİ log tablosu.
+// Burada sadece "Fatura kesildi" izi kalır, kişisel veri maskelenir.
+model InvoiceLog {
+  id           String   @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  
+  // Maskelenmiş/Anonim Veriler (Örn: Ahm** Yıl***)
+  maskedName   String   
+  maskedTaxNo  String   
+  amount       Decimal
+  
+  issuedAt     DateTime @default(now()) // Faturanın kesildiği/işlendiği an
 }

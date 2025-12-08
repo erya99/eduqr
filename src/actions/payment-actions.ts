@@ -7,7 +7,12 @@ import { v4 as uuidv4 } from "uuid";
 
 const prisma = new PrismaClient();
 
-export async function startSubscription() {
+// Parametre olarak fatura bilgilerini alıyoruz
+export async function startSubscription(billingData: {
+  name: string;
+  address: string;
+  phone: string;
+}) {
   const user = await currentUser();
   if (!user) throw new Error("Giriş yapmalısınız.");
 
@@ -19,33 +24,34 @@ export async function startSubscription() {
 
   // 1. Ödeme Parametrelerini Hazırla
   const merchant_id = process.env.PAYTR_MERCHANT_ID!;
-  const price = 300 * 100; // 300 TL (Kuruş cinsinden)
-  const merchant_oid = "SIP" + uuidv4().replace(/-/g, "").substring(0, 10); // Alt tire YOK
+  const price = 300 * 100; 
+  const merchant_oid = "SIP" + uuidv4().replace(/-/g, "").substring(0, 10);
   const email = user.emailAddresses[0].emailAddress;
   const user_ip = "85.85.85.85";
-  const user_name = user.firstName || "Kullanıcı";
-  const user_address = "Dijital Teslimat";
-  const user_phone = "05555555555";
+  
+  // Gelen gerçek verileri kullanıyoruz
+  const user_name = billingData.name;
+  const user_address = billingData.address;
+  const user_phone = billingData.phone;
+  
   const currency = "TL";
-  const test_mode = "0";
+  const test_mode = "0"; // Canlı moddasın
   const no_installment = "0";
   const max_installment = "0";
   const debug_on = "1";
 
-  // --- SEPET HAZIRLIĞI (KRİTİK BÖLÜM) ---
+  // --- SEPET HAZIRLIĞI ---
   const user_basket = [["1 Aylık EduQR Aboneliği", "300.00", 1]];
   const user_basket_json = JSON.stringify(user_basket);
-  // Türkçe karakter sorunu olmasın diye Base64'e çeviriyoruz
   const user_basket_base64 = Buffer.from(user_basket_json).toString("base64");
 
-  // 2. Hash (PayTR Token) Hesapla
-  // BURADA DİKKAT: Artık JSON değil, BASE64 gönderiyoruz
+  // 2. Hash Hesapla (Base64 ile)
   const paytr_token = getPaytrToken(
     user_ip,
     merchant_oid,
     email,
     price,
-    user_basket_base64, // <-- Base64 gönderildi
+    user_basket_base64,
     parseInt(no_installment),
     parseInt(max_installment),
     currency,
@@ -70,10 +76,7 @@ export async function startSubscription() {
   formData.append("email", email);
   formData.append("payment_amount", price.toString());
   formData.append("paytr_token", paytr_token);
-  
-  // BURADA DİKKAT: API'ye de aynı BASE64 veriyi gönderiyoruz
-  formData.append("user_basket", user_basket_base64); // <-- Base64 gönderildi
-  
+  formData.append("user_basket", user_basket_base64);
   formData.append("debug_on", debug_on);
   formData.append("no_installment", no_installment);
   formData.append("max_installment", max_installment);
@@ -89,9 +92,7 @@ export async function startSubscription() {
   try {
     const response = await fetch("https://www.paytr.com/odeme/api/get-token", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: formData,
     });
 
@@ -102,10 +103,7 @@ export async function startSubscription() {
       throw new Error("PayTR Token Alınamadı: " + data.reason);
     }
 
-    return {
-      iframe_token: data.token, 
-      status: 'success'
-    };
+    return { iframe_token: data.token, status: 'success' };
 
   } catch (error) {
     console.error("PayTR İstek Hatası:", error);

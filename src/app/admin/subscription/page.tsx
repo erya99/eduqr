@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
-import PaytrButton from "@/components/admin/PaytrButton"; // Birazdan yapacağız
+import PaytrButton from "@/components/admin/PaytrButton"; 
 import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -9,8 +9,10 @@ const prisma = new PrismaClient();
 
 export default async function SubscriptionPage() {
   const user = await currentUser();
+  // Kullanıcının restoranını buluyoruz
   const restaurant = await prisma.restaurant.findFirst({ where: { userId: user?.id } });
 
+  // Abonelik durumu kontrolü
   const isSubscribed = restaurant?.isSubscribed && restaurant.subscriptionEnds && restaurant.subscriptionEnds > new Date();
 
   return (
@@ -48,8 +50,8 @@ export default async function SubscriptionPage() {
                     Aboneliğiniz Aktif (Bitiş: {restaurant?.subscriptionEnds?.toLocaleDateString('tr-TR')})
                 </Button>
             ) : (
-                // Ödeme Butonu Bileşeni
-                <PaytrButton />
+                // DÜZELTME BURADA YAPILDI: restaurantId prop olarak gönderiliyor
+                <PaytrButton restaurantId={restaurant?.id} />
             )}
         </CardFooter>
       </Card>
