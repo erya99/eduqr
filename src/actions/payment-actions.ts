@@ -27,7 +27,7 @@ export async function startSubscription() {
   const user_address = "Dijital Teslimat";
   const user_phone = "05555555555";
   const currency = "TL";
-  const test_mode = "1";
+  const test_mode = "0";
   const no_installment = "0";
   const max_installment = "0";
   const debug_on = "1";
