@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="py-16 text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-6">İşletmenizi Dijitale Taşıyın</h2>
         <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-          Binlerce restoranın tercih ettiği QR menü sistemine hemen ücretsiz katılın.
+          Binlerce restoranın tercih ettiği QR menü sistemine hemen katılın.
         </p>
         <Link href="/sign-up">
             <Button size="lg" className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-full border-0">

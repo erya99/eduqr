@@ -55,7 +55,7 @@ export default function Navbar() {
               </Link>
               <Link href="/sign-up">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white border-0 px-9 text-lg h-14 rounded-full shadow-md font-semibold transition-transform hover:scale-105">
-                  Ücretsiz Dene
+                  Hemen Dene
                 </Button>
               </Link>
             </SignedOut>
@@ -97,7 +97,7 @@ export default function Navbar() {
                         <Button variant="outline" className="w-full justify-center h-12 text-base">Giriş Yap</Button>
                     </Link>
                     <Link href="/sign-up" onClick={() => setIsOpen(false)}>
-                        <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white h-12 text-base">Ücretsiz Dene</Button>
+                        <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white h-12 text-base">Hemen Dene</Button>
                     </Link>
                 </SignedOut>
                 <SignedIn>
