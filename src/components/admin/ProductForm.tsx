@@ -23,12 +23,11 @@ export default function ProductForm({ product, categories = [] }: { product?: an
   // Resim State'i
   const [imageUrl, setImageUrl] = useState(product?.imageUrl || "");
 
-  // Varyasyon State'i (Veritabanından geliyorsa doldur, yoksa boş)
+  // Varyasyon State'i
   const [variants, setVariants] = useState<{name: string, price: string}[]>(
     product?.variants?.map((v: any) => ({ name: v.name, price: v.price.toString() })) || []
   );
 
-  // Yükleme durumu (Buton için)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- VARYASYON FONKSİYONLARI ---
@@ -57,7 +56,6 @@ export default function ProductForm({ product, categories = [] }: { product?: an
     <form 
       action={async (formData) => {
         setIsSubmitting(true);
-        // Manuel state'leri forma ekle
         if (imageUrl) formData.set("image", imageUrl);
         if (variants.length > 0) formData.set("variants", JSON.stringify(variants));
         
@@ -97,7 +95,7 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         <p className="text-xs text-gray-500 dark:text-gray-400">Varyasyon seçilmezse bu fiyat geçerlidir.</p>
       </div>
 
-      {/* --- VARYASYON YÖNETİMİ (PORSİYONLAR) --- */}
+      {/* --- VARYASYON YÖNETİMİ --- */}
       <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3">
         <div className="flex justify-between items-center">
             <Label className="font-semibold dark:text-gray-200">Porsiyon / Seçenekler (İsteğe Bağlı)</Label>
@@ -146,28 +144,40 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         ))}
       </div>
 
-      {/* --- KATEGORİ --- */}
-      {!product && (
-        <div className="grid gap-2">
-          <Label className="dark:text-gray-200">Kategori</Label>
-          <Select name="category" required defaultValue={product?.category?.name}>
-            <SelectTrigger className="dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-              <SelectValue placeholder="Kategori seçin" />
-            </SelectTrigger>
-            <SelectContent className="dark:bg-gray-900 dark:border-gray-700">
-              {categories.length === 0 ? (
-                 <div className="p-2 text-sm text-gray-500 text-center">Önce kategori ekleyin</div>
-              ) : (
-                  categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.name} className="dark:text-white dark:focus:bg-gray-800">
-                        {cat.name}
-                    </SelectItem>
-                  ))
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+      {/* --- KATEGORİ (ARTIK HER ZAMAN GÖRÜNÜR) --- */}
+      <div className="grid gap-2">
+        <Label className="dark:text-gray-200">Kategori</Label>
+        <Select name="category" required defaultValue={product?.category?.name}>
+          <SelectTrigger className="dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+            <SelectValue placeholder="Kategori seçin" />
+          </SelectTrigger>
+          <SelectContent className="dark:bg-gray-900 dark:border-gray-700">
+            {categories.length === 0 ? (
+                <div className="p-2 text-sm text-gray-500 text-center">Önce kategori ekleyin</div>
+            ) : (
+                categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name} className="dark:text-white dark:focus:bg-gray-800">
+                      {cat.name}
+                  </SelectItem>
+                ))
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* --- DURUM (AKTİF/PASİF) - YENİ EKLENDİ --- */}
+      <div className="grid gap-2">
+        <Label className="dark:text-gray-200">Ürün Durumu</Label>
+        <Select name="isAvailable" defaultValue={product?.isAvailable === false ? "false" : "true"}>
+          <SelectTrigger className="dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+            <SelectValue placeholder="Durum seçin" />
+          </SelectTrigger>
+          <SelectContent className="dark:bg-gray-900 dark:border-gray-700">
+            <SelectItem value="true">Aktif (Satışta)</SelectItem>
+            <SelectItem value="false">Pasif (Menüde Gizli)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* --- AÇIKLAMA --- */}
       <div className="grid gap-2">
