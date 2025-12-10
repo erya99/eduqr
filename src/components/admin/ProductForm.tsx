@@ -16,16 +16,20 @@ import { useState } from "react";
 import { Plus, Trash2, X, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
-import { toast } from "sonner"; // Bildirim için
+import { toast } from "sonner";
 
 export default function ProductForm({ product, categories = [] }: { product?: any, categories?: any[] }) {
-  // Hangi fonksiyonun çalışacağını belirle
   const action = product ? updateProduct : createProduct;
   
   const [imageUrl, setImageUrl] = useState(product?.imageUrl || "");
   const [variants, setVariants] = useState<{name: string, price: string}[]>(
     product?.variants?.map((v: any) => ({ name: v.name, price: v.price.toString() })) || []
   );
+  
+  // --- YENİ: Durum için State ---
+  const [isAvailable, setIsAvailable] = useState(product?.isAvailable === false ? "false" : "true");
+  // -----------------------------
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- VARYASYON FONKSİYONLARI ---
@@ -53,16 +57,14 @@ export default function ProductForm({ product, categories = [] }: { product?: an
             if (imageUrl) formData.set("image", imageUrl);
             if (variants.length > 0) formData.set("variants", JSON.stringify(variants));
             
-            // Server Action'ı çağır
+            // Gizli input yerine Select değerini manuel de ekleyebiliriz ama 
+            // aşağıda hidden input kullandığımız için formData otomatik alacaktır.
+            
             await action(formData);
-            
             toast.success(product ? "Ürün güncellendi" : "Ürün oluşturuldu");
-            
-            // Eğer yeni ürün ekleniyorsa formu temizlemek isteyebilirsiniz (opsiyonel)
-            
         } catch (error) {
             console.error("Form Hatası:", error);
-            toast.error("Bir hata oluştu. Lütfen tüm alanları kontrol edin.");
+            toast.error("Bir hata oluştu.");
         } finally {
             setIsSubmitting(false);
         }
@@ -78,7 +80,6 @@ export default function ProductForm({ product, categories = [] }: { product?: an
           id="name" 
           name="name" 
           defaultValue={product?.name} 
-          placeholder="Örn: Cheese Burger" 
           required 
           className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
         />
@@ -99,7 +100,7 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         />
       </div>
 
-      {/* --- KATEGORİ SEÇİMİ --- */}
+      {/* --- KATEGORİ --- */}
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Kategori</Label>
         <Select name="category" required defaultValue={product?.category?.name}>
@@ -120,10 +121,17 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </Select>
       </div>
 
-      {/* --- ÜRÜN DURUMU (AKTİF/PASİF) --- */}
+      {/* --- ÜRÜN DURUMU (GÜNCELLENMİŞ GARANTİ YÖNTEM) --- */}
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Ürün Durumu</Label>
-        <Select name="isAvailable" defaultValue={product?.isAvailable === false ? "false" : "true"}>
+        
+        {/* State'i hidden input ile forma gömüyoruz (En güvenli yöntem) */}
+        <input type="hidden" name="isAvailable" value={isAvailable} />
+        
+        <Select 
+            value={isAvailable} 
+            onValueChange={setIsAvailable} // Değişikliği state'e yaz
+        >
           <SelectTrigger className="dark:bg-gray-900 dark:border-gray-700 dark:text-white">
             <SelectValue placeholder="Durum seçin" />
           </SelectTrigger>

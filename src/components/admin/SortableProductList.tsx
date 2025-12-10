@@ -17,7 +17,6 @@ interface SortableProductListProps {
 export default function SortableProductList({ products: initialProducts, categories }: SortableProductListProps) {
   const [products, setProducts] = useState(initialProducts);
 
-  // Veritabanından yeni veri geldiğinde state'i güncelle
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
@@ -29,10 +28,8 @@ export default function SortableProductList({ products: initialProducts, categor
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // 1. Arayüzü hemen güncelle (Hızlı hissettirir)
     setProducts(items);
 
-    // 2. Arka planda sunucuya kaydet
     const bulkUpdateData = items.map((product, index) => ({
       id: product.id,
       order: index + 1,
@@ -52,7 +49,7 @@ export default function SortableProductList({ products: initialProducts, categor
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]"></TableHead> {/* Tutacak için boşluk */}
+              <TableHead className="w-[50px]"></TableHead>
               <TableHead>Ürün Adı</TableHead>
               <TableHead>Kategori</TableHead>
               <TableHead>Fiyat</TableHead>
@@ -81,7 +78,6 @@ export default function SortableProductList({ products: initialProducts, categor
                         {...provided.draggableProps}
                         className="bg-white dark:bg-gray-800"
                       >
-                        {/* --- SÜRÜKLEME TUTACAĞI BURADA --- */}
                         <TableCell>
                           <div 
                             {...provided.dragHandleProps} 
@@ -90,7 +86,6 @@ export default function SortableProductList({ products: initialProducts, categor
                             <GripVertical className="h-5 w-5 text-gray-400" />
                           </div>
                         </TableCell>
-                        {/* ---------------------------------- */}
 
                         <TableCell className="font-medium">{product.name}</TableCell>
                         <TableCell>{product.category.name}</TableCell>
@@ -104,11 +99,21 @@ export default function SortableProductList({ products: initialProducts, categor
                                 <span className="text-xs text-gray-400">-</span>
                             )}
                         </TableCell>
+                        
+                        {/* --- DÜZELTME BURADA: Dinamik Badge --- */}
                         <TableCell>
-                          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                            Aktif
-                          </span>
+                          {product.isAvailable ? (
+                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+                              Aktif
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
+                              Pasif
+                            </span>
+                          )}
                         </TableCell>
+                        {/* -------------------------------------- */}
+
                         <TableCell className="text-right">
                           <ProductActions product={product} categories={categories} />
                         </TableCell>
