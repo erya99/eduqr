@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/menu/ProductCard";
-import ViewTracker from "@/components/menu/ViewTracker"; // EKLENDİ
+import ViewTracker from "@/components/menu/ViewTracker"; 
 
 const prisma = new PrismaClient();
 
@@ -29,11 +29,12 @@ export default async function MenuPage({ params, searchParams }: Props) {
         include: {
           products: {
             where: { isAvailable: true }, 
-            orderBy: { createdAt: 'desc' },
-            include: { variants: true } // Varyasyonları da çekiyoruz
+            // 👇 DÜZELTME BURADA: Artık 'order' sırasına göre (artan) çekiyoruz
+            orderBy: { order: 'asc' }, 
+            include: { variants: true } 
           }
         },
-        orderBy: { order: 'asc' } 
+        orderBy: { order: 'asc' } // Kategoriler zaten sıraya göre geliyordu
       }
     }
   });
@@ -63,7 +64,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24">
       
-      {/* --- SAYAÇ (EKLENDİ) --- */}
+      {/* --- SAYAÇ --- */}
       <ViewTracker restaurantId={restaurant.id} />
 
       {/* --- HEADER --- */}
@@ -132,7 +133,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                   description={product.description}
                   price={Number(product.price)}
                   imageUrl={product.imageUrl}
-                  variants={product.variants} // Varyasyonları gönderiyoruz
+                  variants={product.variants}
                 />
               ))}
             </div>
@@ -142,7 +143,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
           // --- KATEGORİ LİSTESİ ---
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
             {nonEmptyCategories.map((category: any) => {
-              // GÖRSEL MANTIĞI: Kategori resmi > İlk Ürün resmi > Varsayılan
               const catImage = category.imageUrl && category.imageUrl !== "" 
                 ? category.imageUrl 
                 : category.products[0]?.imageUrl;
@@ -181,7 +181,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </main>
 
-      {/* --- FOOTER --- */}
+      {/* --- FOOTER ---a */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
         <div className="container mx-auto flex items-center justify-between max-w-md">
           
