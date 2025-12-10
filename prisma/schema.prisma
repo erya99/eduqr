@@ -87,6 +87,9 @@ model Product {
   price       Decimal
   imageUrl    String?
   isAvailable Boolean  @default(true)
+
+  // 👇 BU SATIRI EKLEYİN
+  order       Int      @default(0)
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])

@@ -9,6 +9,23 @@ const prisma = new PrismaClient();
 // Yardımcı Tip
 type VariantInput = { name: string; price: number };
 
+// --- 1. ÜRÜN SIRALAMA GÜNCELLEME (YENİ) ---
+export async function reorderProducts(items: { id: string; order: number }[]) {
+  const user = await currentUser();
+  if (!user) throw new Error("Yetkisiz işlem");
+
+  const transaction = items.map((item) =>
+    prisma.product.update({
+      where: { id: item.id },
+      data: { order: item.order },
+    })
+  );
+
+  await prisma.$transaction(transaction);
+  revalidatePath("/admin/products");
+}
+
+// --- 2. ÜRÜN OLUŞTURME (Sıra Numarası Destekli) ---
 export async function createProduct(formData: FormData) {
   const user = await currentUser();
   if (!user) throw new Error("Yetkisiz işlem");
@@ -25,7 +42,7 @@ export async function createProduct(formData: FormData) {
   const description = formData.get("description") as string;
   const imageUrl = formData.get("image") as string;
   
-  // Varyasyonları JSON string olarak alıyoruz (Form'dan öyle gelecek)
+  // Varyasyonları JSON string olarak alıyoruz
   const variantsJson = formData.get("variants") as string;
   const variants: VariantInput[] = variantsJson ? JSON.parse(variantsJson) : [];
 
@@ -39,15 +56,25 @@ export async function createProduct(formData: FormData) {
     });
   }
 
-  // Ürünü ve varyasyonlarını aynı anda oluştur
+  // --- YENİ: Otomatik Sıra Numarası Hesaplama ---
+  // Bu kategorideki en son ürünün sırasını bulup 1 artırıyoruz
+  const lastProduct = await prisma.product.findFirst({
+    where: { categoryId: category.id },
+    orderBy: { order: 'desc' }
+  });
+  
+  const newOrder = lastProduct ? lastProduct.order + 1 : 1;
+
+  // Ürünü ve varyasyonlarını oluştur
   await prisma.product.create({
     data: {
       name,
-      price, // Ana fiyat (varsayılan)
+      price, 
       description,
       imageUrl,
       categoryId: category.id,
       isAvailable: true,
+      order: newOrder, // <-- Yeni sıra numarası
       variants: {
         create: variants.map(v => ({
             name: v.name,
@@ -60,6 +87,7 @@ export async function createProduct(formData: FormData) {
   revalidatePath("/admin/products");
 }
 
+// --- 3. ÜRÜN GÜNCELLEME ---
 export async function updateProduct(formData: FormData) {
   const user = await currentUser();
   if (!user) throw new Error("Yetkisiz işlem");
@@ -73,7 +101,7 @@ export async function updateProduct(formData: FormData) {
   const variantsJson = formData.get("variants") as string;
   const variants: VariantInput[] = variantsJson ? JSON.parse(variantsJson) : [];
 
-  // Güncelleme mantığı: Önce eski varyasyonları sil, sonra yenileri ekle (En temiz yöntem)
+  // Güncelleme mantığı: Önce eski varyasyonları sil, sonra yenileri ekle
   await prisma.$transaction([
     prisma.productVariant.deleteMany({ where: { productId: id } }),
     prisma.product.update({
@@ -96,9 +124,8 @@ export async function updateProduct(formData: FormData) {
   revalidatePath("/admin/products");
 }
 
-// Silme fonksiyonu aynı kalabilir (Cascade silme olduğu için varyasyonlar da otomatik silinir)
+// --- 4. ÜRÜN SİLME ---
 export async function deleteProduct(formData: FormData) {
-    // ... eski kod aynen kalabilir
     const productId = formData.get("id") as string;
     await prisma.product.delete({ where: { id: productId } });
     revalidatePath("/admin/products");

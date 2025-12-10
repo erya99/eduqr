@@ -1,13 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button"; // ARTIK GEREK YOK
-// import { Trash2 } from "lucide-react"; // ARTIK GEREK YOK
 import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import CategoryAddForm from "@/components/admin/CategoryAddForm";
-// import { deleteCategory } from "@/actions/category-actions"; // ARTIK GEREK YOK (Action içinde kullanılıyor)
 import { redirect } from "next/navigation";
-import Image from "next/image";
-import CategoryActions from "@/components/admin/CategoryActions"; // YENİ EKLENDİ
+import SortableCategoryList from "@/components/admin/SortableCategoryList"; // Yeni sürüklenebilir liste bileşeni
 
 const prisma = new PrismaClient();
 
@@ -21,6 +17,7 @@ export default async function AdminCategoriesPage() {
 
   if (!restaurant) return <div>Önce restoran oluşturun.</div>;
 
+  // --- ABONELİK KONTROLÜ ---
   const isSubscribed = 
     restaurant.isSubscribed && 
     restaurant.subscriptionEnds && 
@@ -30,6 +27,8 @@ export default async function AdminCategoriesPage() {
     redirect("/admin/subscription");
   }
 
+  // 1. KATEGORİLERİ ÇEK
+  // ÖNEMLİ: Sıralama 'order' alanına göre 'asc' (artan) olmalı
   const categories = await prisma.category.findMany({
     where: { restaurantId: restaurant.id },
     include: {
@@ -37,7 +36,7 @@ export default async function AdminCategoriesPage() {
             select: { products: true }
         }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { order: 'asc' } 
   });
 
   return (
@@ -53,45 +52,15 @@ export default async function AdminCategoriesPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((category) => (
-          <Card key={category.id} className="flex flex-col justify-between overflow-hidden group">
-            
-            {/* Varsa Kategori Görselini Göster */}
-            {category.imageUrl && (
-                <div className="relative w-full h-32 bg-gray-100 dark:bg-gray-800">
-                    <Image 
-                        src={category.imageUrl} 
-                        alt={category.name} 
-                        fill 
-                        className="object-cover"
-                    />
-                </div>
-            )}
+      {/* 2. SÜRÜKLENEBİLİR LİSTE BİLEŞENİ */}
+      {/* Kartların render edilmesi ve sürükle-bırak mantığı bu bileşenin içinde */}
+      <SortableCategoryList initialCategories={categories} />
 
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium">
-                {category.name}
-              </CardTitle>
-
-              {/* --- YENİ AKSİYON BİLEŞENİ (DÜZENLE & SİL) --- */}
-              <CategoryActions category={category} />
-
-            </CardHeader>
-            <CardContent>
-              <div className="text-xs text-muted-foreground">
-                {category._count.products} Ürün var
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        {categories.length === 0 && (
-            <div className="text-gray-500 col-span-full text-center py-10">
-                Henüz kategori eklenmemiş.
-            </div>
-        )}
-      </div>
+      {categories.length === 0 && (
+          <div className="text-gray-500 col-span-full text-center py-10">
+              Henüz kategori eklenmemiş.
+          </div>
+      )}
     </div>
   );
 }
