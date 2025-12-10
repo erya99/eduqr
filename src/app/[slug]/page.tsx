@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/menu/ProductCard";
+import ViewTracker from "@/components/menu/ViewTracker"; // EKLENDİ
 
 const prisma = new PrismaClient();
 
@@ -62,6 +63,9 @@ export default async function MenuPage({ params, searchParams }: Props) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24">
       
+      {/* --- SAYAÇ (EKLENDİ) --- */}
+      <ViewTracker restaurantId={restaurant.id} />
+
       {/* --- HEADER --- */}
       <header className="relative">
         <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">

@@ -36,6 +36,9 @@ model Restaurant {
   twitterUrl   String?
   websiteUrl   String?
 
+  // --- İSTATİSTİK (YENİ EKLENEN) ---
+  viewCount    Int        @default(0)  // <-- BU SATIRI EKLEYİN
+
   // --- ABONELİK SİSTEMİ ---
   isSubscribed     Boolean   @default(false) 
   subscriptionEnds DateTime?                 
