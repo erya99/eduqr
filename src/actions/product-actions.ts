@@ -42,7 +42,7 @@ export async function createProduct(formData: FormData) {
   const description = formData.get("description") as string;
   const imageUrl = formData.get("image") as string;
   
-  // Varsayılan olarak aktif
+  // Varsayılan olarak aktif (true), eğer formdan 'false' gelirse pasif olur
   const isAvailable = formData.get("isAvailable") ? (formData.get("isAvailable") === "true") : true;
 
   const variantsJson = formData.get("variants") as string;
@@ -58,6 +58,7 @@ export async function createProduct(formData: FormData) {
     });
   }
 
+  // Yeni ürün için sıra numarasını hesapla (Listenin sonuna ekle)
   const lastProduct = await prisma.product.findFirst({
     where: { categoryId: category.id },
     orderBy: { order: 'desc' }
@@ -86,7 +87,7 @@ export async function createProduct(formData: FormData) {
   revalidatePath("/admin/products");
 }
 
-// --- 3. ÜRÜN GÜNCELLEME (KATEGORİ VE DURUM DEĞİŞİKLİĞİ EKLENDİ) ---
+// --- 3. ÜRÜN GÜNCELLEME ---
 export async function updateProduct(formData: FormData) {
   const user = await currentUser();
   if (!user) throw new Error("Yetkisiz işlem");
@@ -101,6 +102,7 @@ export async function updateProduct(formData: FormData) {
   const price = parseFloat(formData.get("price") as string);
   const description = formData.get("description") as string;
   const imageUrl = formData.get("image") as string;
+  
   const categoryName = formData.get("category") as string; // Yeni kategori adı
   const isAvailable = formData.get("isAvailable") === "true"; // Yeni durum
 
@@ -113,13 +115,13 @@ export async function updateProduct(formData: FormData) {
   });
 
   if (!category) {
-    // Eğer kategori yoksa (bu senaryoda düşük ihtimal ama güvenli olsun)
+    // Eğer kategori yoksa oluştur
     category = await prisma.category.create({
         data: { name: categoryName, restaurantId: restaurant.id }
     });
   }
 
-  // Güncelleme
+  // Transaction ile güncelleme (Eski varyasyonları sil, yenileri ekle)
   await prisma.$transaction([
     prisma.productVariant.deleteMany({ where: { productId: id } }),
     prisma.product.update({

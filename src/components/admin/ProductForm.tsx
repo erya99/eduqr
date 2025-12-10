@@ -13,39 +13,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { Plus, Trash2, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Plus, Trash2, X, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
+import { toast } from "sonner"; // Bildirim için
 
 export default function ProductForm({ product, categories = [] }: { product?: any, categories?: any[] }) {
+  // Hangi fonksiyonun çalışacağını belirle
   const action = product ? updateProduct : createProduct;
   
-  // Resim State'i
   const [imageUrl, setImageUrl] = useState(product?.imageUrl || "");
-
-  // Varyasyon State'i
   const [variants, setVariants] = useState<{name: string, price: string}[]>(
     product?.variants?.map((v: any) => ({ name: v.name, price: v.price.toString() })) || []
   );
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- VARYASYON FONKSİYONLARI ---
-  const addVariant = () => {
-    setVariants([...variants, { name: "", price: "" }]);
-  };
-
-  const removeVariant = (index: number) => {
-    setVariants(variants.filter((_, i) => i !== index));
-  };
-
+  const addVariant = () => setVariants([...variants, { name: "", price: "" }]);
+  const removeVariant = (index: number) => setVariants(variants.filter((_, i) => i !== index));
   const updateVariant = (index: number, field: "name" | "price", value: string) => {
     const newVariants = [...variants];
     newVariants[index][field] = value;
     setVariants(newVariants);
   };
 
-  // --- RESİM YÜKLEME FONKSİYONU ---
+  // --- RESİM YÜKLEME ---
   const handleUpload = (result: any) => {
     if (result.info && result.info.secure_url) {
         setImageUrl(result.info.secure_url);
@@ -56,11 +48,24 @@ export default function ProductForm({ product, categories = [] }: { product?: an
     <form 
       action={async (formData) => {
         setIsSubmitting(true);
-        if (imageUrl) formData.set("image", imageUrl);
-        if (variants.length > 0) formData.set("variants", JSON.stringify(variants));
-        
-        await action(formData);
-        setIsSubmitting(false);
+        try {
+            // Manuel state'leri forma ekle
+            if (imageUrl) formData.set("image", imageUrl);
+            if (variants.length > 0) formData.set("variants", JSON.stringify(variants));
+            
+            // Server Action'ı çağır
+            await action(formData);
+            
+            toast.success(product ? "Ürün güncellendi" : "Ürün oluşturuldu");
+            
+            // Eğer yeni ürün ekleniyorsa formu temizlemek isteyebilirsiniz (opsiyonel)
+            
+        } catch (error) {
+            console.error("Form Hatası:", error);
+            toast.error("Bir hata oluştu. Lütfen tüm alanları kontrol edin.");
+        } finally {
+            setIsSubmitting(false);
+        }
       }} 
       className="grid gap-4 py-4"
     >
@@ -92,59 +97,9 @@ export default function ProductForm({ product, categories = [] }: { product?: an
           required 
           className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
         />
-        <p className="text-xs text-gray-500 dark:text-gray-400">Varyasyon seçilmezse bu fiyat geçerlidir.</p>
       </div>
 
-      {/* --- VARYASYON YÖNETİMİ --- */}
-      <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3">
-        <div className="flex justify-between items-center">
-            <Label className="font-semibold dark:text-gray-200">Porsiyon / Seçenekler (İsteğe Bağlı)</Label>
-            <Button 
-                type="button" 
-                size="sm" 
-                variant="outline" 
-                onClick={addVariant} 
-                className="dark:bg-gray-800 dark:text-white dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-                <Plus className="w-4 h-4 mr-1" /> Ekle
-            </Button>
-        </div>
-        
-        {variants.map((variant, index) => (
-            <div key={index} className="flex gap-2 items-end">
-                <div className="flex-1">
-                    <Input 
-                        placeholder="Örn: 1.5 Porsiyon" 
-                        value={variant.name} 
-                        onChange={(e) => updateVariant(index, "name", e.target.value)}
-                        required
-                        className="dark:bg-gray-800 dark:border-gray-600 dark:text-white placeholder:text-gray-500"
-                    />
-                </div>
-                <div className="w-24">
-                    <Input 
-                        type="number" 
-                        placeholder="Fiyat" 
-                        value={variant.price} 
-                        onChange={(e) => updateVariant(index, "price", e.target.value)}
-                        required
-                        className="dark:bg-gray-800 dark:border-gray-600 dark:text-white placeholder:text-gray-500"
-                    />
-                </div>
-                <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => removeVariant(index)}
-                    className="hover:bg-red-100 dark:hover:bg-red-900/30"
-                >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                </Button>
-            </div>
-        ))}
-      </div>
-
-      {/* --- KATEGORİ (ARTIK HER ZAMAN GÖRÜNÜR) --- */}
+      {/* --- KATEGORİ SEÇİMİ --- */}
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Kategori</Label>
         <Select name="category" required defaultValue={product?.category?.name}>
@@ -165,7 +120,7 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </Select>
       </div>
 
-      {/* --- DURUM (AKTİF/PASİF) - YENİ EKLENDİ --- */}
+      {/* --- ÜRÜN DURUMU (AKTİF/PASİF) --- */}
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Ürün Durumu</Label>
         <Select name="isAvailable" defaultValue={product?.isAvailable === false ? "false" : "true"}>
@@ -173,10 +128,42 @@ export default function ProductForm({ product, categories = [] }: { product?: an
             <SelectValue placeholder="Durum seçin" />
           </SelectTrigger>
           <SelectContent className="dark:bg-gray-900 dark:border-gray-700">
-            <SelectItem value="true">Aktif (Satışta)</SelectItem>
-            <SelectItem value="false">Pasif (Menüde Gizli)</SelectItem>
+            <SelectItem value="true" className="dark:text-white dark:focus:bg-gray-800">Aktif (Satışta)</SelectItem>
+            <SelectItem value="false" className="dark:text-white dark:focus:bg-gray-800">Pasif (Menüde Gizli)</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* --- VARYASYONLAR --- */}
+      <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3">
+        <div className="flex justify-between items-center">
+            <Label className="font-semibold dark:text-gray-200">Porsiyon / Seçenekler</Label>
+            <Button type="button" size="sm" variant="outline" onClick={addVariant} className="dark:bg-gray-800 dark:text-white dark:border-gray-600">
+                <Plus className="w-4 h-4 mr-1" /> Ekle
+            </Button>
+        </div>
+        {variants.map((variant, index) => (
+            <div key={index} className="flex gap-2 items-end">
+                <Input 
+                    placeholder="Örn: 1.5 Porsiyon" 
+                    value={variant.name} 
+                    onChange={(e) => updateVariant(index, "name", e.target.value)}
+                    required
+                    className="flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                />
+                <Input 
+                    type="number" 
+                    placeholder="Fiyat" 
+                    value={variant.price} 
+                    onChange={(e) => updateVariant(index, "price", e.target.value)}
+                    required
+                    className="w-24 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                />
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeVariant(index)} className="text-red-500">
+                    <Trash2 className="w-4 h-4" />
+                </Button>
+            </div>
+        ))}
       </div>
 
       {/* --- AÇIKLAMA --- */}
@@ -186,41 +173,26 @@ export default function ProductForm({ product, categories = [] }: { product?: an
           id="description" 
           name="description" 
           defaultValue={product?.description || ""}
-          placeholder="Ürün içeriği hakkında bilgi..." 
           className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
         />
       </div>
 
-      {/* --- RESİM YÜKLEME --- */}
+      {/* --- RESİM --- */}
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Ürün Resmi</Label>
-        
         <div className="flex items-center gap-4">
             {imageUrl ? (
                 <div className="relative w-24 h-24 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 group">
                     <Image src={imageUrl} alt="Ürün" fill className="object-cover" />
-                    <button 
-                        type="button"
-                        onClick={() => setImageUrl("")}
-                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white"
-                    >
+                    <button type="button" onClick={() => setImageUrl("")} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
                         <X size={20} />
                     </button>
                 </div>
             ) : (
-                <CldUploadWidget 
-                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-                    onSuccess={handleUpload}
-                >
+                <CldUploadWidget uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} onSuccess={handleUpload}>
                     {({ open }) => (
-                        <Button 
-                          type="button" 
-                          variant="secondary" 
-                          onClick={() => open()}
-                          className="dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
-                        >
-                          <ImageIcon className="w-4 h-4 mr-2" />
-                          Resim Yükle
+                        <Button type="button" variant="secondary" onClick={() => open()} className="dark:bg-gray-800 dark:text-white">
+                          <Upload className="w-4 h-4 mr-2" /> Resim Yükle
                         </Button>
                     )}
                 </CldUploadWidget>
@@ -228,10 +200,9 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </div>
       </div>
 
-      {/* --- KAYDET BUTONU --- */}
-      <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2">
+      <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
         {isSubmitting ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
-        {product ? "Güncellemeyi Kaydet" : "Veritabanına Kaydet"}
+        {product ? "Güncellemeyi Kaydet" : "Ürünü Oluştur"}
       </Button>
     </form>
   );
