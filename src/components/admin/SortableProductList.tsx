@@ -17,6 +17,7 @@ interface SortableProductListProps {
 export default function SortableProductList({ products: initialProducts, categories }: SortableProductListProps) {
   const [products, setProducts] = useState(initialProducts);
 
+  // Veritabanından yeni veri geldiğinde state'i güncelle
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
@@ -28,8 +29,10 @@ export default function SortableProductList({ products: initialProducts, categor
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
+    // 1. Arayüzü hemen güncelle (Hızlı hissettirir)
     setProducts(items);
 
+    // 2. Arka planda sunucuya kaydet
     const bulkUpdateData = items.map((product, index) => ({
       id: product.id,
       order: index + 1,
@@ -37,9 +40,9 @@ export default function SortableProductList({ products: initialProducts, categor
 
     try {
       await reorderProducts(bulkUpdateData);
-      toast.success("Ürün sıralaması güncellendi");
+      toast.success("Sıralama güncellendi");
     } catch (error) {
-      toast.error("Hata oluştu");
+      toast.error("Sıralama kaydedilemedi");
     }
   };
 
@@ -59,7 +62,7 @@ export default function SortableProductList({ products: initialProducts, categor
             </TableRow>
           </TableHeader>
           
-          <Droppable droppableId="products">
+          <Droppable droppableId="products-list">
             {(provided) => (
               <TableBody {...provided.droppableProps} ref={provided.innerRef}>
                 {products.length === 0 && (
@@ -78,14 +81,17 @@ export default function SortableProductList({ products: initialProducts, categor
                         {...provided.draggableProps}
                         className="bg-white dark:bg-gray-800"
                       >
+                        {/* --- SÜRÜKLEME TUTACAĞI BURADA --- */}
                         <TableCell>
                           <div 
                             {...provided.dragHandleProps} 
-                            className="cursor-grab active:cursor-grabbing hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded"
+                            className="cursor-grab active:cursor-grabbing hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded w-fit"
                           >
-                            <GripVertical className="h-4 w-4 text-gray-400" />
+                            <GripVertical className="h-5 w-5 text-gray-400" />
                           </div>
                         </TableCell>
+                        {/* ---------------------------------- */}
+
                         <TableCell className="font-medium">{product.name}</TableCell>
                         <TableCell>{product.category.name}</TableCell>
                         <TableCell>{product.price} ₺</TableCell>
@@ -99,9 +105,9 @@ export default function SortableProductList({ products: initialProducts, categor
                             )}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900">
+                          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                             Aktif
-                          </Badge>
+                          </span>
                         </TableCell>
                         <TableCell className="text-right">
                           <ProductActions product={product} categories={categories} />
