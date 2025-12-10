@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+// import { Button } from "@/components/ui/button"; // ARTIK GEREK YOK
+// import { Trash2 } from "lucide-react"; // ARTIK GEREK YOK
 import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import CategoryAddForm from "@/components/admin/CategoryAddForm";
-import { deleteCategory } from "@/actions/category-actions";
-import { redirect } from "next/navigation"; // Yönlendirme için eklendi
-import Image from "next/image"; // Görsel göstermek için eklendi
+// import { deleteCategory } from "@/actions/category-actions"; // ARTIK GEREK YOK (Action içinde kullanılıyor)
+import { redirect } from "next/navigation";
+import Image from "next/image";
+import CategoryActions from "@/components/admin/CategoryActions"; // YENİ EKLENDİ
 
 const prisma = new PrismaClient();
 
@@ -20,7 +21,6 @@ export default async function AdminCategoriesPage() {
 
   if (!restaurant) return <div>Önce restoran oluşturun.</div>;
 
-  // --- ABONELİK KONTROLÜ (GATEKEEPER) ---
   const isSubscribed = 
     restaurant.isSubscribed && 
     restaurant.subscriptionEnds && 
@@ -29,7 +29,6 @@ export default async function AdminCategoriesPage() {
   if (!isSubscribed) {
     redirect("/admin/subscription");
   }
-  // --------------------------------------
 
   const categories = await prisma.category.findMany({
     where: { restaurantId: restaurant.id },
@@ -56,7 +55,7 @@ export default async function AdminCategoriesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map((category) => (
-          <Card key={category.id} className="flex flex-col justify-between overflow-hidden">
+          <Card key={category.id} className="flex flex-col justify-between overflow-hidden group">
             
             {/* Varsa Kategori Görselini Göster */}
             {category.imageUrl && (
@@ -74,12 +73,10 @@ export default async function AdminCategoriesPage() {
               <CardTitle className="text-base font-medium">
                 {category.name}
               </CardTitle>
-              <form action={deleteCategory}>
-                <input type="hidden" name="id" value={category.id} />
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                    <Trash2 className="h-4 w-4" />
-                </Button>
-              </form>
+
+              {/* --- YENİ AKSİYON BİLEŞENİ (DÜZENLE & SİL) --- */}
+              <CategoryActions category={category} />
+
             </CardHeader>
             <CardContent>
               <div className="text-xs text-muted-foreground">

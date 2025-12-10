@@ -23,7 +23,7 @@ export async function createCategory(formData: FormData) {
   await prisma.category.create({
     data: {
       name,
-      imageUrl, // Veritabanına kaydet (Prisma generate yapınca hata gidecek)
+      imageUrl, // Veritabanına kaydet
       restaurantId: restaurant.id,
       order: 0 
     }
@@ -63,4 +63,25 @@ export async function getCategories() {
   });
 
   return categories;
+}
+
+// --- 4. KATEGORİ GÜNCELLEME (YENİ EKLENDİ) ---
+export async function updateCategory(formData: FormData) {
+  const user = await currentUser();
+  if (!user) throw new Error("Yetkisiz işlem");
+
+  const id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const imageUrl = formData.get("image") as string;
+
+  await prisma.category.update({
+    where: { id },
+    data: {
+      name,
+      imageUrl
+    }
+  });
+
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/products"); // Ürünlerde de kategori ismi değiştiği için
 }
