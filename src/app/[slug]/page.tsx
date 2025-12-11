@@ -5,7 +5,10 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/menu/ProductCard";
-import ViewTracker from "@/components/menu/ViewTracker"; 
+import ViewTracker from "@/components/menu/ViewTracker";
+// 👇 YENİ: Çark Bileşeni ve Aksiyonu import edildi
+import SpinWheel from "@/components/menu/SpinWheel";
+import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
 
@@ -29,12 +32,11 @@ export default async function MenuPage({ params, searchParams }: Props) {
         include: {
           products: {
             where: { isAvailable: true }, 
-            // 👇 DÜZELTME BURADA: Artık 'order' sırasına göre (artan) çekiyoruz
             orderBy: { order: 'asc' }, 
             include: { variants: true } 
           }
         },
-        orderBy: { order: 'asc' } // Kategoriler zaten sıraya göre geliyordu
+        orderBy: { order: 'asc' }
       }
     }
   });
@@ -53,6 +55,9 @@ export default async function MenuPage({ params, searchParams }: Props) {
      )
   }
 
+  // 👇 YENİ: Çark verilerini çekiyoruz
+  const wheelItems = await getWheelItems(slug);
+
   // Aktif kategoriyi bul
   const activeCategory = cat 
     ? restaurant.categories.find((c: any) => c.id === cat)
@@ -66,6 +71,9 @@ export default async function MenuPage({ params, searchParams }: Props) {
       
       {/* --- SAYAÇ --- */}
       <ViewTracker restaurantId={restaurant.id} />
+
+      {/* 👇 YENİ: Çarkıfelek Bileşeni (Sabit Buton Olarak Görünür) */}
+      <SpinWheel items={wheelItems} />
 
       {/* --- HEADER --- */}
       <header className="relative">
@@ -181,7 +189,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </main>
 
-      {/* --- FOOTER ---a */}
+      {/* --- FOOTER --- */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
         <div className="container mx-auto flex items-center justify-between max-w-md">
           

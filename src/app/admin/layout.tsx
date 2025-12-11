@@ -57,6 +57,15 @@ export default async function AdminLayout({
             fyp Kategoriler
           </Button>
         </Link>
+        
+        {/* --- YENİ EKLENEN KAMPANYA MENÜSÜ --- */}
+        <Link href="/admin/marketing">
+          <Button variant="ghost" className="w-full justify-start text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+            🎁 Kampanyalar (Çark)
+          </Button>
+        </Link>
+        {/* ------------------------------------ */}
+
         <Link href="/admin/settings">
           <Button variant="ghost" className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
             ⚙️ Ayarlar

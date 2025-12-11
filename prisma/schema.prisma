@@ -36,17 +36,20 @@ model Restaurant {
   twitterUrl   String?
   websiteUrl   String?
 
-  // --- İSTATİSTİK (YENİ EKLENEN) ---
-  viewCount    Int        @default(0)  // <-- BU SATIRI EKLEYİN
+  // --- İSTATİSTİK ---
+  viewCount    Int        @default(0)
 
   // --- ABONELİK SİSTEMİ ---
   isSubscribed     Boolean   @default(false) 
   subscriptionEnds DateTime?                 
   payments         Payment[]                 
 
-  // --- FATURA SİSTEMİ (YENİ EKLENDİ) ---
+  // --- FATURA SİSTEMİ ---
   tempInvoiceRequests TempInvoiceRequest[] // Bekleyen fatura talepleri
   invoiceLogs         InvoiceLog[]         // Kesilen fatura logları
+
+  // --- OYUNLAŞTIRMA (ÇARKIFELEK) ---
+  wheelItems   WheelItem[] // <-- YENİ EKLENEN İLİŞKİ
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -87,8 +90,6 @@ model Product {
   price       Decimal
   imageUrl    String?
   isAvailable Boolean  @default(true)
-
-  // 👇 BU SATIRI EKLEYİN
   order       Int      @default(0)
   
   categoryId  String
@@ -113,33 +114,45 @@ model ProductVariant {
 // --- FATURA YÖNETİMİ (KVKK UYUMLU) ---
 
 // 1. Hassas verilerin GEÇİCİ olarak tutulduğu tablo.
-// Fatura kesildikten sonra bu satır SİLİNECEK.
 model TempInvoiceRequest {
   id           String   @id @default(cuid())
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   
-  // Hassas Veriler (Sadece işlem süresince tutulur)
-  legalName    String   // Ad Soyad veya Şirket Ünvanı
-  taxNumber    String   // TC veya Vergi No
-  taxOffice    String?  // Vergi Dairesi
-  address      String   // Açık Adres
-  amount       Decimal  // Tutar
+  // Hassas Veriler
+  legalName    String   
+  taxNumber    String   
+  taxOffice    String?  
+  address      String   
+  amount       Decimal  
   
   createdAt    DateTime @default(now())
 }
 
 // 2. Kalıcı ve GÜVENLİ log tablosu.
-// Burada sadece "Fatura kesildi" izi kalır, kişisel veri maskelenir.
 model InvoiceLog {
   id           String   @id @default(cuid())
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   
-  // Maskelenmiş/Anonim Veriler (Örn: Ahm** Yıl***)
   maskedName   String   
   maskedTaxNo  String   
   amount       Decimal
   
-  issuedAt     DateTime @default(now()) // Faturanın kesildiği/işlendiği an
+  issuedAt     DateTime @default(now())
+}
+
+// --- OYUNLAŞTIRMA (ÇARKIFELEK ÖDÜLLERİ) ---
+
+model WheelItem {
+  id           String     @id @default(cuid())
+  restaurantId String
+  label        String     // Örn: "%10 İndirim", "Bedava İçecek"
+  color        String?    // Dilim Rengi (Opsiyonel)
+  percentage   Int        // Kazanma ihtimali (1-100 arası ağırlık)
+  isActive     Boolean    @default(true)
+  
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime   @default(now())
 }
