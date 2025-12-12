@@ -142,4 +142,14 @@ div[data-test="cloudinary-widget"] {
 .dark [data-theme='black'] {
   --brand-primary: #ffffff; /* white (Tam Beyaz - Karanlıkta parlaması için) */
 }
+
+/* 8. TAMAMEN RENKSİZ (Monochrome / Flat) */
+[data-theme='monochrome'] {
+  --brand-primary: #000000; /* Siyah */
+  --bg-glow-opacity: 0;     /* ⛔ Işık Yok (Dümdüz) */
+}
+.dark [data-theme='monochrome'] {
+  --brand-primary: #ffffff; /* Beyaz */
+  --bg-glow-opacity: 0;     /* ⛔ Işık Yok (Dümdüz) */
+}
 }

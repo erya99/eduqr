@@ -18,7 +18,8 @@ const COLOR_PALETTES = [
   { id: "orange", label: "Gün Batımı", color: "bg-orange-600" },
   { id: "green", label: "Doğa Yeşili", color: "bg-green-600" },
   { id: "purple", label: "Asil Mor", color: "bg-purple-600" },
-  { id: "black", label: "Klasik Siyah (Renksiz)", color: "bg-neutral-900 border border-gray-600" },
+  { id: "black", label: "Gri", color: "bg-neutral-900 border border-gray-600" },
+  { id: "monochrome", label: "Klasik Siyah (Renksiz)", color: "bg-white border-2 border-black" },
 ];
 
 interface SettingsFormProps {

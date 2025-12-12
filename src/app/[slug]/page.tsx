@@ -72,21 +72,27 @@ export default async function MenuPage({ params, searchParams }: Props) {
       className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
     >
       
-      {/* 👇 YENİ: DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti) */}
+      {/* 👇 GÜNCELLENDİ: DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti Kontrollü) */}
       <div className="fixed inset-0 z-[-1]">
         {/* 1. Katman: Ana Zemin Rengi */}
         <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
         
         {/* 2. Katman: Tema Rengi Işıltısı (Üstten vuran ışık) */}
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full opacity-15 dark:opacity-20 blur-[100px] pointer-events-none"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[100px] pointer-events-none transition-opacity duration-500"
+          style={{ 
+            backgroundColor: 'var(--brand-primary)',
+            opacity: 'var(--bg-glow-opacity, 0.15)' // Temaya göre opaklık değişir
+          }}
         />
 
-        {/* 3. Katman: Alt kısımdan vuran hafif ışık (Opsiyonel) */}
+        {/* 3. Katman: Alt kısımdan vuran hafif ışık */}
         <div 
-          className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full opacity-10 dark:opacity-10 blur-[120px] pointer-events-none"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
+          className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full blur-[120px] pointer-events-none transition-opacity duration-500"
+          style={{ 
+            backgroundColor: 'var(--brand-primary)',
+            opacity: 'var(--bg-glow-opacity, 0.10)' // Temaya göre opaklık değişir
+          }}
         />
       </div>
       {/* -------------------------------------- */}
