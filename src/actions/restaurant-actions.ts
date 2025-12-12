@@ -30,6 +30,7 @@ export async function updateRestaurant(
     facebookUrl?: string | null;
     twitterUrl?: string | null;
     websiteUrl?: string | null;
+    colorPalette?: string; // 👈 YENİ: Renk paleti alanı
   }
 ) {
   const user = await currentUser();
@@ -64,6 +65,7 @@ export async function updateRestaurant(
         facebookUrl: data.facebookUrl || null,
         twitterUrl: data.twitterUrl || null,
         websiteUrl: data.websiteUrl || null,
+        colorPalette: data.colorPalette || "blue", // 👈 YENİ: Veritabanına kaydet
       },
     });
 

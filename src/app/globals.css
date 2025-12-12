@@ -92,4 +92,46 @@ div[data-test="cloudinary-widget"] {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* --- TEMA RENK SİSTEMİ --- */
+
+/* 1. MAVİ (Varsayılan) */
+[data-theme='blue'] {
+  --brand-primary: #2563eb; /* blue-600 */
+}
+.dark [data-theme='blue'] {
+  --brand-primary: #60a5fa; /* blue-400 */
+}
+
+/* 2. KIRMIZI */
+[data-theme='red'] {
+  --brand-primary: #dc2626; /* red-600 */
+}
+.dark [data-theme='red'] {
+  --brand-primary: #f87171; /* red-400 */
+}
+
+/* 3. TURUNCU */
+[data-theme='orange'] {
+  --brand-primary: #ea580c; /* orange-600 */
+}
+.dark [data-theme='orange'] {
+  --brand-primary: #fb923c; /* orange-400 */
+}
+
+/* 4. YEŞİL */
+[data-theme='green'] {
+  --brand-primary: #16a34a; /* green-600 */
+}
+.dark [data-theme='green'] {
+  --brand-primary: #4ade80; /* green-400 */
+}
+
+/* 5. MOR */
+[data-theme='purple'] {
+  --brand-primary: #9333ea; /* purple-600 */
+}
+.dark [data-theme='purple'] {
+  --brand-primary: #c084fc; /* purple-400 */
+}
 }

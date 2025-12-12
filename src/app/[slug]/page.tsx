@@ -6,7 +6,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/menu/ProductCard";
 import ViewTracker from "@/components/menu/ViewTracker";
-// 👇 YENİ: Çark Bileşeni ve Aksiyonu import edildi
 import SpinWheel from "@/components/menu/SpinWheel";
 import { getWheelItems } from "@/actions/wheel-actions";
 
@@ -55,7 +54,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
      )
   }
 
-  // 👇 YENİ: Çark verilerini çekiyoruz
+  // Çark verilerini çekiyoruz
   const wheelItems = await getWheelItems(slug);
 
   // Aktif kategoriyi bul
@@ -67,12 +66,16 @@ export default async function MenuPage({ params, searchParams }: Props) {
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24">
+    // 👇 GÜNCELLEME 1: data-theme ile renk paletini sayfaya giydiriyoruz
+    <div 
+      data-theme={restaurant.colorPalette || "blue"}
+      className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24"
+    >
       
       {/* --- SAYAÇ --- */}
       <ViewTracker restaurantId={restaurant.id} />
 
-      {/* 👇 YENİ: Çarkıfelek Bileşeni (Sabit Buton Olarak Görünür) */}
+      {/* Çarkıfelek Bileşeni */}
       <SpinWheel items={wheelItems} />
 
       {/* --- HEADER --- */}
@@ -87,7 +90,8 @@ export default async function MenuPage({ params, searchParams }: Props) {
               priority
             />
           ) : (
-             <div className="w-full h-full bg-gradient-to-r from-blue-900 to-slate-900 opacity-90" />
+             // 👇 GÜNCELLEME 2: Varsayılan gradient rengini de temaya uygun yapıyoruz
+             <div className="w-full h-full bg-gradient-to-r from-[var(--brand-primary)] to-slate-900 opacity-90" />
           )}
           <div className="absolute inset-0 bg-black/40" />
           
@@ -130,7 +134,8 @@ export default async function MenuPage({ params, searchParams }: Props) {
           // --- ÜRÜN LİSTESİ ---
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <span className="w-1 h-8 bg-blue-600 rounded-full inline-block"></span>
+              {/* 👇 GÜNCELLEME 3: Kategori yanındaki çizgiyi tema rengi yapıyoruz */}
+              <span className="w-1 h-8 bg-[var(--brand-primary)] rounded-full inline-block"></span>
               {activeCategory.name}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -142,7 +147,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                   price={Number(product.price)}
                   imageUrl={product.imageUrl}
                   variants={product.variants}
-                  allergens={product.allergens} // 👈 YENİ: Alerjen verisini gönderiyoruz
+                  allergens={product.allergens}
                 />
               ))}
             </div>
@@ -195,19 +200,22 @@ export default async function MenuPage({ params, searchParams }: Props) {
         <div className="container mx-auto flex items-center justify-between max-w-md">
           
           <div className="flex gap-6 items-center">
-             <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition group">
-                <div className="p-1 rounded-full group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition">
+             <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[var(--brand-primary)] dark:hover:text-blue-400 transition group">
+                {/* 👇 GÜNCELLEME 4: Sepet ikonunun arka planı ve hover rengi */}
+                <div className="p-1 rounded-full group-hover:bg-gray-100 dark:group-hover:bg-blue-900/20 transition">
                     <ShoppingBag size={20} />
                 </div>
              </Link>
 
+             {/* Diğer ikonlara da hover rengi eklenebilir, şimdilik Facebook'u örnek yapalım */}
              {restaurant.instagramUrl && (
                  <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500 transition">
                     <Instagram size={20} />
                  </a>
              )}
              {restaurant.facebookUrl && (
-                 <a href={restaurant.facebookUrl} target="_blank" className="text-gray-400 hover:text-blue-600 transition">
+                 // 👇 GÜNCELLEME 5: Facebook hover rengi
+                 <a href={restaurant.facebookUrl} target="_blank" className="text-gray-400 hover:text-[var(--brand-primary)] transition">
                     <Facebook size={20} />
                  </a>
              )}

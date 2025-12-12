@@ -22,7 +22,7 @@ const ALLERGEN_MAP: Record<string, { label: string, icon: string }> = {
   sea: { label: "Deniz Ürünü", icon: "🐟" },
 };
 
-// --- YENİ: Mobilde Tıklayınca Açılan Alerjen Rozeti ---
+// Mobilde Tıklayınca Açılan Alerjen Rozeti
 const AllergenBadge = ({ id }: { id: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const info = ALLERGEN_MAP[id];
@@ -35,7 +35,7 @@ const AllergenBadge = ({ id }: { id: string }) => {
         e.stopPropagation(); // Kartın tıklanmasını ve Drawer'ın açılmasını engeller
         setIsOpen(!isOpen);  // Aç/Kapa yap
       }}
-      title={info.label} // Masaüstü için hover desteği devam eder
+      title={info.label} // Masaüstü için hover desteği
       className={`
         inline-flex items-center justify-center h-6 rounded-full border border-orange-100 
         text-xs cursor-pointer select-none transition-all duration-300 ease-in-out overflow-hidden
@@ -56,7 +56,6 @@ const AllergenBadge = ({ id }: { id: string }) => {
     </div>
   );
 };
-// -----------------------------------------------------
 
 interface ProductCardProps {
   name: string;
@@ -101,7 +100,7 @@ export default function ProductCard({
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight mb-1">{name}</h3>
             {description && <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">{description}</p>}
 
-            {/* 👇 GÜNCELLENDİ: Alerjen İkonları (Yeni Bileşen ile) */}
+            {/* Alerjen İkonları */}
             {allergens && allergens.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {allergens.map((alg) => (
@@ -109,15 +108,16 @@ export default function ProductCard({
                 ))}
               </div>
             )}
-            {/* -------------------------------------------------- */}
           </div>
           
           <div className="flex items-center justify-between mt-2">
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            {/* TEMA RENGİ UYGULANDI: text-[var(--brand-primary)] */}
+            <span className="text-lg font-bold text-[var(--brand-primary)]">
               {hasVariants ? `${fmt(price)}'den Başlayan` : fmt(price)}
             </span>
             
-            <button className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white transition-colors">
+            {/* TEMA RENGİ UYGULANDI: hover:bg-[var(--brand-primary)] */}
+            <button className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 hover:bg-[var(--brand-primary)] hover:text-white transition-colors">
                <Plus className="w-4 h-4" />
             </button>
           </div>
@@ -137,13 +137,15 @@ export default function ProductCard({
               <div className="space-y-3 mt-4">
                 <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
                     <span className="font-medium">Standart Porsiyon</span>
-                    <span className="font-bold text-blue-600">{fmt(price)}</span>
+                    {/* TEMA RENGİ UYGULANDI */}
+                    <span className="font-bold text-[var(--brand-primary)]">{fmt(price)}</span>
                 </div>
 
                 {variants.map((variant, idx) => (
-                    <div key={idx} className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-blue-500 transition-colors cursor-pointer">
+                    <div key={idx} className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-[var(--brand-primary)] transition-colors cursor-pointer">
                         <span className="font-medium">{variant.name}</span>
-                        <span className="font-bold text-blue-600">{fmt(Number(variant.price))}</span>
+                        {/* TEMA RENGİ UYGULANDI */}
+                        <span className="font-bold text-[var(--brand-primary)]">{fmt(Number(variant.price))}</span>
                     </div>
                 ))}
               </div>

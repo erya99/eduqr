@@ -9,7 +9,16 @@ import { Label } from "@/components/ui/label";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { updateRestaurant } from "@/actions/restaurant-actions";
-import { Loader2, Upload, Instagram, Facebook, Twitter, Globe, Image as ImageIcon, X } from "lucide-react";
+import { Loader2, Upload, ImageIcon, X } from "lucide-react";
+
+// Renk Paletleri Tanımları
+const COLOR_PALETTES = [
+  { id: "blue", label: "Okyanus Mavisi", color: "bg-blue-600" },
+  { id: "red", label: "Ateş Kırmızı", color: "bg-red-600" },
+  { id: "orange", label: "Gün Batımı", color: "bg-orange-600" },
+  { id: "green", label: "Doğa Yeşili", color: "bg-green-600" },
+  { id: "purple", label: "Asil Mor", color: "bg-purple-600" },
+];
 
 interface SettingsFormProps {
   restaurant: Restaurant;
@@ -18,6 +27,8 @@ interface SettingsFormProps {
 export default function SettingsForm({ restaurant }: SettingsFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // State tanımları (colorPalette eklendi)
   const [formData, setFormData] = useState({
     name: restaurant.name,
     slug: restaurant.slug,
@@ -27,6 +38,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
     facebookUrl: restaurant.facebookUrl || "",
     twitterUrl: restaurant.twitterUrl || "",
     websiteUrl: restaurant.websiteUrl || "",
+    colorPalette: restaurant.colorPalette || "blue", // 👈 YENİ: Varsayılan mavi
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +66,8 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
       return;
     }
 
+    // formData içinde colorPalette olduğu için updateRestaurant fonksiyonuna otomatik gidecek
+    // (Ancak src/actions/restaurant-actions.ts dosyasını güncellediğinizden emin olun)
     const result = await updateRestaurant(restaurant.id, formData);
 
     if (result.success) {
@@ -69,8 +83,6 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
   return (
     <form 
       onSubmit={handleSubmit} 
-      // DÜZELTME BURADA: dark:bg-gray-800 ve dark:border-gray-700 eklendi.
-      // Artık karanlık modda formun arka planı koyu gri olacak.
       className="space-y-8 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors"
     >
       
@@ -104,6 +116,33 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Örn: kahve-dunyasi</p>
           </div>
+        </div>
+      </div>
+
+      {/* --- TEMA RENGİ SEÇİMİ (YENİ BÖLÜM) --- */}
+      <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Menü Teması</h3>
+        <div className="grid gap-2">
+            <Label>Ana Renk Seçimi</Label>
+            <div className="flex flex-wrap gap-3">
+            {COLOR_PALETTES.map((palette) => (
+                <button
+                key={palette.id}
+                type="button"
+                onClick={() => setFormData({ ...formData, colorPalette: palette.id })}
+                className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all
+                    ${formData.colorPalette === palette.id 
+                    ? "border-gray-900 dark:border-white ring-2 ring-offset-2 ring-gray-300 dark:ring-gray-600" 
+                    : "border-transparent bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }
+                `}
+                >
+                <div className={`w-4 h-4 rounded-full ${palette.color}`} />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{palette.label}</span>
+                </button>
+            ))}
+            </div>
         </div>
       </div>
 
