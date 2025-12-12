@@ -66,12 +66,31 @@ export default async function MenuPage({ params, searchParams }: Props) {
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
-    // 👇 GÜNCELLEME 1: data-theme ile renk paletini sayfaya giydiriyoruz
+    // data-theme ile renk paletini sayfaya giydiriyoruz
     <div 
       data-theme={restaurant.colorPalette || "blue"}
-      className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24"
+      className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
     >
       
+      {/* 👇 YENİ: DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti) */}
+      <div className="fixed inset-0 z-[-1]">
+        {/* 1. Katman: Ana Zemin Rengi */}
+        <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
+        
+        {/* 2. Katman: Tema Rengi Işıltısı (Üstten vuran ışık) */}
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full opacity-15 dark:opacity-20 blur-[100px] pointer-events-none"
+          style={{ backgroundColor: 'var(--brand-primary)' }}
+        />
+
+        {/* 3. Katman: Alt kısımdan vuran hafif ışık (Opsiyonel) */}
+        <div 
+          className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full opacity-10 dark:opacity-10 blur-[120px] pointer-events-none"
+          style={{ backgroundColor: 'var(--brand-primary)' }}
+        />
+      </div>
+      {/* -------------------------------------- */}
+
       {/* --- SAYAÇ --- */}
       <ViewTracker restaurantId={restaurant.id} />
 
@@ -90,7 +109,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
               priority
             />
           ) : (
-             // 👇 GÜNCELLEME 2: Varsayılan gradient rengini de temaya uygun yapıyoruz
+             // Varsayılan gradient rengini de temaya uygun yapıyoruz
              <div className="w-full h-full bg-gradient-to-r from-[var(--brand-primary)] to-slate-900 opacity-90" />
           )}
           <div className="absolute inset-0 bg-black/40" />
@@ -134,7 +153,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
           // --- ÜRÜN LİSTESİ ---
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              {/* 👇 GÜNCELLEME 3: Kategori yanındaki çizgiyi tema rengi yapıyoruz */}
+              {/* Kategori yanındaki çizgiyi tema rengi yapıyoruz */}
               <span className="w-1 h-8 bg-[var(--brand-primary)] rounded-full inline-block"></span>
               {activeCategory.name}
             </h2>
@@ -201,20 +220,19 @@ export default async function MenuPage({ params, searchParams }: Props) {
           
           <div className="flex gap-6 items-center">
              <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[var(--brand-primary)] dark:hover:text-blue-400 transition group">
-                {/* 👇 GÜNCELLEME 4: Sepet ikonunun arka planı ve hover rengi */}
+                {/* Sepet ikonunun arka planı ve hover rengi */}
                 <div className="p-1 rounded-full group-hover:bg-gray-100 dark:group-hover:bg-blue-900/20 transition">
                     <ShoppingBag size={20} />
                 </div>
              </Link>
 
-             {/* Diğer ikonlara da hover rengi eklenebilir, şimdilik Facebook'u örnek yapalım */}
              {restaurant.instagramUrl && (
                  <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500 transition">
                     <Instagram size={20} />
                  </a>
              )}
              {restaurant.facebookUrl && (
-                 // 👇 GÜNCELLEME 5: Facebook hover rengi
+                 // Facebook hover rengi
                  <a href={restaurant.facebookUrl} target="_blank" className="text-gray-400 hover:text-[var(--brand-primary)] transition">
                     <Facebook size={20} />
                  </a>

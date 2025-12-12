@@ -84,7 +84,12 @@ export default function ProductCard({
     <>
       <div 
         onClick={() => hasVariants && setOpen(true)}
-        className="group flex gap-4 p-4 bg-white dark:bg-gray-900/60 backdrop-blur-sm border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+        // Stil Güncellemesi: Cam efekti (backdrop-blur) ve Hover'da tema rengi border
+        className="group flex gap-4 p-4 
+          bg-white/80 dark:bg-gray-900/40 backdrop-blur-md 
+          rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer 
+          border border-gray-200/50 dark:border-gray-700/50
+          hover:border-[var(--brand-primary)]"
       >
         {/* Görsel Alanı */}
         <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
@@ -111,12 +116,12 @@ export default function ProductCard({
           </div>
           
           <div className="flex items-center justify-between mt-2">
-            {/* TEMA RENGİ UYGULANDI: text-[var(--brand-primary)] */}
+            {/* TEMA RENGİ UYGULANDI */}
             <span className="text-lg font-bold text-[var(--brand-primary)]">
               {hasVariants ? `${fmt(price)}'den Başlayan` : fmt(price)}
             </span>
             
-            {/* TEMA RENGİ UYGULANDI: hover:bg-[var(--brand-primary)] */}
+            {/* TEMA RENGİ UYGULANDI */}
             <button className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 hover:bg-[var(--brand-primary)] hover:text-white transition-colors">
                <Plus className="w-4 h-4" />
             </button>
@@ -135,16 +140,14 @@ export default function ProductCard({
               </DrawerHeader>
               
               <div className="space-y-3 mt-4">
-                <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-[var(--brand-primary)] transition-colors">
                     <span className="font-medium">Standart Porsiyon</span>
-                    {/* TEMA RENGİ UYGULANDI */}
                     <span className="font-bold text-[var(--brand-primary)]">{fmt(price)}</span>
                 </div>
 
                 {variants.map((variant, idx) => (
                     <div key={idx} className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-[var(--brand-primary)] transition-colors cursor-pointer">
                         <span className="font-medium">{variant.name}</span>
-                        {/* TEMA RENGİ UYGULANDI */}
                         <span className="font-bold text-[var(--brand-primary)]">{fmt(Number(variant.price))}</span>
                     </div>
                 ))}
