@@ -18,6 +18,17 @@ import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { toast } from "sonner";
 
+// Alerjen Seçenekleri Sabiti
+const ALLERGEN_OPTIONS = [
+  { id: "gluten", label: "Gluten", icon: "🌾" },
+  { id: "dairy", label: "Süt/Laktoz", icon: "🥛" },
+  { id: "egg", label: "Yumurta", icon: "🥚" },
+  { id: "nuts", label: "Kuruyemiş", icon: "🥜" },
+  { id: "spicy", label: "Acı", icon: "🌶️" },
+  { id: "vegan", label: "Vegan", icon: "🌱" },
+  { id: "sea", label: "Deniz Ürünü", icon: "🐟" },
+];
+
 export default function ProductForm({ product, categories = [] }: { product?: any, categories?: any[] }) {
   const action = product ? updateProduct : createProduct;
   
@@ -26,9 +37,12 @@ export default function ProductForm({ product, categories = [] }: { product?: an
     product?.variants?.map((v: any) => ({ name: v.name, price: v.price.toString() })) || []
   );
   
-  // --- YENİ: Durum için State ---
+  // --- Durum için State ---
   const [isAvailable, setIsAvailable] = useState(product?.isAvailable === false ? "false" : "true");
-  // -----------------------------
+  
+  // --- YENİ: Alerjenler için State ---
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>(product?.allergens || []);
+  // ----------------------------------
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,6 +53,15 @@ export default function ProductForm({ product, categories = [] }: { product?: an
     const newVariants = [...variants];
     newVariants[index][field] = value;
     setVariants(newVariants);
+  };
+
+  // --- ALERJEN SEÇİM FONKSİYONU ---
+  const toggleAllergen = (id: string) => {
+    if (selectedAllergens.includes(id)) {
+      setSelectedAllergens(selectedAllergens.filter(a => a !== id));
+    } else {
+      setSelectedAllergens([...selectedAllergens, id]);
+    }
   };
 
   // --- RESİM YÜKLEME ---
@@ -121,7 +144,7 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </Select>
       </div>
 
-      {/* --- ÜRÜN DURUMU (GÜNCELLENMİŞ GARANTİ YÖNTEM) --- */}
+      {/* --- ÜRÜN DURUMU --- */}
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Ürün Durumu</Label>
         
@@ -142,8 +165,35 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </Select>
       </div>
 
+      {/* --- ALERJEN SEÇİMİ (YENİ) --- */}
+      <div className="grid gap-2 pt-2">
+        <Label className="dark:text-gray-200">Alerjenler & Etiketler</Label>
+        <div className="flex flex-wrap gap-2">
+          {ALLERGEN_OPTIONS.map((item) => {
+            const isSelected = selectedAllergens.includes(item.id);
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => toggleAllergen(item.id)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm border transition-all ${
+                  isSelected 
+                    ? "bg-blue-100 border-blue-500 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-500" 
+                    : "bg-gray-50 border-gray-200 text-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+        {/* Seçilenleri sunucuya göndermek için gizli input */}
+        <input type="hidden" name="allergens" value={JSON.stringify(selectedAllergens)} />
+      </div>
+
       {/* --- VARYASYONLAR --- */}
-      <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3">
+      <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3 mt-2">
         <div className="flex justify-between items-center">
             <Label className="font-semibold dark:text-gray-200">Porsiyon / Seçenekler</Label>
             <Button type="button" size="sm" variant="outline" onClick={addVariant} className="dark:bg-gray-800 dark:text-white dark:border-gray-600">

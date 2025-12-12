@@ -48,6 +48,10 @@ export async function createProduct(formData: FormData) {
   const variantsJson = formData.get("variants") as string;
   const variants: VariantInput[] = variantsJson ? JSON.parse(variantsJson) : [];
 
+  // 👇 YENİ: Alerjen verisini al ve parse et
+  const allergensJson = formData.get("allergens") as string;
+  const allergens: string[] = allergensJson ? JSON.parse(allergensJson) : [];
+
   let category = await prisma.category.findFirst({
     where: { name: categoryName, restaurantId: restaurant.id }
   });
@@ -74,6 +78,7 @@ export async function createProduct(formData: FormData) {
       imageUrl,
       categoryId: category.id,
       isAvailable: isAvailable, // Durum bilgisi
+      allergens: allergens,     // 👈 YENİ: Veritabanına kaydet
       order: newOrder,
       variants: {
         create: variants.map(v => ({
@@ -109,6 +114,10 @@ export async function updateProduct(formData: FormData) {
   const variantsJson = formData.get("variants") as string;
   const variants: VariantInput[] = variantsJson ? JSON.parse(variantsJson) : [];
 
+  // 👇 YENİ: Alerjen verisini al ve parse et
+  const allergensJson = formData.get("allergens") as string;
+  const allergens: string[] = allergensJson ? JSON.parse(allergensJson) : [];
+
   // Kategoriyi bul (Değiştirilmişse yeni kategoriyi bulur)
   let category = await prisma.category.findFirst({
     where: { name: categoryName, restaurantId: restaurant.id }
@@ -133,6 +142,7 @@ export async function updateProduct(formData: FormData) {
           imageUrl,
           categoryId: category.id, // Kategori güncellemesi
           isAvailable: isAvailable, // Durum güncellemesi
+          allergens: allergens,     // 👈 YENİ: Alerjenleri güncelle
           variants: {
             create: variants.map(v => ({
                 name: v.name,

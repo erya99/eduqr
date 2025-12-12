@@ -7,20 +7,38 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"; // shadcn drawer bileşeni (yüklemediysen 'npx shadcn@latest add drawer' yap)
+} from "@/components/ui/drawer"; 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+
+// İkon ve İsim Haritası
+const ALLERGEN_MAP: Record<string, { label: string, icon: string }> = {
+  gluten: { label: "Gluten", icon: "🌾" },
+  dairy: { label: "Süt", icon: "🥛" },
+  egg: { label: "Yumurta", icon: "🥚" },
+  nuts: { label: "Kuruyemiş", icon: "🥜" },
+  spicy: { label: "Acı", icon: "🌶️" },
+  vegan: { label: "Vegan", icon: "🌱" },
+  sea: { label: "Deniz Ürünü", icon: "🐟" },
+};
 
 interface ProductCardProps {
   name: string;
   description?: string | null;
   price: number;
   imageUrl?: string | null;
-  variants?: { name: string; price: number }[]; // YENİ: Varyasyonlar
+  variants?: { name: string; price: number }[];
+  allergens?: string[]; // YENİ: Alerjen listesi
 }
 
-export default function ProductCard({ name, description, price, imageUrl, variants = [] }: ProductCardProps) {
+export default function ProductCard({ 
+  name, 
+  description, 
+  price, 
+  imageUrl, 
+  variants = [], 
+  allergens = [] // Varsayılan boş liste
+}: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const hasVariants = variants && variants.length > 0;
 
@@ -33,7 +51,7 @@ export default function ProductCard({ name, description, price, imageUrl, varian
         onClick={() => hasVariants && setOpen(true)} // Varyasyon varsa tıklanabilir yap
         className="group flex gap-4 p-4 bg-white dark:bg-gray-900/60 backdrop-blur-sm border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
       >
-        {/* Görsel Alanı (Aynı kalıyor) */}
+        {/* Görsel Alanı */}
         <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
           {imageUrl ? (
             <Image src={imageUrl} alt={name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -46,6 +64,26 @@ export default function ProductCard({ name, description, price, imageUrl, varian
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight mb-1">{name}</h3>
             {description && <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">{description}</p>}
+
+            {/* 👇 YENİ: ALERJEN İKONLARI (Açıklamanın hemen altına) */}
+            {allergens && allergens.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {allergens.map((alg) => {
+                  const info = ALLERGEN_MAP[alg];
+                  if (!info) return null;
+                  return (
+                    <div 
+                      key={alg} 
+                      title={info.label} // Üzerine gelince ismi yazar
+                      className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-50 border border-orange-100 text-xs cursor-help dark:bg-orange-900/20 dark:border-orange-800 select-none"
+                    >
+                      {info.icon}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            {/* -------------------------------------------------- */}
           </div>
           
           <div className="flex items-center justify-between mt-2">

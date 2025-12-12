@@ -91,6 +91,8 @@ model Product {
   imageUrl    String?
   isAvailable Boolean  @default(true)
   order       Int      @default(0)
+
+  allergens   String[] @default([])
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
