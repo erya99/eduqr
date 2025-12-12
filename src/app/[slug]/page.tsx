@@ -142,6 +142,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                   price={Number(product.price)}
                   imageUrl={product.imageUrl}
                   variants={product.variants}
+                  allergens={product.allergens} // 👈 YENİ: Alerjen verisini gönderiyoruz
                 />
               ))}
             </div>
