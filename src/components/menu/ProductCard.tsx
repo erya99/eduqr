@@ -22,13 +22,49 @@ const ALLERGEN_MAP: Record<string, { label: string, icon: string }> = {
   sea: { label: "Deniz Ürünü", icon: "🐟" },
 };
 
+// --- YENİ: Mobilde Tıklayınca Açılan Alerjen Rozeti ---
+const AllergenBadge = ({ id }: { id: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const info = ALLERGEN_MAP[id];
+
+  if (!info) return null;
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation(); // Kartın tıklanmasını ve Drawer'ın açılmasını engeller
+        setIsOpen(!isOpen);  // Aç/Kapa yap
+      }}
+      title={info.label} // Masaüstü için hover desteği devam eder
+      className={`
+        inline-flex items-center justify-center h-6 rounded-full border border-orange-100 
+        text-xs cursor-pointer select-none transition-all duration-300 ease-in-out overflow-hidden
+        ${isOpen ? "px-2 bg-orange-100 w-auto" : "w-6 bg-orange-50"}
+        dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-100
+      `}
+    >
+      <span className="text-base leading-none">{info.icon}</span>
+      
+      {/* Açıldığında görünen metin */}
+      <span 
+        className={`ml-1 whitespace-nowrap overflow-hidden transition-all duration-300 ${
+          isOpen ? "max-w-[100px] opacity-100" : "max-w-0 opacity-0"
+        }`}
+      >
+        {info.label}
+      </span>
+    </div>
+  );
+};
+// -----------------------------------------------------
+
 interface ProductCardProps {
   name: string;
   description?: string | null;
   price: number;
   imageUrl?: string | null;
   variants?: { name: string; price: number }[];
-  allergens?: string[]; // YENİ: Alerjen listesi
+  allergens?: string[];
 }
 
 export default function ProductCard({ 
@@ -37,7 +73,7 @@ export default function ProductCard({
   price, 
   imageUrl, 
   variants = [], 
-  allergens = [] // Varsayılan boş liste
+  allergens = [] 
 }: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const hasVariants = variants && variants.length > 0;
@@ -48,7 +84,7 @@ export default function ProductCard({
   return (
     <>
       <div 
-        onClick={() => hasVariants && setOpen(true)} // Varyasyon varsa tıklanabilir yap
+        onClick={() => hasVariants && setOpen(true)}
         className="group flex gap-4 p-4 bg-white dark:bg-gray-900/60 backdrop-blur-sm border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
       >
         {/* Görsel Alanı */}
@@ -65,22 +101,12 @@ export default function ProductCard({
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight mb-1">{name}</h3>
             {description && <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">{description}</p>}
 
-            {/* 👇 YENİ: ALERJEN İKONLARI (Açıklamanın hemen altına) */}
+            {/* 👇 GÜNCELLENDİ: Alerjen İkonları (Yeni Bileşen ile) */}
             {allergens && allergens.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
-                {allergens.map((alg) => {
-                  const info = ALLERGEN_MAP[alg];
-                  if (!info) return null;
-                  return (
-                    <div 
-                      key={alg} 
-                      title={info.label} // Üzerine gelince ismi yazar
-                      className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-50 border border-orange-100 text-xs cursor-help dark:bg-orange-900/20 dark:border-orange-800 select-none"
-                    >
-                      {info.icon}
-                    </div>
-                  )
-                })}
+                {allergens.map((alg) => (
+                  <AllergenBadge key={alg} id={alg} />
+                ))}
               </div>
             )}
             {/* -------------------------------------------------- */}
@@ -91,7 +117,6 @@ export default function ProductCard({
               {hasVariants ? `${fmt(price)}'den Başlayan` : fmt(price)}
             </span>
             
-            {/* Buton: Varyasyon varsa 'Seç', yoksa '+' */}
             <button className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white transition-colors">
                <Plus className="w-4 h-4" />
             </button>
@@ -110,13 +135,11 @@ export default function ProductCard({
               </DrawerHeader>
               
               <div className="space-y-3 mt-4">
-                {/* Varsayılan seçenek (Standart) */}
                 <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
                     <span className="font-medium">Standart Porsiyon</span>
                     <span className="font-bold text-blue-600">{fmt(price)}</span>
                 </div>
 
-                {/* Eklenen Varyasyonlar */}
                 {variants.map((variant, idx) => (
                     <div key={idx} className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-blue-500 transition-colors cursor-pointer">
                         <span className="font-medium">{variant.name}</span>
