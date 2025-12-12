@@ -134,4 +134,12 @@ div[data-test="cloudinary-widget"] {
 .dark [data-theme='purple'] {
   --brand-primary: #c084fc; /* purple-400 */
 }
+
+/* 6. SİYAH (Monochrome / Renksiz) */
+[data-theme='black'] {
+  --brand-primary: #171717; /* neutral-900 (Koyu Siyah) */
+}
+.dark [data-theme='black'] {
+  --brand-primary: #ffffff; /* white (Tam Beyaz - Karanlıkta parlaması için) */
+}
 }
