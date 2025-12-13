@@ -7,7 +7,8 @@ import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "luc
 import ProductCard from "@/components/menu/ProductCard";
 import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
-import ModernMenu from "@/components/menu/ModernMenu"; // 👈 YENİ: Modern Menü Bileşeni
+import ModernMenu from "@/components/menu/ModernMenu";
+import FeedbackButton from "@/components/menu/FeedbackButton"; // 👈 1. İMPORT EKLENDİ
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -99,9 +100,10 @@ export default async function MenuPage({ params, searchParams }: Props) {
         />
       </div>
 
-      {/* --- SAYAÇ & ÇARKIFELEK (Her iki tasarımda da ortak) --- */}
+      {/* --- SAYAÇ, ÇARKIFELEK & DEĞERLENDİRME --- */}
       <ViewTracker restaurantId={restaurant.id} />
       <SpinWheel items={wheelItems} />
+      <FeedbackButton restaurantId={restaurant.id} /> {/* 👈 2. BUTON EKLENDİ */}
 
 
       {/* --- İÇERİK ALANI --- */}
