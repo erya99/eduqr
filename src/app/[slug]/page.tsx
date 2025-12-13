@@ -9,7 +9,7 @@ import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
 import FeedbackButton from "@/components/menu/FeedbackButton";
-import PdfDownloader from "@/components/menu/PdfDownloader"; // PDF İndirici
+import PdfDownloader from "@/components/menu/PdfDownloader";
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -21,13 +21,11 @@ type Props = {
 
 export default async function MenuPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const sp = await searchParams; // Await işlemi
+  const sp = await searchParams;
   const { cat } = sp;
 
-  // PDF Modu Kontrolü (?pdf=true ise)
   const isPdfMode = sp?.pdf === "true";
 
-  // 1. Veritabanından restoranı çek
   const restaurant: any = await prisma.restaurant.findUnique({
     where: { 
       slug: slug,
@@ -49,7 +47,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
 
   if (!restaurant) return notFound();
 
-  // Hizmet dışı kontrolü
   if (!restaurant.isActive) {
      return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center p-4">
@@ -59,7 +56,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
      )
   }
 
-  // Çark verilerini çekiyoruz
   const wheelItems = await getWheelItems(slug);
   const isModernDesign = restaurant.template === "modern";
 
@@ -75,12 +71,10 @@ export default async function MenuPage({ params, searchParams }: Props) {
       className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden bg-white dark:bg-black"
     >
       
-      {/* --- PDF İNDİRME MODÜLÜ (Sadece PDF modunda çalışır) --- */}
       {isPdfMode && (
         <PdfDownloader elementId="menu-container" filename={`${restaurant.slug}-menu`} />
       )}
 
-      {/* --- ARKA PLAN VE EKSTRALAR (PDF Modunda Gizli) --- */}
       {!isPdfMode && (
         <>
           <div className="fixed inset-0 z-[-1]">
@@ -94,13 +88,12 @@ export default async function MenuPage({ params, searchParams }: Props) {
       )}
 
       {/* --- ANA MENÜ İÇERİĞİ --- */}
-      {/* "menu-container" ID'si html2pdf'in fotoğrafını çekeceği alandır */}
       <div id="menu-container" className={isPdfMode ? "p-8 bg-white text-black min-h-screen" : ""}>
         
-        {/* PDF Header (Sadece PDF Çıktısında Görünür) */}
+        {/* PDF Header */}
         {isPdfMode && (
-          <div className="text-center mb-10 border-b-2 border-black pb-6">
-            <h1 className="text-5xl font-bold text-black mb-3 tracking-tight">{restaurant.name}</h1>
+          <div className="text-center mb-8 border-b-2 border-black pb-6 break-inside-avoid">
+            <h1 className="text-5xl font-bold text-black mb-3 uppercase tracking-wider">{restaurant.name}</h1>
             {restaurant.description && <p className="text-xl text-gray-600 italic">{restaurant.description}</p>}
           </div>
         )}
@@ -193,32 +186,52 @@ export default async function MenuPage({ params, searchParams }: Props) {
                         </div>
                     )}
 
-                    {/* PDF (İndirme) Modu: Tüm Kategoriler Alt Alta (Görselsiz Kategori, Görselli Ürün) */}
+                    {/* PDF (İndirme) Modu: SÜTUNSUZ, DÜZ YERLEŞİM (Daha güvenli çıktı) */}
                     {isPdfMode && (
-                        <div className="space-y-10">
+                        <div className="space-y-8">
                             {nonEmptyCategories.map((category: any) => (
-                                <div key={category.id} className="break-inside-avoid">
-                                    <h2 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6 mt-4 text-black uppercase tracking-wider">
+                                // 'break-inside-avoid' kategorinin başlığı ile ürünlerinin ayrılmamasını sağlar
+                                <div key={category.id} className="mb-8 break-inside-avoid page-break-inside-avoid">
+                                    
+                                    {/* Kategori Başlığı */}
+                                    <h2 className="text-2xl font-black border-b-4 border-black pb-2 mb-6 mt-4 text-black uppercase tracking-wider">
                                         {category.name}
                                     </h2>
-                                    <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+
+                                    {/* Ürünler Listesi (Flex kullanarak Grid sorunlarını önlüyoruz) */}
+                                    <div className="flex flex-wrap gap-6">
                                         {category.products.map((product: any) => (
-                                            <div key={product.id} className="flex flex-col border border-gray-200 rounded-lg p-3 bg-white shadow-sm break-inside-avoid">
+                                            // Ürün Kartı
+                                            <div 
+                                                key={product.id} 
+                                                className="w-full sm:w-[48%] flex flex-col border-2 border-gray-200 rounded-xl p-4 bg-white shadow-sm break-inside-avoid page-break-inside-avoid"
+                                                style={{ pageBreakInside: 'avoid' }} // Ekstra güvenlik
+                                            >
+                                                {/* Görsel Alanı */}
                                                 {product.imageUrl && (
-                                                    // DÜZELTME: PDF'de görsel bozulmasını önlemek için background-image kullanıldı
                                                     <div 
-                                                        className="h-40 w-full mb-3 rounded-md overflow-hidden bg-gray-100 bg-cover bg-center"
-                                                        style={{ backgroundImage: `url('${product.imageUrl}')` }}
-                                                        aria-label={product.name}
-                                                        role="img"
+                                                        className="w-full h-48 mb-4 rounded-lg bg-gray-100 bg-cover bg-center border border-gray-100"
+                                                        style={{ 
+                                                            backgroundImage: `url('${product.imageUrl}')`,
+                                                            // Görselin kutuya tam oturması için:
+                                                            backgroundSize: 'cover', 
+                                                            backgroundPosition: 'center center'
+                                                        }}
                                                     />
                                                 )}
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <span className="font-bold text-lg text-black">{product.name}</span>
-                                                    <span className="font-bold text-xl text-black whitespace-nowrap ml-2">₺{Number(product.price)}</span>
+
+                                                {/* Ürün Bilgileri */}
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="font-bold text-xl text-black leading-tight pr-2">{product.name}</span>
+                                                    <span className="font-bold text-xl text-black whitespace-nowrap bg-gray-100 px-2 py-1 rounded-md">
+                                                        ₺{Number(product.price)}
+                                                    </span>
                                                 </div>
+                                                
                                                 {product.description && (
-                                                    <p className="text-sm text-gray-600 line-clamp-3">{product.description}</p>
+                                                    <p className="text-base text-gray-700 leading-snug mt-1 border-t pt-2 border-gray-100">
+                                                        {product.description}
+                                                    </p>
                                                 )}
                                             </div>
                                         ))}
@@ -234,7 +247,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </div>
 
-      {/* --- FOOTER (PDF Modunda Gizli) --- */}
+      {/* FOOTER (Normal Modda Görünür) */}
       {!isPdfMode && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
             <div className="container mx-auto flex items-center justify-between max-w-md">
