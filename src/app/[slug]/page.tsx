@@ -9,7 +9,7 @@ import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
 import FeedbackButton from "@/components/menu/FeedbackButton";
-import PdfDownloader from "@/components/menu/PdfDownloader"; // 👈 PDF İndirici Bileşeni
+import PdfDownloader from "@/components/menu/PdfDownloader"; // PDF İndirici
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -21,7 +21,7 @@ type Props = {
 
 export default async function MenuPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const sp = await searchParams; // searchParams'i await ediyoruz
+  const sp = await searchParams; // Await işlemi
   const { cat } = sp;
 
   // PDF Modu Kontrolü (?pdf=true ise)
@@ -94,7 +94,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
       )}
 
       {/* --- ANA MENÜ İÇERİĞİ --- */}
-      {/* "menu-container" ID'si html2pdf'in yakalayacağı alandır */}
+      {/* "menu-container" ID'si html2pdf'in fotoğrafını çekeceği alandır */}
       <div id="menu-container" className={isPdfMode ? "p-8 bg-white text-black min-h-screen" : ""}>
         
         {/* PDF Header (Sadece PDF Çıktısında Görünür) */}
@@ -205,15 +205,13 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                         {category.products.map((product: any) => (
                                             <div key={product.id} className="flex flex-col border border-gray-200 rounded-lg p-3 bg-white shadow-sm break-inside-avoid">
                                                 {product.imageUrl && (
-                                                    <div className="h-40 w-full mb-3 rounded-md overflow-hidden bg-gray-100 relative">
-                                                        {/* html2pdf için standart img etiketi daha kararlıdır */}
-                                                        <img 
-                                                            src={product.imageUrl} 
-                                                            alt={product.name} 
-                                                            className="object-cover w-full h-full"
-                                                            crossOrigin="anonymous" 
-                                                        />
-                                                    </div>
+                                                    // DÜZELTME: PDF'de görsel bozulmasını önlemek için background-image kullanıldı
+                                                    <div 
+                                                        className="h-40 w-full mb-3 rounded-md overflow-hidden bg-gray-100 bg-cover bg-center"
+                                                        style={{ backgroundImage: `url('${product.imageUrl}')` }}
+                                                        aria-label={product.name}
+                                                        role="img"
+                                                    />
                                                 )}
                                                 <div className="flex justify-between items-start mb-1">
                                                     <span className="font-bold text-lg text-black">{product.name}</span>
