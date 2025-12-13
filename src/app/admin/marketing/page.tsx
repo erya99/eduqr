@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Printer, Download, ExternalLink, Gift, Trash2, Eye, EyeOff } from "lucide-react";
+import { Image as ImageIcon, Download, ExternalLink, Gift, Trash2, Eye, EyeOff, Printer } from "lucide-react"; // İkonlar güncellendi
 import QRCodeCard from "@/components/admin/QRCodeCard";
 import { createWheelItem, deleteWheelItem, toggleWheelItemStatus } from "@/actions/wheel-actions";
 
@@ -16,7 +16,6 @@ export default async function MarketingPage() {
   const user = await currentUser();
   if (!user) return redirect("/sign-in");
 
-  // Restoranı ve Çark Öğelerini çekiyoruz
   const restaurant = await prisma.restaurant.findFirst({
     where: { userId: user.id },
     include: {
@@ -33,7 +32,6 @@ export default async function MarketingPage() {
   return (
     <div className="space-y-8 p-4 animate-in fade-in duration-500">
       
-      {/* --- BAŞLIK --- */}
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Pazarlama Araçları</h2>
         <p className="text-muted-foreground">
@@ -41,33 +39,32 @@ export default async function MarketingPage() {
         </p>
       </div>
 
-      {/* --- ÜST KISIM: QR & PDF --- */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* 1. KART: QR KOD */}
         <QRCodeCard slug={restaurant.slug} />
 
-        {/* 2. KART: PDF MENÜ ÇIKTISI */}
+        {/* 2. KART: MENÜ GÖRSELİ İNDİRME */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-                <Printer className="w-5 h-5 text-primary" />
-                Menü PDF Çıktısı
+                <ImageIcon className="w-5 h-5 text-primary" />
+                Menü Görsel Çıktısı
             </CardTitle>
             <CardDescription>
-              Menünüzü fiziksel olarak yazdırmak veya PDF formatında indirmek için kullanın.
+              Menünüzü yüksek kaliteli resim (PNG) olarak indirin ve paylaşın.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
              <div className="bg-muted p-4 rounded-lg text-sm text-muted-foreground">
-                <p>💡 <strong>Bilgi:</strong> "PDF Olarak İndir" butonuna tıkladığınızda menünüz yeni sekmede açılacak ve otomatik olarak PDF dosyası hazırlanıp inecektir.</p>
+                <p>💡 <strong>Bilgi:</strong> Butona tıkladığınızda menünüz tek parça, uzun bir görsel (PNG) olarak indirilecektir.</p>
              </div>
 
              <div className="flex flex-col gap-3">
                  <Button asChild className="w-full h-12 text-lg bg-blue-600 hover:bg-blue-700" variant="default">
-                    {/* DÜZELTME: Parametre ?print=true yerine ?pdf=true yapıldı */}
+                    {/* Link aynı kalıyor (?pdf=true), ama artık arka planda PNG indirici çalışacak */}
                     <Link href={`/${restaurant.slug}?pdf=true`} target="_blank">
                         <Download className="mr-2 h-5 w-5" />
-                        PDF Olarak İndir
+                        PNG Olarak İndir
                     </Link>
                  </Button>
 
@@ -91,7 +88,6 @@ export default async function MarketingPage() {
         </h1>
         
         <div className="grid lg:grid-cols-2 gap-8">
-            {/* SOL: EKLEME FORMU */}
             <Card className="h-fit">
             <CardHeader>
                 <CardTitle>Yeni Kampanya/Ödül Ekle</CardTitle>
@@ -115,7 +111,6 @@ export default async function MarketingPage() {
             </CardContent>
             </Card>
 
-            {/* SAĞ: YÖNETİM LİSTESİ */}
             <Card>
             <CardHeader>
                 <CardTitle>Tanımlı Ödüller ({items.length})</CardTitle>
@@ -152,14 +147,12 @@ export default async function MarketingPage() {
                                 </div>
 
                                 <div className="flex gap-1">
-                                    {/* AKTİF/PASİF BUTONU */}
                                     <form action={toggleWheelItemStatus.bind(null, item.id, item.isActive)}>
                                         <Button size="icon" variant="ghost" className="h-8 w-8" title={item.isActive ? "Pasife Al" : "Aktifleştir"}>
                                             {item.isActive ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-gray-500" />}
                                         </Button>
                                     </form>
 
-                                    {/* SİLME BUTONU */}
                                     <form action={deleteWheelItem.bind(null, item.id)}>
                                         <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
                                             <Trash2 className="w-4 h-4" />

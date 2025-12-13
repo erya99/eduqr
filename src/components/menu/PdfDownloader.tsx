@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import html2canvas from "html2canvas";
 
 export default function PdfDownloader({ 
   elementId, 
@@ -13,48 +14,45 @@ export default function PdfDownloader({
   const [isGenerating, setIsGenerating] = useState(true);
 
   useEffect(() => {
-    const generatePdf = async () => {
-      // @ts-ignore
-      const html2pdf = (await import("html2pdf.js")).default;
-      
+    const generateImage = async () => {
       const element = document.getElementById(elementId);
       
       if (!element) {
-        console.error("PDF oluşturulacak element bulunamadı.");
+        console.error("Görüntü alınacak element bulunamadı.");
         setIsGenerating(false);
         return;
       }
 
-      const opt = {
-        // DÜZELTME 1: margin dizisini 'tuple' olarak zorluyoruz
-        margin:       [10, 10, 10, 10] as [number, number, number, number], 
-        filename:     `${filename}.pdf`,
-        image:        { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            scrollY: 0,
-            // Siyah ekranı önlemek için arka plan beyaz
-            backgroundColor: "#ffffff",
-            // A4 genişliğine sabitleme (Taşmaları önler)
-            windowWidth: 794 
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-        // DÜZELTME 2: mode dizisi için de tip güvenliği ekleyebiliriz (genelde string[] yeterlidir ama garanti olsun)
-        pagebreak:    { mode: ['css', 'legacy'], avoid: '.avoid-break' } 
-      };
-
       try {
-        await html2pdf().set(opt).from(element).save();
+        // html2canvas ile elementin fotoğrafını çekiyoruz
+        const canvas = await html2canvas(element, {
+          scale: 2, // Retina kalitesi (2x)
+          useCORS: true, // Dış kaynaklı görselleri yükle
+          backgroundColor: "#ffffff", // Arka planı beyaz yap
+          scrollY: 0, // Sayfanın tepesinden başla
+          logging: false,
+        });
+
+        // Canvas'ı resim verisine (DataURL) çevir
+        const image = canvas.toDataURL("image/png", 1.0);
+
+        // İndirme linki oluştur ve tıkla
+        const link = document.createElement("a");
+        link.download = `${filename}.png`;
+        link.href = image;
+        link.click();
+
       } catch (error) {
-        console.error("PDF oluşturma hatası:", error);
+        console.error("Görsel oluşturma hatası:", error);
       } finally {
         setIsGenerating(false);
+        // İndirme bitince istersen pencereyi kapatabilirsin:
+        // window.close();
       }
     };
 
-    // Görsellerin yüklenmesi için 2 saniye bekle
-    const timer = setTimeout(generatePdf, 2000);
+    // Görsellerin tam yüklenmesi için 1.5 saniye bekle
+    const timer = setTimeout(generateImage, 1500);
 
     return () => clearTimeout(timer);
   }, [elementId, filename]);
@@ -64,8 +62,8 @@ export default function PdfDownloader({
   return (
     <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center space-y-4">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      <h2 className="text-xl font-bold text-gray-800">Menü PDF Hazırlanıyor...</h2>
-      <p className="text-gray-500">Lütfen bekleyin, düzenleniyor ve indiriliyor.</p>
+      <h2 className="text-xl font-bold text-gray-800">Menü Görseli Hazırlanıyor...</h2>
+      <p className="text-gray-500">Lütfen bekleyin, yüksek kaliteli PNG olarak indiriliyor.</p>
     </div>
   );
 }
