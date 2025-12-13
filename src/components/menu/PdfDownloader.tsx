@@ -26,11 +26,15 @@ export default function PdfDownloader({
       }
 
       const opt = {
-        // DÜZELTME BURADA: 'as [number, number, number, number]' eklendi
         margin:       [10, 10, 10, 10] as [number, number, number, number], 
         filename:     `${filename}.pdf`,
         image:        { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            scrollY: 0,
+            backgroundColor: "#ffffff" // 👈 KRİTİK DÜZELTME: Arka planı beyaz yap
+        },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
         pagebreak:    { mode: ['css', 'legacy'], avoid: '.avoid-break' } 
       };
@@ -44,7 +48,7 @@ export default function PdfDownloader({
       }
     };
 
-    // Görsellerin tam yüklenmesi için 1.5 saniye bekle
+    // Görsellerin yüklenmesi için 1.5 saniye bekle
     const timer = setTimeout(generatePdf, 1500);
 
     return () => clearTimeout(timer);
