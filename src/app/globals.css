@@ -152,4 +152,30 @@ div[data-test="cloudinary-widget"] {
   --brand-primary: #ffffff; /* Beyaz */
   --bg-glow-opacity: 0;     /* ⛔ Işık Yok (Dümdüz) */
 }
+
+@media print {
+  /* Arka plan grafiklerini gizle */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Sayfa kesilmelerini yönet */
+  .break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Gereksiz boşlukları sil */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Linklerin altı çizili olmasın */
+  a {
+    text-decoration: none !important;
+  }
+}
 }

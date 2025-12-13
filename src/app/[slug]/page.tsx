@@ -8,7 +8,8 @@ import ProductCard from "@/components/menu/ProductCard";
 import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
-import FeedbackButton from "@/components/menu/FeedbackButton"; // FeedbackButton import edildi
+import FeedbackButton from "@/components/menu/FeedbackButton";
+import AutoPrint from "@/components/menu/AutoPrint"; // 👈 1. AutoPrint Eklendi
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -73,11 +74,14 @@ export default async function MenuPage({ params, searchParams }: Props) {
     // data-theme ile renk paletini sayfaya giydiriyoruz
     <div 
       data-theme={restaurant.colorPalette || "blue"}
-      className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
+      className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden bg-white dark:bg-black"
     >
       
-      {/* DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti) */}
-      <div className="fixed inset-0 z-[-1]">
+      {/* 2. OTOMATİK YAZDIRMA (Sadece ?print=true varsa çalışır) */}
+      <AutoPrint />
+
+      {/* DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti) - PRINT'TE GİZLİ */}
+      <div className="fixed inset-0 z-[-1] print:hidden">
         {/* 1. Katman: Ana Zemin Rengi */}
         <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
         
@@ -100,14 +104,17 @@ export default async function MenuPage({ params, searchParams }: Props) {
         />
       </div>
 
-      {/* --- SAYAÇ & ÇARKIFELEK --- */}
-      <ViewTracker restaurantId={restaurant.id} />
-      <SpinWheel items={wheelItems} />
+      {/* --- SAYAÇ & ÇARKIFELEK (PRINT'TE GİZLİ) --- */}
+      <div className="print:hidden">
+        <ViewTracker restaurantId={restaurant.id} />
+        <SpinWheel items={wheelItems} />
+      </div>
       
-      {/* NOT: FeedbackButton buradan kaldırıldı. 
-          Artık sayfanın en altındaki Footer bileşeninin içinde yer alıyor.
-      */}
-
+      {/* --- PRINT HEADER (Sadece PDF/Yazıcı modunda görünür) --- */}
+      <div className="hidden print:block text-center mb-8 pt-4 border-b pb-4">
+         <h1 className="text-3xl font-bold text-black">{restaurant.name}</h1>
+         {restaurant.description && <p className="text-gray-600 mt-2">{restaurant.description}</p>}
+      </div>
 
       {/* --- İÇERİK ALANI --- */}
       {isModernDesign ? (
@@ -120,8 +127,8 @@ export default async function MenuPage({ params, searchParams }: Props) {
         // SEÇENEK B: KLASİK GÖRSEL AĞIRLIKLI TASARIM
         // ==========================================
         <>
-          {/* --- HEADER --- */}
-          <header className="relative">
+          {/* --- HEADER (PRINT'TE GİZLİ) --- */}
+          <header className="relative print:hidden">
             <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
               {restaurant.coverUrl ? (
                 <Image
@@ -175,76 +182,109 @@ export default async function MenuPage({ params, searchParams }: Props) {
             </div>
           </header>
 
-          {/* --- ANA İÇERİK (Grid Yapısı) --- */}
+          {/* --- ANA İÇERİK --- */}
           <main className="container mx-auto px-4 mt-10">
             {activeCategory ? (
-              // --- ÜRÜN LİSTESİ ---
+              // --- TEK KATEGORİ GÖRÜNÜMÜ ---
               <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <span className="w-1 h-8 bg-[var(--brand-primary)] rounded-full inline-block"></span>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-black print:text-black">
+                  <span className="w-1 h-8 bg-[var(--brand-primary)] rounded-full inline-block print:hidden"></span>
                   {activeCategory.name}
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Print modunda grid yapısını koru ama sayfa bölünmesini yönet */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-2">
                   {activeCategory.products.map((product: any) => (
-                    <ProductCard
-                      key={product.id}
-                      name={product.name}
-                      description={product.description}
-                      price={Number(product.price)}
-                      imageUrl={product.imageUrl}
-                      variants={product.variants}
-                      allergens={product.allergens}
-                    />
+                    <div key={product.id} className="break-inside-avoid">
+                        <ProductCard
+                          name={product.name}
+                          description={product.description}
+                          price={Number(product.price)}
+                          imageUrl={product.imageUrl}
+                          variants={product.variants}
+                          allergens={product.allergens}
+                        />
+                    </div>
                   ))}
                 </div>
               </div>
 
             ) : (
-              // --- KATEGORİ LİSTESİ ---
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
-                {nonEmptyCategories.map((category: any) => {
-                  const catImage = category.imageUrl && category.imageUrl !== "" 
-                    ? category.imageUrl 
-                    : category.products[0]?.imageUrl;
+              // --- ANA SAYFA (KATEGORİ LİSTESİ) ---
+              <>
+                  {/* WEB GÖRÜNÜMÜ: Sadece Kategori Kartları */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500 print:hidden">
+                    {nonEmptyCategories.map((category: any) => {
+                      const catImage = category.imageUrl && category.imageUrl !== "" 
+                        ? category.imageUrl 
+                        : category.products[0]?.imageUrl;
 
-                  return (
-                    <Link 
-                      href={`/${slug}?cat=${category.id}`} 
-                      key={category.id}
-                      className="group relative h-40 md:h-56 rounded-2xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-xl border border-transparent dark:border-gray-800"
-                    >
-                      {catImage ? (
-                          <Image
-                            src={catImage}
-                            alt={category.name}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
-                      ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
-                      )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
-                        <h2 className="text-white text-lg md:text-xl font-bold leading-tight text-center">{category.name}</h2>
-                        <p className="text-white/70 text-xs mt-1 text-center">{category.products.length} Ürün</p>
-                      </div>
-                    </Link>
-                  )
-                })}
-                
-                {nonEmptyCategories.length === 0 && (
-                    <div className="col-span-full text-center py-20 text-gray-500">
-                        Menü henüz hazırlanmamış.
-                    </div>
-                )}
-              </div>
+                      return (
+                        <Link 
+                          href={`/${slug}?cat=${category.id}`} 
+                          key={category.id}
+                          className="group relative h-40 md:h-56 rounded-2xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-xl border border-transparent dark:border-gray-800"
+                        >
+                          {catImage ? (
+                              <Image
+                                src={catImage}
+                                alt={category.name}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-700"
+                              />
+                          ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
+                          )}
+                          
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
+                            <h2 className="text-white text-lg md:text-xl font-bold leading-tight text-center">{category.name}</h2>
+                            <p className="text-white/70 text-xs mt-1 text-center">{category.products.length} Ürün</p>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                    
+                    {nonEmptyCategories.length === 0 && (
+                        <div className="col-span-full text-center py-20 text-gray-500">
+                            Menü henüz hazırlanmamış.
+                        </div>
+                    )}
+                  </div>
+
+                  {/* PRINT GÖRÜNÜMÜ: Tüm Menü Listesi (Kategori Görselsiz, Ürün Görselli) */}
+                  <div className="hidden print:block space-y-8">
+                        {nonEmptyCategories.map((category: any) => (
+                            <div key={category.id} className="break-inside-avoid">
+                                <h2 className="text-xl font-bold border-b border-black pb-2 mb-4 mt-6 text-black">
+                                    {category.name}
+                                </h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {category.products.map((product: any) => (
+                                        <div key={product.id} className="break-inside-avoid border rounded-lg p-2 border-gray-300">
+                                            {product.imageUrl && (
+                                                <div className="relative h-32 w-full mb-2 overflow-hidden rounded-md">
+                                                    {/* Next/Image printte bazen sorun çıkarabilir, standart img daha güvenli */}
+                                                    <img src={product.imageUrl} alt={product.name} className="object-cover w-full h-full" />
+                                                </div>
+                                            )}
+                                            <div className="font-bold text-black">{product.name}</div>
+                                            <div className="text-sm text-gray-600">{product.description}</div>
+                                            <div className="text-right font-bold mt-1 text-black">
+                                                ₺{Number(product.price)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                  </div>
+              </>
             )}
           </main>
         </>
       )}
 
-      {/* --- FOOTER --- */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
+      {/* --- FOOTER (PRINT'TE GİZLİ) --- */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom print:hidden">
         <div className="container mx-auto flex items-center justify-between max-w-md">
           
           <div className="flex gap-6 items-center">
@@ -278,7 +318,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
           </div>
 
           <div className="flex items-center gap-4">
-             {/* DÜZENLEME: FeedbackButton ve ThemeToggle yanyana alındı */}
+             {/* FeedbackButton ve ThemeToggle yanyana */}
              <FeedbackButton restaurantId={restaurant.id} />
              <ThemeToggle />
           </div>
