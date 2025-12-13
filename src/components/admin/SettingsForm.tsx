@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { updateRestaurant } from "@/actions/restaurant-actions";
-import { Loader2, Upload, ImageIcon, X } from "lucide-react";
+import { Loader2, Upload, ImageIcon, X, LayoutGrid, List } from "lucide-react";
 
 // Renk Paletleri Tanımları
 const COLOR_PALETTES = [
@@ -30,7 +30,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   
-  // State tanımları (colorPalette eklendi)
+  // State tanımları (colorPalette ve template eklendi)
   const [formData, setFormData] = useState({
     name: restaurant.name,
     slug: restaurant.slug,
@@ -40,7 +40,8 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
     facebookUrl: restaurant.facebookUrl || "",
     twitterUrl: restaurant.twitterUrl || "",
     websiteUrl: restaurant.websiteUrl || "",
-    colorPalette: restaurant.colorPalette || "blue", // 👈 YENİ: Varsayılan mavi
+    colorPalette: restaurant.colorPalette || "blue",
+    template: restaurant.template || "classic", // 👈 YENİ: Tasarım seçimi
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,8 +69,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
       return;
     }
 
-    // formData içinde colorPalette olduğu için updateRestaurant fonksiyonuna otomatik gidecek
-    // (Ancak src/actions/restaurant-actions.ts dosyasını güncellediğinizden emin olun)
+    // formData içinde colorPalette ve template olduğu için updateRestaurant fonksiyonuna otomatik gidecek
     const result = await updateRestaurant(restaurant.id, formData);
 
     if (result.success) {
@@ -121,7 +121,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
         </div>
       </div>
 
-      {/* --- TEMA RENGİ SEÇİMİ (YENİ BÖLÜM) --- */}
+      {/* --- TEMA RENGİ SEÇİMİ --- */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Menü Teması</h3>
         <div className="grid gap-2">
@@ -145,6 +145,66 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
                 </button>
             ))}
             </div>
+        </div>
+      </div>
+
+      {/* --- MENÜ TASARIMI SEÇİMİ (YENİ BÖLÜM) --- */}
+      <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Menü Tasarımı</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* Klasik Tasarım Seçeneği */}
+          <div 
+            onClick={() => setFormData({ ...formData, template: 'classic' })}
+            className={`
+              relative cursor-pointer border-2 rounded-xl p-4 flex items-center gap-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
+              ${formData.template === 'classic' || !formData.template
+                ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500' 
+                : 'border-gray-200 dark:border-gray-700'
+              }
+            `}
+          >
+            <div className={`
+              h-12 w-12 rounded-lg flex items-center justify-center
+              ${formData.template === 'classic' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}
+            `}>
+              <LayoutGrid size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Klasik Görünüm</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Görsel ağırlıklı, kart yapısı.</p>
+            </div>
+            {formData.template === 'classic' && (
+              <div className="absolute top-4 right-4 h-3 w-3 bg-blue-600 rounded-full animate-pulse" />
+            )}
+          </div>
+
+          {/* Modern (Görselsiz) Tasarım Seçeneği */}
+          <div 
+            onClick={() => setFormData({ ...formData, template: 'modern' })}
+            className={`
+              relative cursor-pointer border-2 rounded-xl p-4 flex items-center gap-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
+              ${formData.template === 'modern' 
+                ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500' 
+                : 'border-gray-200 dark:border-gray-700'
+              }
+            `}
+          >
+            <div className={`
+              h-12 w-12 rounded-lg flex items-center justify-center
+              ${formData.template === 'modern' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}
+            `}>
+              <List size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Modern Liste</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Görselsiz, şık liste görünümü.</p>
+            </div>
+            {formData.template === 'modern' && (
+              <div className="absolute top-4 right-4 h-3 w-3 bg-blue-600 rounded-full animate-pulse" />
+            )}
+          </div>
+
         </div>
       </div>
 

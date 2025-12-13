@@ -6,7 +6,7 @@ import { currentUser } from "@clerk/nextjs/server";
 
 const prisma = new PrismaClient();
 
-// 1. Kullanıcının Restoranını Getir
+// 1. Kullanıcının Restoranını Getir (Admin Paneli için)
 export async function getRestaurantFromUser() {
   const user = await currentUser();
   if (!user) return null;
@@ -18,7 +18,16 @@ export async function getRestaurantFromUser() {
   return restaurant;
 }
 
-// 2. Restoran Bilgilerini Güncelle
+// 2. Slug ile Restoran Getir (Müşteri Menüsü için)
+// Bu fonksiyon [slug]/page.tsx içinde kullanılıyor
+export async function getRestaurantBySlug(slug: string) {
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { slug: slug },
+  });
+  return restaurant;
+}
+
+// 3. Restoran Bilgilerini Güncelle
 export async function updateRestaurant(
   restaurantId: string,
   data: {
@@ -30,7 +39,8 @@ export async function updateRestaurant(
     facebookUrl?: string | null;
     twitterUrl?: string | null;
     websiteUrl?: string | null;
-    colorPalette?: string; // 👈 YENİ: Renk paleti alanı
+    colorPalette?: string;
+    template?: string; // 👈 YENİ: Template alanı eklendi
   }
 ) {
   const user = await currentUser();
@@ -45,6 +55,7 @@ export async function updateRestaurant(
       return { success: false, error: "Yetkisiz işlem." };
     }
 
+    // Slug değişiyorsa, yeni slug'ın kullanımda olup olmadığını kontrol et
     if (data.slug !== restaurant.slug) {
       const existingSlug = await prisma.restaurant.findUnique({
         where: { slug: data.slug },
@@ -54,6 +65,7 @@ export async function updateRestaurant(
       }
     }
 
+    // Güncelleme İşlemi
     await prisma.restaurant.update({
       where: { id: restaurantId },
       data: {
@@ -65,10 +77,12 @@ export async function updateRestaurant(
         facebookUrl: data.facebookUrl || null,
         twitterUrl: data.twitterUrl || null,
         websiteUrl: data.websiteUrl || null,
-        colorPalette: data.colorPalette || "blue", // 👈 YENİ: Veritabanına kaydet
+        colorPalette: data.colorPalette || "blue",
+        template: data.template || "classic", // 👈 YENİ: Veritabanına kaydet (varsayılan: classic)
       },
     });
 
+    // Cache temizleme
     revalidatePath("/admin/settings");
     revalidatePath(`/${restaurant.slug}`);
     if (data.slug !== restaurant.slug) {

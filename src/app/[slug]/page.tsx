@@ -7,6 +7,7 @@ import { Instagram, Facebook, Twitter, Globe, ArrowLeft, ShoppingBag } from "luc
 import ProductCard from "@/components/menu/ProductCard";
 import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
+import ModernMenu from "@/components/menu/ModernMenu"; // 👈 YENİ: Modern Menü Bileşeni
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -57,12 +58,14 @@ export default async function MenuPage({ params, searchParams }: Props) {
   // Çark verilerini çekiyoruz
   const wheelItems = await getWheelItems(slug);
 
-  // Aktif kategoriyi bul
+  // Tasarım Kontrolü: Modern mi Klasik mi?
+  const isModernDesign = restaurant.template === "modern";
+
+  // Klasik Tasarım için Veri Hazırlığı
   const activeCategory = cat 
     ? restaurant.categories.find((c: any) => c.id === cat)
     : null;
 
-  // İçinde ürün olmayan kategorileri filtrele
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
@@ -72,7 +75,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
       className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
     >
       
-      {/* 👇 GÜNCELLENDİ: DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti Kontrollü) */}
+      {/* DİNAMİK ARKA PLAN KATMANLARI (Glow Efekti) */}
       <div className="fixed inset-0 z-[-1]">
         {/* 1. Katman: Ana Zemin Rengi */}
         <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
@@ -82,7 +85,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[100px] pointer-events-none transition-opacity duration-500"
           style={{ 
             backgroundColor: 'var(--brand-primary)',
-            opacity: 'var(--bg-glow-opacity, 0.15)' // Temaya göre opaklık değişir
+            opacity: 'var(--bg-glow-opacity, 0.15)' 
           }}
         />
 
@@ -91,142 +94,156 @@ export default async function MenuPage({ params, searchParams }: Props) {
           className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full blur-[120px] pointer-events-none transition-opacity duration-500"
           style={{ 
             backgroundColor: 'var(--brand-primary)',
-            opacity: 'var(--bg-glow-opacity, 0.10)' // Temaya göre opaklık değişir
+            opacity: 'var(--bg-glow-opacity, 0.10)' 
           }}
         />
       </div>
-      {/* -------------------------------------- */}
 
-      {/* --- SAYAÇ --- */}
+      {/* --- SAYAÇ & ÇARKIFELEK (Her iki tasarımda da ortak) --- */}
       <ViewTracker restaurantId={restaurant.id} />
-
-      {/* Çarkıfelek Bileşeni */}
       <SpinWheel items={wheelItems} />
 
-      {/* --- HEADER --- */}
-      <header className="relative">
-        <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
-          {restaurant.coverUrl ? (
-            <Image
-              src={restaurant.coverUrl}
-              alt="Kapak Görseli"
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
-             // Varsayılan gradient rengini de temaya uygun yapıyoruz
-             <div className="w-full h-full bg-gradient-to-r from-[var(--brand-primary)] to-slate-900 opacity-90" />
-          )}
-          <div className="absolute inset-0 bg-black/40" />
-          
-          {activeCategory && (
-             <Link 
-               href={`/${slug}`} 
-               className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-md p-2.5 rounded-full text-white hover:bg-white/20 transition border border-white/10"
-             >
-               <ArrowLeft className="w-6 h-6" />
-             </Link>
-          )}
-        </div>
 
-        <div className="container mx-auto px-4 relative -mt-20 z-10 text-center">
-             <div className="relative w-32 h-32 mx-auto rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white shadow-xl">
-                {restaurant.logoUrl ? (
-                    <Image src={restaurant.logoUrl} alt="Logo" fill className="object-cover"/>
-                ) : (
-                     <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 font-bold text-4xl">
-                        {restaurant.name.substring(0,1).toUpperCase()}
-                     </div>
+      {/* --- İÇERİK ALANI --- */}
+      {isModernDesign ? (
+        // ==========================================
+        // SEÇENEK A: MODERN GÖRSELSİZ TASARIM
+        // ==========================================
+        <ModernMenu restaurant={restaurant} categories={restaurant.categories} />
+      ) : (
+        // ==========================================
+        // SEÇENEK B: KLASİK GÖRSEL AĞIRLIKLI TASARIM
+        // ==========================================
+        <>
+          {/* --- HEADER --- */}
+          <header className="relative">
+            <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
+              {restaurant.coverUrl ? (
+                <Image
+                  src={restaurant.coverUrl}
+                  alt="Kapak Görseli"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                 <div className="w-full h-full bg-gradient-to-r from-[var(--brand-primary)] to-slate-900 opacity-90" />
+              )}
+              <div className="absolute inset-0 bg-black/40" />
+              
+              {activeCategory && (
+                 <Link 
+                   href={`/${slug}`} 
+                   className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-md p-2.5 rounded-full text-white hover:bg-white/20 transition border border-white/10"
+                 >
+                   <ArrowLeft className="w-6 h-6" />
+                 </Link>
+              )}
+            </div>
+
+            <div className="container mx-auto px-4 relative -mt-20 z-10 text-center">
+                 <div className="relative w-32 h-32 mx-auto rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white shadow-xl">
+                    {restaurant.logoUrl ? (
+                        <Image src={restaurant.logoUrl} alt="Logo" fill className="object-cover"/>
+                    ) : (
+                         <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 font-bold text-4xl">
+                            {restaurant.name.substring(0,1).toUpperCase()}
+                         </div>
+                    )}
+                </div>
+                
+                {!activeCategory && (
+                  <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{restaurant.name}</h1>
+                    {restaurant.description && (
+                        <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm max-w-md mx-auto">
+                            {restaurant.description}
+                        </p>
+                    )}
+                    {!restaurant.description && (
+                         <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm max-w-md mx-auto">
+                           Hoş geldiniz! Lezzetli menümüzü aşağıdan inceleyebilirsiniz.
+                         </p>
+                    )}
+                  </div>
                 )}
             </div>
-            
-            {!activeCategory && (
-              <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{restaurant.name}</h1>
-                <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm max-w-md mx-auto">
-                  Hoş geldiniz! Lezzetli menümüzü aşağıdan inceleyebilirsiniz.
-                </p>
+          </header>
+
+          {/* --- ANA İÇERİK (Grid Yapısı) --- */}
+          <main className="container mx-auto px-4 mt-10">
+            {activeCategory ? (
+              // --- ÜRÜN LİSTESİ ---
+              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  <span className="w-1 h-8 bg-[var(--brand-primary)] rounded-full inline-block"></span>
+                  {activeCategory.name}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {activeCategory.products.map((product: any) => (
+                    <ProductCard
+                      key={product.id}
+                      name={product.name}
+                      description={product.description}
+                      price={Number(product.price)}
+                      imageUrl={product.imageUrl}
+                      variants={product.variants}
+                      allergens={product.allergens}
+                    />
+                  ))}
+                </div>
+              </div>
+
+            ) : (
+              // --- KATEGORİ LİSTESİ ---
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
+                {nonEmptyCategories.map((category: any) => {
+                  const catImage = category.imageUrl && category.imageUrl !== "" 
+                    ? category.imageUrl 
+                    : category.products[0]?.imageUrl;
+
+                  return (
+                    <Link 
+                      href={`/${slug}?cat=${category.id}`} 
+                      key={category.id}
+                      className="group relative h-40 md:h-56 rounded-2xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-xl border border-transparent dark:border-gray-800"
+                    >
+                      {catImage ? (
+                          <Image
+                            src={catImage}
+                            alt={category.name}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          />
+                      ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
+                      )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
+                        <h2 className="text-white text-lg md:text-xl font-bold leading-tight text-center">{category.name}</h2>
+                        <p className="text-white/70 text-xs mt-1 text-center">{category.products.length} Ürün</p>
+                      </div>
+                    </Link>
+                  )
+                })}
+                
+                {nonEmptyCategories.length === 0 && (
+                    <div className="col-span-full text-center py-20 text-gray-500">
+                        Menü henüz hazırlanmamış.
+                    </div>
+                )}
               </div>
             )}
-        </div>
-      </header>
+          </main>
+        </>
+      )}
 
-      {/* --- ANA İÇERİK --- */}
-      <main className="container mx-auto px-4 mt-10">
-        
-        {activeCategory ? (
-          // --- ÜRÜN LİSTESİ ---
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              {/* Kategori yanındaki çizgiyi tema rengi yapıyoruz */}
-              <span className="w-1 h-8 bg-[var(--brand-primary)] rounded-full inline-block"></span>
-              {activeCategory.name}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {activeCategory.products.map((product: any) => (
-                <ProductCard
-                  key={product.id}
-                  name={product.name}
-                  description={product.description}
-                  price={Number(product.price)}
-                  imageUrl={product.imageUrl}
-                  variants={product.variants}
-                  allergens={product.allergens}
-                />
-              ))}
-            </div>
-          </div>
-
-        ) : (
-          // --- KATEGORİ LİSTESİ ---
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
-            {nonEmptyCategories.map((category: any) => {
-              const catImage = category.imageUrl && category.imageUrl !== "" 
-                ? category.imageUrl 
-                : category.products[0]?.imageUrl;
-
-              return (
-                <Link 
-                  href={`/${slug}?cat=${category.id}`} 
-                  key={category.id}
-                  className="group relative h-40 md:h-56 rounded-2xl overflow-hidden shadow-sm active:scale-95 transition-all duration-300 hover:shadow-xl border border-transparent dark:border-gray-800"
-                >
-                  {catImage ? (
-                     <Image
-                       src={catImage}
-                       alt={category.name}
-                       fill
-                       className="object-cover group-hover:scale-110 transition-transform duration-700"
-                     />
-                  ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
-                  )}
-                  
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
-                    <h2 className="text-white text-lg md:text-xl font-bold leading-tight text-center">{category.name}</h2>
-                    <p className="text-white/70 text-xs mt-1 text-center">{category.products.length} Ürün</p>
-                  </div>
-                </Link>
-              )
-            })}
-            
-            {nonEmptyCategories.length === 0 && (
-                <div className="col-span-full text-center py-20 text-gray-500">
-                    Menü henüz hazırlanmamış.
-                </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* --- FOOTER --- */}
+      {/* --- FOOTER (Her iki tasarımda da ortak) --- */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
         <div className="container mx-auto flex items-center justify-between max-w-md">
           
           <div className="flex gap-6 items-center">
              <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[var(--brand-primary)] dark:hover:text-blue-400 transition group">
-                {/* Sepet ikonunun arka planı ve hover rengi */}
                 <div className="p-1 rounded-full group-hover:bg-gray-100 dark:group-hover:bg-blue-900/20 transition">
                     <ShoppingBag size={20} />
                 </div>
@@ -238,7 +255,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                  </a>
              )}
              {restaurant.facebookUrl && (
-                 // Facebook hover rengi
                  <a href={restaurant.facebookUrl} target="_blank" className="text-gray-400 hover:text-[var(--brand-primary)] transition">
                     <Facebook size={20} />
                  </a>
