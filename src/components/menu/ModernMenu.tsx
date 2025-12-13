@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Category, Product, Restaurant } from "@prisma/client";
 import { Playfair_Display, Lato } from "next/font/google";
 
-// 1. Şık ve Zarif Fontları Yüklüyoruz
+// --- 1. FONTLAR ---
 const playfair = Playfair_Display({ 
   subsets: ["latin"], 
   weight: ["400", "700"],
@@ -17,6 +17,19 @@ const lato = Lato({
   variable: "--font-lato"
 });
 
+// --- 2. ALERJEN HARİTASI (Verdiğin Liste) ---
+const ALLERGEN_MAP: Record<string, { label: string; icon: string }> = {
+  gluten: { label: "Gluten", icon: "🌾" },
+  dairy: { label: "Süt", icon: "🥛" },
+  egg: { label: "Yumurta", icon: "🥚" },
+  nuts: { label: "Kuruyemiş", icon: "🥜" },
+  spicy: { label: "Acı", icon: "🌶️" },
+  vegan: { label: "Vegan", icon: "🌱" },
+  sea: { label: "Deniz Ürünü", icon: "🐟" },
+  // Veritabanından gelebilecek farklı yazımlar için (Opsiyonel)
+  lac: { label: "Laktoz", icon: "🥛" }, 
+};
+
 interface ModernMenuProps {
   restaurant: Restaurant;
   categories: (Category & { products: Product[] })[];
@@ -25,12 +38,11 @@ interface ModernMenuProps {
 export default function ModernMenu({ restaurant, categories }: ModernMenuProps) {
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]?.id || "");
 
-  // Scroll olayını dinleyip aktif kategoriyi güncellemek için (Opsiyonel ama şık durur)
+  // --- SCROLL TAKİBİ ---
   useEffect(() => {
     const handleScroll = () => {
-      // Basit bir scroll takibi mantığı
       const sections = categories.map(c => document.getElementById(`category-${c.id}`));
-      const scrollPosition = window.scrollY + 150; // Biraz offset veriyoruz
+      const scrollPosition = window.scrollY + 150; 
 
       for (const section of sections) {
         if (section && section.offsetTop <= scrollPosition && (section.offsetTop + section.offsetHeight) > scrollPosition) {
@@ -46,7 +58,7 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
   const scrollToCategory = (id: string) => {
     const element = document.getElementById(`category-${id}`);
     if (element) {
-      const offset = 80; // Header yüksekliği kadar pay bırak
+      const offset = 80; 
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
   
@@ -64,7 +76,7 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
   return (
     <div className={`${playfair.variable} ${lato.variable} min-h-screen bg-[#0c0c0c] text-[#e5e5e5]`}>
       
-      {/* --- BACKGROUND DEKORASYON (Hafif doku) --- */}
+      {/* --- BACKGROUND DEKORASYON --- */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0" 
            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }}>
       </div>
@@ -107,9 +119,9 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
         {categories.map((category) => (
           <section key={category.id} id={`category-${category.id}`} className="mb-20 scroll-mt-32">
             
-            {/* Kategori Başlığı - Şık ve Ortada */}
+            {/* Kategori Başlığı */}
             <div className="flex items-center justify-center mb-12 gap-4">
-              <span className="h-[1px] w-8 md:w-16 bg-[#d4af37]/40"></span> {/* Dekoratif Çizgi */}
+              <span className="h-[1px] w-8 md:w-16 bg-[#d4af37]/40"></span>
               <h2 className="font-serif text-3xl text-[#d4af37] tracking-wide italic text-center">
                 {category.name}
               </h2>
@@ -126,7 +138,7 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
                     {product.name}
                   </h3>
 
-                  {/* Fiyat (Ayrı vurgu) */}
+                  {/* Fiyat */}
                   <div className="font-sans text-[#d4af37] font-bold text-lg mb-3">
                     {formatPrice(Number(product.price))}
                   </div>
@@ -138,21 +150,36 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
                     </p>
                   )}
 
-                  {/* ALERJENLER (Yeni Eklenen Kısım) */}
+                  {/* --- DÜZELTİLEN KISIM: ALERJENLER --- */}
                   {product.allergens && product.allergens.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-2 mt-1">
-                      {product.allergens.map((allergen, index) => (
-                        <span 
-                          key={index} 
-                          className="px-2 py-[2px] border border-[#d4af37]/30 rounded text-[10px] text-[#bbb] font-sans uppercase tracking-wider bg-[#d4af37]/5"
-                        >
-                          {allergen}
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap justify-center gap-2 mt-2">
+                      {product.allergens.map((allergenKey, index) => {
+                        // Veritabanından "Dairy", "dairy" veya "DAIRY" gelebilir, küçültüp bakıyoruz.
+                        const mapData = ALLERGEN_MAP[allergenKey.toLowerCase()];
+                        
+                        // Eğer map'te varsa ikonlu hali, yoksa raw hali
+                        return (
+                          <span 
+                            key={index} 
+                            className="inline-flex items-center gap-1 px-3 py-1 border border-[#d4af37]/20 rounded-full text-[11px] text-[#ccc] font-sans font-medium tracking-wide bg-[#d4af37]/5 hover:bg-[#d4af37]/10 transition-colors cursor-default"
+                            title="Alerjen Uyarısı"
+                          >
+                            {mapData ? (
+                              <>
+                                <span className="text-base leading-none opacity-80">{mapData.icon}</span>
+                                <span>{mapData.label}</span>
+                              </>
+                            ) : (
+                              // Map'te karşılığı yoksa olduğu gibi yazsın ama stil korunsun
+                              allergenKey.toUpperCase()
+                            )}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                   
-                  {/* Altına ince bir ayırıcı nokta koyalım (Son ürün hariç) */}
+                  {/* Ayırıcı Nokta */}
                   <div className="w-1 h-1 bg-[#333] rounded-full mt-8 opacity-50 group-last:hidden"></div>
                 </div>
               ))}
@@ -167,12 +194,11 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
         )}
       </div>
 
-      {/* --- FOOTER DEKORASYONU --- */}
+      {/* --- FOOTER --- */}
       <div className="text-center py-10 opacity-20 pb-20">
         <span className="font-serif text-4xl text-[#d4af37]">~</span>
       </div>
 
-      {/* --- CSS: Scrollbar Gizleme (Tailwind 'no-scrollbar' yoksa diye) --- */}
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;
