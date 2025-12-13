@@ -14,7 +14,6 @@ export default function PdfDownloader({
 
   useEffect(() => {
     const generatePdf = async () => {
-      // Kütüphaneyi dinamik olarak import ediyoruz
       // @ts-ignore
       const html2pdf = (await import("html2pdf.js")).default;
       
@@ -27,12 +26,13 @@ export default function PdfDownloader({
       }
 
       const opt = {
-        margin:       [0, 0, 0, 0] as [number, number, number, number],
+        margin:       [10, 10, 10, 10] as [number, number, number, number], // Kenar boşluklarını biraz açtık (kesilme riskini azaltır)
         filename:     `${filename}.pdf`,
-        // DÜZELTME BURADA: 'jpeg' as const eklendi
         image:        { type: 'jpeg' as const, quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' as const }
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+        // KRİTİK AYAR: Sayfa bölmelerini yönet
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } 
       };
 
       try {
@@ -44,7 +44,6 @@ export default function PdfDownloader({
       }
     };
 
-    // Görsellerin tam yüklenmesi için 1 saniye bekleyip işlemi başlatıyoruz
     const timer = setTimeout(generatePdf, 1000);
 
     return () => clearTimeout(timer);

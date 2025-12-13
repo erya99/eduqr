@@ -88,11 +88,11 @@ export default async function MenuPage({ params, searchParams }: Props) {
       )}
 
       {/* --- ANA MENÜ İÇERİĞİ --- */}
-      <div id="menu-container" className={isPdfMode ? "p-8 bg-white text-black min-h-screen" : ""}>
+      <div id="menu-container" className={isPdfMode ? "p-8 bg-white text-black min-h-screen w-full" : ""}>
         
         {/* PDF Header */}
         {isPdfMode && (
-          <div className="text-center mb-8 border-b-2 border-black pb-6 break-inside-avoid">
+          <div className="text-center mb-8 border-b-2 border-black pb-6" style={{ pageBreakInside: 'avoid' }}>
             <h1 className="text-5xl font-bold text-black mb-3 uppercase tracking-wider">{restaurant.name}</h1>
             {restaurant.description && <p className="text-xl text-gray-600 italic">{restaurant.description}</p>}
           </div>
@@ -186,50 +186,63 @@ export default async function MenuPage({ params, searchParams }: Props) {
                         </div>
                     )}
 
-                    {/* PDF (İndirme) Modu: SÜTUNSUZ, DÜZ YERLEŞİM (Daha güvenli çıktı) */}
+                    {/* PDF (İndirme) Modu: SÜTUNSUZ, GÜVENLİ YERLEŞİM */}
                     {isPdfMode && (
-                        <div className="space-y-8">
+                        <div className="w-full">
                             {nonEmptyCategories.map((category: any) => (
-                                // 'break-inside-avoid' kategorinin başlığı ile ürünlerinin ayrılmamasını sağlar
-                                <div key={category.id} className="mb-8 break-inside-avoid page-break-inside-avoid">
+                                // KATEGORİ BLOĞU
+                                // 'break-inside-avoid' ve 'pageBreakInside: avoid' bu bloğu bir arada tutmaya çalışır
+                                <div 
+                                    key={category.id} 
+                                    className="mb-8 w-full break-inside-avoid"
+                                    style={{ pageBreakInside: 'avoid' }}
+                                >
                                     
                                     {/* Kategori Başlığı */}
-                                    <h2 className="text-2xl font-black border-b-4 border-black pb-2 mb-6 mt-4 text-black uppercase tracking-wider">
+                                    <h2 className="text-2xl font-black border-b-4 border-black pb-2 mb-6 mt-4 text-black uppercase tracking-wider w-full">
                                         {category.name}
                                     </h2>
 
-                                    {/* Ürünler Listesi (Flex kullanarak Grid sorunlarını önlüyoruz) */}
-                                    <div className="flex flex-wrap gap-6">
+                                    {/* Ürünler Listesi - Flex Wrap ile */}
+                                    <div className="flex flex-wrap gap-4 w-full">
                                         {category.products.map((product: any) => (
-                                            // Ürün Kartı
+                                            // ÜRÜN KARTI
+                                            // Burada 'width: 48%' vererek yan yana 2 tane sığmasını sağlıyoruz
+                                            // 'pageBreakInside: avoid' ile kartın ortadan bölünmesini engelliyoruz
                                             <div 
                                                 key={product.id} 
-                                                className="w-full sm:w-[48%] flex flex-col border-2 border-gray-200 rounded-xl p-4 bg-white shadow-sm break-inside-avoid page-break-inside-avoid"
-                                                style={{ pageBreakInside: 'avoid' }} // Ekstra güvenlik
+                                                className="flex flex-col border-2 border-gray-200 rounded-xl p-3 bg-white shadow-sm break-inside-avoid"
+                                                style={{ 
+                                                    pageBreakInside: 'avoid', 
+                                                    width: '48%', // Yan yana iki ürün (boşluk payıyla)
+                                                    minWidth: '300px', // Çok daralırsa alta geçsin
+                                                    flexGrow: 1
+                                                }}
                                             >
-                                                {/* Görsel Alanı */}
+                                                {/* Görsel Alanı - Background Image Yöntemi */}
                                                 {product.imageUrl && (
                                                     <div 
-                                                        className="w-full h-48 mb-4 rounded-lg bg-gray-100 bg-cover bg-center border border-gray-100"
+                                                        className="w-full rounded-lg bg-gray-100 border border-gray-100 mb-3"
                                                         style={{ 
                                                             backgroundImage: `url('${product.imageUrl}')`,
-                                                            // Görselin kutuya tam oturması için:
                                                             backgroundSize: 'cover', 
-                                                            backgroundPosition: 'center center'
+                                                            backgroundPosition: 'center center',
+                                                            aspectRatio: '16/9', // En-boy oranı sabit
+                                                            height: 'auto'
                                                         }}
                                                     />
                                                 )}
 
                                                 {/* Ürün Bilgileri */}
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <span className="font-bold text-xl text-black leading-tight pr-2">{product.name}</span>
-                                                    <span className="font-bold text-xl text-black whitespace-nowrap bg-gray-100 px-2 py-1 rounded-md">
+                                                    <span className="font-bold text-lg text-black leading-tight pr-2">{product.name}</span>
+                                                    <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 py-1 rounded-md">
                                                         ₺{Number(product.price)}
                                                     </span>
                                                 </div>
                                                 
                                                 {product.description && (
-                                                    <p className="text-base text-gray-700 leading-snug mt-1 border-t pt-2 border-gray-100">
+                                                    <p className="text-sm text-gray-700 leading-snug mt-1 border-t pt-2 border-gray-100">
                                                         {product.description}
                                                     </p>
                                                 )}
