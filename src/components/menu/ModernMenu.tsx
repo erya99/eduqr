@@ -1,17 +1,20 @@
 "use client";
 
 import { Category, Product, Restaurant } from "@prisma/client";
+import { Playfair_Display, Lato } from "next/font/google";
 
-// Renk paleti haritası
-const PALETTE_STYLES: Record<string, { text: string; bg: string; border: string; glow: string }> = {
-  blue:   { text: "text-blue-500", bg: "bg-blue-600", border: "border-blue-500", glow: "shadow-blue-500/20" },
-  red:    { text: "text-red-500", bg: "bg-red-600", border: "border-red-500", glow: "shadow-red-500/20" },
-  orange: { text: "text-orange-500", bg: "bg-orange-600", border: "border-orange-500", glow: "shadow-orange-500/20" },
-  green:  { text: "text-emerald-500", bg: "bg-emerald-600", border: "border-emerald-500", glow: "shadow-emerald-500/20" },
-  purple: { text: "text-purple-500", bg: "bg-purple-600", border: "border-purple-500", glow: "shadow-purple-500/20" },
-  black:  { text: "text-white", bg: "bg-white", border: "border-white", glow: "shadow-white/10" },
-  monochrome: { text: "text-white", bg: "bg-white", border: "border-white", glow: "shadow-none" },
-};
+// 1. Şık ve Zarif Fontları Yüklüyoruz
+const playfair = Playfair_Display({ 
+  subsets: ["latin"], 
+  weight: ["400", "700"],
+  variable: "--font-playfair"
+});
+
+const lato = Lato({ 
+  subsets: ["latin"], 
+  weight: ["300", "400", "700"],
+  variable: "--font-lato"
+});
 
 interface ModernMenuProps {
   restaurant: Restaurant;
@@ -19,85 +22,86 @@ interface ModernMenuProps {
 }
 
 export default function ModernMenu({ restaurant, categories }: ModernMenuProps) {
-  // Tema rengini belirle (Varsayılan: Mavi)
-  const themeKey = restaurant.colorPalette || "blue";
-  const theme = PALETTE_STYLES[themeKey] || PALETTE_STYLES.blue;
-
-  // Para birimi formatlayıcı
+  
   const formatPrice = (price: number) => 
     new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(price);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-white/20 pb-24">
+    <div className={`${playfair.variable} ${lato.variable} min-h-screen bg-[#0c0c0c] text-[#e5e5e5]`}>
       
-      {/* --- HEADER --- */}
-      <div className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-md mx-auto px-6 py-6 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
-              {restaurant.name}
-            </h1>
-            {restaurant.description && (
-              <p className="text-sm text-gray-400 font-light max-w-xs mx-auto leading-relaxed">
-                {restaurant.description}
-              </p>
-            )}
-        </div>
+      {/* --- BACKGROUND DEKORASYON (Hafif doku) --- */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }}>
       </div>
 
+      {/* --- RESTORAN BAŞLIĞI (Borcelle Tarzı) --- */}
+      <header className="relative pt-16 pb-12 px-6 text-center z-10">
+        <div className="inline-block border-b-2 border-[#d4af37]/30 pb-4 mb-2"> {/* Altın Çizgi */}
+          <h1 className="font-serif text-5xl tracking-wider text-[#fcfcfc]">
+            {restaurant.name}
+          </h1>
+        </div>
+        {restaurant.description && (
+          <p className="font-sans text-[#a3a3a3] mt-4 font-light text-sm tracking-widest uppercase">
+            {restaurant.description}
+          </p>
+        )}
+      </header>
+
       {/* --- MENÜ İÇERİĞİ --- */}
-      <div className="max-w-md mx-auto px-6 mt-8 space-y-16">
+      <div className="max-w-2xl mx-auto px-6 pb-24 relative z-10">
         {categories.map((category) => (
-          <div key={category.id} id={`category-${category.id}`} className="scroll-mt-32">
+          <section key={category.id} className="mb-16">
             
-            {/* Kategori Başlığı */}
-            <div className="flex items-center gap-4 mb-6 sticky top-[100px] py-2 bg-[#0a0a0a] z-30">
-              <span className={`h-8 w-1 rounded-full ${theme.bg} shadow-[0_0_15px_rgba(0,0,0,0.5)] ${theme.glow}`} />
-              <h2 className="text-xl font-bold text-white tracking-wide">
+            {/* Kategori Başlığı - Şık ve Ortada */}
+            <div className="flex items-center justify-center mb-10 gap-4">
+              <span className="h-[1px] w-12 bg-[#d4af37]/40"></span> {/* Dekoratif Çizgi */}
+              <h2 className="font-serif text-3xl text-[#d4af37] tracking-wide italic">
                 {category.name}
               </h2>
+              <span className="h-[1px] w-12 bg-[#d4af37]/40"></span>
             </div>
 
             {/* Ürün Listesi */}
-            <div className="space-y-8">
+            <div className="grid gap-y-10">
               {category.products.filter(p => p.isAvailable).map((product) => (
-                <div key={product.id} className="group relative">
+                <div key={product.id} className="group flex flex-col items-center text-center">
                   
-                  {/* İsim - Çizgi - Fiyat Satırı */}
-                  <div className="flex items-baseline justify-between w-full relative z-10">
-                    <h3 className="text-[17px] font-medium text-gray-100 pr-2 bg-[#0a0a0a]">
-                      {product.name}
-                    </h3>
+                  {/* Ürün Adı */}
+                  <h3 className="font-serif text-xl text-white tracking-wide mb-1 group-hover:text-[#d4af37] transition-colors duration-300">
+                    {product.name}
+                  </h3>
 
-                    {/* Noktalı Çizgi */}
-                    <div className="flex-grow mx-1 border-b border-dotted border-gray-700/60 relative -top-1.5 opacity-50" />
-
-                    <div className="pl-2 bg-[#0a0a0a]">
-                       <span className={`font-bold text-[17px] tracking-tight ${theme.text}`}>
-                         {formatPrice(Number(product.price))}
-                       </span>
-                    </div>
+                  {/* Fiyat (Ayrı vurgu) */}
+                  <div className="font-sans text-[#d4af37] font-bold text-lg mb-2">
+                    {formatPrice(Number(product.price))}
                   </div>
-                  
-                  {/* Açıklama */}
-                  {product.description && (
-                    <div className="mt-1.5 pr-12">
-                      <p className="text-sm text-gray-500 font-light leading-relaxed line-clamp-2 group-hover:text-gray-400 transition-colors">
-                        {product.description}
-                      </p>
-                    </div>
-                  )}
 
+                  {/* Açıklama (İnce ve zarif) */}
+                  {product.description && (
+                    <p className="font-sans text-[#888] font-light text-sm leading-relaxed max-w-sm mx-auto">
+                      {product.description}
+                    </p>
+                  )}
+                  
+                  {/* Altına ince bir ayırıcı nokta koyalım (Son ürün hariç) */}
+                  <div className="w-1 h-1 bg-[#333] rounded-full mt-6 opacity-50 group-last:hidden"></div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         ))}
 
         {categories.length === 0 && (
-            <div className="text-center py-20 text-gray-500">
-                Menü içeriği henüz eklenmemiş.
+            <div className="text-center py-20 font-serif text-[#666] italic">
+                Menü hazırlanıyor...
             </div>
         )}
+      </div>
+
+      {/* --- FOOTER DEKORASYONU --- */}
+      <div className="text-center py-8 opacity-20">
+        <span className="font-serif text-4xl text-[#d4af37]">~</span>
       </div>
     </div>
   );
