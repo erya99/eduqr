@@ -26,13 +26,13 @@ export default function PdfDownloader({
       }
 
       const opt = {
-        margin:       [10, 10, 10, 10] as [number, number, number, number], // Kenar boşluklarını biraz açtık (kesilme riskini azaltır)
+        // DÜZELTME BURADA: 'as [number, number, number, number]' eklendi
+        margin:       [10, 10, 10, 10] as [number, number, number, number], 
         filename:     `${filename}.pdf`,
         image:        { type: 'jpeg' as const, quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-        // KRİTİK AYAR: Sayfa bölmelerini yönet
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } 
+        pagebreak:    { mode: ['css', 'legacy'], avoid: '.avoid-break' } 
       };
 
       try {
@@ -44,7 +44,8 @@ export default function PdfDownloader({
       }
     };
 
-    const timer = setTimeout(generatePdf, 1000);
+    // Görsellerin tam yüklenmesi için 1.5 saniye bekle
+    const timer = setTimeout(generatePdf, 1500);
 
     return () => clearTimeout(timer);
   }, [elementId, filename]);
@@ -54,8 +55,8 @@ export default function PdfDownloader({
   return (
     <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center space-y-4">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      <h2 className="text-xl font-bold text-gray-800">Menü PDF Olarak Hazırlanıyor...</h2>
-      <p className="text-gray-500">Lütfen bekleyin, indirme işlemi otomatik başlayacaktır.</p>
+      <h2 className="text-xl font-bold text-gray-800">Menü PDF Hazırlanıyor...</h2>
+      <p className="text-gray-500">Lütfen bekleyin, düzenleniyor ve indiriliyor.</p>
     </div>
   );
 }

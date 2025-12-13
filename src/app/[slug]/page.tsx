@@ -88,13 +88,19 @@ export default async function MenuPage({ params, searchParams }: Props) {
       )}
 
       {/* --- ANA MENÜ İÇERİĞİ --- */}
-      <div id="menu-container" className={isPdfMode ? "p-8 bg-white text-black min-h-screen w-full" : ""}>
+      <div 
+        id="menu-container" 
+        className={isPdfMode ? "bg-white text-black mx-auto" : ""}
+        // DÜZELTME: PDF Modunda genişliği A4 boyutuna (yaklaşık 794px) sabitliyoruz.
+        // Bu sayede görseller ekranı kaplamak için devasa boyutlara ulaşmıyor.
+        style={isPdfMode ? { width: '794px', minHeight: '1123px', padding: '20px' } : {}}
+      >
         
         {/* PDF Header */}
         {isPdfMode && (
-          <div className="text-center mb-8 border-b-2 border-black pb-6" style={{ pageBreakInside: 'avoid' }}>
-            <h1 className="text-5xl font-bold text-black mb-3 uppercase tracking-wider">{restaurant.name}</h1>
-            {restaurant.description && <p className="text-xl text-gray-600 italic">{restaurant.description}</p>}
+          <div className="text-center mb-8 border-b-2 border-black pb-6 avoid-break">
+            <h1 className="text-4xl font-bold text-black mb-2 uppercase tracking-wider">{restaurant.name}</h1>
+            {restaurant.description && <p className="text-lg text-gray-600 italic">{restaurant.description}</p>}
           </div>
         )}
 
@@ -139,7 +145,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 </header>
             )}
 
-            <main className="container mx-auto px-4 mt-10">
+            <main className={!isPdfMode ? "container mx-auto px-4 mt-10" : "mt-4"}>
                 {activeCategory ? (
                 // 1. KATEGORİ İÇİ GÖRÜNÜM
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -164,7 +170,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 ) : (
                 // 2. ANA SAYFA GÖRÜNÜMÜ
                 <>
-                    {/* WEB (Normal) Modu: Kategori Kartları */}
                     {!isPdfMode && (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
                             {nonEmptyCategories.map((category: any) => {
@@ -186,63 +191,47 @@ export default async function MenuPage({ params, searchParams }: Props) {
                         </div>
                     )}
 
-                    {/* PDF (İndirme) Modu: SÜTUNSUZ, GÜVENLİ YERLEŞİM */}
+                    {/* PDF (İndirme) Modu: A4 GENİŞLİĞİNDE DÜZENLİ LİSTE */}
                     {isPdfMode && (
-                        <div className="w-full">
+                        <div className="space-y-6">
                             {nonEmptyCategories.map((category: any) => (
-                                // KATEGORİ BLOĞU
-                                // 'break-inside-avoid' ve 'pageBreakInside: avoid' bu bloğu bir arada tutmaya çalışır
-                                <div 
-                                    key={category.id} 
-                                    className="mb-8 w-full break-inside-avoid"
-                                    style={{ pageBreakInside: 'avoid' }}
-                                >
+                                // 'avoid-break' sınıfı bu bloğun bütünlüğünü korumaya yardımcı olur
+                                <div key={category.id} className="w-full avoid-break">
                                     
-                                    {/* Kategori Başlığı */}
-                                    <h2 className="text-2xl font-black border-b-4 border-black pb-2 mb-6 mt-4 text-black uppercase tracking-wider w-full">
+                                    <h2 className="text-xl font-bold border-b-2 border-black pb-1 mb-4 mt-2 text-black uppercase tracking-wider w-full">
                                         {category.name}
                                     </h2>
 
-                                    {/* Ürünler Listesi - Flex Wrap ile */}
-                                    <div className="flex flex-wrap gap-4 w-full">
+                                    {/* Grid yerine Flex Wrap kullanıyoruz, daha güvenli */}
+                                    <div className="flex flex-wrap gap-4">
                                         {category.products.map((product: any) => (
-                                            // ÜRÜN KARTI
-                                            // Burada 'width: 48%' vererek yan yana 2 tane sığmasını sağlıyoruz
-                                            // 'pageBreakInside: avoid' ile kartın ortadan bölünmesini engelliyoruz
+                                            // Ürün Kartı: avoid-break ile bölünmeyi engelliyoruz
                                             <div 
                                                 key={product.id} 
-                                                className="flex flex-col border-2 border-gray-200 rounded-xl p-3 bg-white shadow-sm break-inside-avoid"
-                                                style={{ 
-                                                    pageBreakInside: 'avoid', 
-                                                    width: '48%', // Yan yana iki ürün (boşluk payıyla)
-                                                    minWidth: '300px', // Çok daralırsa alta geçsin
-                                                    flexGrow: 1
-                                                }}
+                                                className="w-[48%] flex flex-col border border-gray-300 rounded-lg p-3 bg-white shadow-sm avoid-break"
+                                                style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                                             >
-                                                {/* Görsel Alanı - Background Image Yöntemi */}
+                                                {/* Görsel: Sabit yükseklik ve genişlik */}
                                                 {product.imageUrl && (
-                                                    <div 
-                                                        className="w-full rounded-lg bg-gray-100 border border-gray-100 mb-3"
-                                                        style={{ 
-                                                            backgroundImage: `url('${product.imageUrl}')`,
-                                                            backgroundSize: 'cover', 
-                                                            backgroundPosition: 'center center',
-                                                            aspectRatio: '16/9', // En-boy oranı sabit
-                                                            height: 'auto'
-                                                        }}
-                                                    />
+                                                    <div className="w-full h-40 mb-3 relative overflow-hidden rounded border border-gray-200">
+                                                        <img 
+                                                            src={product.imageUrl} 
+                                                            alt={product.name} 
+                                                            className="w-full h-full object-cover"
+                                                            crossOrigin="anonymous" 
+                                                        />
+                                                    </div>
                                                 )}
 
-                                                {/* Ürün Bilgileri */}
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <span className="font-bold text-lg text-black leading-tight pr-2">{product.name}</span>
-                                                    <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 py-1 rounded-md">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <span className="font-bold text-base text-black leading-tight pr-1">{product.name}</span>
+                                                    <span className="font-bold text-lg text-black whitespace-nowrap">
                                                         ₺{Number(product.price)}
                                                     </span>
                                                 </div>
                                                 
                                                 {product.description && (
-                                                    <p className="text-sm text-gray-700 leading-snug mt-1 border-t pt-2 border-gray-100">
+                                                    <p className="text-xs text-gray-700 leading-snug mt-1 pt-1 border-t border-gray-100">
                                                         {product.description}
                                                     </p>
                                                 )}
@@ -260,7 +249,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </div>
 
-      {/* FOOTER (Normal Modda Görünür) */}
       {!isPdfMode && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
             <div className="container mx-auto flex items-center justify-between max-w-md">
