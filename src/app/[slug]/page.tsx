@@ -8,7 +8,7 @@ import ProductCard from "@/components/menu/ProductCard";
 import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
-import FeedbackButton from "@/components/menu/FeedbackButton"; // 👈 1. İMPORT EKLENDİ
+import FeedbackButton from "@/components/menu/FeedbackButton"; // FeedbackButton import edildi
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -100,10 +100,13 @@ export default async function MenuPage({ params, searchParams }: Props) {
         />
       </div>
 
-      {/* --- SAYAÇ, ÇARKIFELEK & DEĞERLENDİRME --- */}
+      {/* --- SAYAÇ & ÇARKIFELEK --- */}
       <ViewTracker restaurantId={restaurant.id} />
       <SpinWheel items={wheelItems} />
-      <FeedbackButton restaurantId={restaurant.id} /> {/* 👈 2. BUTON EKLENDİ */}
+      
+      {/* NOT: FeedbackButton buradan kaldırıldı. 
+          Artık sayfanın en altındaki Footer bileşeninin içinde yer alıyor.
+      */}
 
 
       {/* --- İÇERİK ALANI --- */}
@@ -240,7 +243,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
         </>
       )}
 
-      {/* --- FOOTER (Her iki tasarımda da ortak) --- */}
+      {/* --- FOOTER --- */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
         <div className="container mx-auto flex items-center justify-between max-w-md">
           
@@ -251,6 +254,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 </div>
              </Link>
 
+             {/* SOSYAL MEDYA İKONLARI */}
              {restaurant.instagramUrl && (
                  <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500 transition">
                     <Instagram size={20} />
@@ -273,7 +277,12 @@ export default async function MenuPage({ params, searchParams }: Props) {
              )}
           </div>
 
-          <ThemeToggle />
+          <div className="flex items-center gap-4">
+             {/* DÜZENLEME: FeedbackButton ve ThemeToggle yanyana alındı */}
+             <FeedbackButton restaurantId={restaurant.id} />
+             <ThemeToggle />
+          </div>
+
         </div>
       </footer>
     </div>
