@@ -44,7 +44,7 @@ export default async function MarketingPage() {
       {/* --- ÜST KISIM: QR & PDF --- */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* 1. KART: QR KOD */}
-        <QRCodeCard restaurant={restaurant} />
+        <QRCodeCard slug={restaurant.slug} />
 
         {/* 2. KART: PDF MENÜ ÇIKTISI (YENİ EKLENEN KISIM) */}
         <Card>
