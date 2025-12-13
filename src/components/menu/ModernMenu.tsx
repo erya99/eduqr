@@ -20,7 +20,7 @@ const lato = Lato({
 // --- 2. ALERJEN HARİTASI (Verdiğin Liste) ---
 const ALLERGEN_MAP: Record<string, { label: string; icon: string }> = {
   gluten: { label: "Gluten", icon: "🌾" },
-  dairy: { label: "Süt", icon: "🥛" },
+  dairy: { label: "Süt Ürünleri", icon: "🥛" },
   egg: { label: "Yumurta", icon: "🥚" },
   nuts: { label: "Kuruyemiş", icon: "🥜" },
   spicy: { label: "Acı", icon: "🌶️" },
