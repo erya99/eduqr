@@ -26,20 +26,21 @@ export default function PdfDownloader({
       }
 
       const opt = {
+        // DÜZELTME 1: margin dizisini 'tuple' olarak zorluyoruz
         margin:       [10, 10, 10, 10] as [number, number, number, number], 
         filename:     `${filename}.pdf`,
-        
-        // DÜZELTME BURADA: 'jpeg' yerine 'png' kullanıyoruz.
-        // PNG formatı şeffaflık sorununu ve siyah ekran hatasını çözer.
-        image:        { type: 'png' as const, quality: 0.98 },
-        
+        image:        { type: 'jpeg' as const, quality: 0.98 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true, 
             scrollY: 0,
-            backgroundColor: "#ffffff" // Arka planı beyaz yapmaya zorla
+            // Siyah ekranı önlemek için arka plan beyaz
+            backgroundColor: "#ffffff",
+            // A4 genişliğine sabitleme (Taşmaları önler)
+            windowWidth: 794 
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+        // DÜZELTME 2: mode dizisi için de tip güvenliği ekleyebiliriz (genelde string[] yeterlidir ama garanti olsun)
         pagebreak:    { mode: ['css', 'legacy'], avoid: '.avoid-break' } 
       };
 
@@ -52,7 +53,7 @@ export default function PdfDownloader({
       }
     };
 
-    // Görsellerin tam yüklenmesi için süreyi biraz artırıyoruz (Garanti olsun)
+    // Görsellerin yüklenmesi için 2 saniye bekle
     const timer = setTimeout(generatePdf, 2000);
 
     return () => clearTimeout(timer);
@@ -64,7 +65,7 @@ export default function PdfDownloader({
     <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center space-y-4">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
       <h2 className="text-xl font-bold text-gray-800">Menü PDF Hazırlanıyor...</h2>
-      <p className="text-gray-500">Lütfen bekleyin, siyah ekran sorunu düzeltiliyor.</p>
+      <p className="text-gray-500">Lütfen bekleyin, düzenleniyor ve indiriliyor.</p>
     </div>
   );
 }
