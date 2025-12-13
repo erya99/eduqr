@@ -46,7 +46,7 @@ export default async function MarketingPage() {
         {/* 1. KART: QR KOD */}
         <QRCodeCard slug={restaurant.slug} />
 
-        {/* 2. KART: PDF MENÜ ÇIKTISI (YENİ EKLENEN KISIM) */}
+        {/* 2. KART: PDF MENÜ ÇIKTISI */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -59,19 +59,15 @@ export default async function MarketingPage() {
           </CardHeader>
           <CardContent className="space-y-4">
              <div className="bg-muted p-4 rounded-lg text-sm text-muted-foreground">
-                <p>💡 <strong>İpucu:</strong> "PDF Olarak İndir" butonuna tıkladıktan sonra açılan pencerede:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>Hedef: <strong>PDF Olarak Kaydet</strong> seçin.</li>
-                    <li>Arka Plan Grafikleri: <strong>Kapalı</strong> (Daha az mürekkep).</li>
-                </ul>
+                <p>💡 <strong>Bilgi:</strong> "PDF Olarak İndir" butonuna tıkladığınızda menünüz yeni sekmede açılacak ve otomatik olarak PDF dosyası hazırlanıp inecektir.</p>
              </div>
 
              <div className="flex flex-col gap-3">
                  <Button asChild className="w-full h-12 text-lg bg-blue-600 hover:bg-blue-700" variant="default">
-                    {/* ?print=true parametresi ile menüye gider ve otomatik yazdırır */}
-                    <Link href={`/${restaurant.slug}?print=true`} target="_blank">
+                    {/* DÜZELTME: Parametre ?print=true yerine ?pdf=true yapıldı */}
+                    <Link href={`/${restaurant.slug}?pdf=true`} target="_blank">
                         <Download className="mr-2 h-5 w-5" />
-                        PDF Olarak İndir / Yazdır
+                        PDF Olarak İndir
                     </Link>
                  </Button>
 
