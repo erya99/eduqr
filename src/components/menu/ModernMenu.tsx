@@ -2,81 +2,102 @@
 
 import { Category, Product, Restaurant } from "@prisma/client";
 
-// Framer-motion kullanılmıyordu, kaldırdık.
+// Renk paleti haritası
+const PALETTE_STYLES: Record<string, { text: string; bg: string; border: string; glow: string }> = {
+  blue:   { text: "text-blue-500", bg: "bg-blue-600", border: "border-blue-500", glow: "shadow-blue-500/20" },
+  red:    { text: "text-red-500", bg: "bg-red-600", border: "border-red-500", glow: "shadow-red-500/20" },
+  orange: { text: "text-orange-500", bg: "bg-orange-600", border: "border-orange-500", glow: "shadow-orange-500/20" },
+  green:  { text: "text-emerald-500", bg: "bg-emerald-600", border: "border-emerald-500", glow: "shadow-emerald-500/20" },
+  purple: { text: "text-purple-500", bg: "bg-purple-600", border: "border-purple-500", glow: "shadow-purple-500/20" },
+  black:  { text: "text-white", bg: "bg-white", border: "border-white", glow: "shadow-white/10" },
+  monochrome: { text: "text-white", bg: "bg-white", border: "border-white", glow: "shadow-none" },
+};
 
 interface ModernMenuProps {
   restaurant: Restaurant;
   categories: (Category & { products: Product[] })[];
 }
 
-// 1. DÜZELTME: Veritabanındaki "blue", "red" gibi değerleri Tailwind sınıflarına eşleştirelim
-const PALETTE_STYLES: Record<string, { text: string; border: string; bg: string }> = {
-  blue: { text: "text-blue-600", border: "border-blue-600", bg: "bg-blue-600" },
-  red: { text: "text-red-600", border: "border-red-600", bg: "bg-red-600" },
-  orange: { text: "text-orange-600", border: "border-orange-600", bg: "bg-orange-600" },
-  green: { text: "text-green-600", border: "border-green-600", bg: "bg-green-600" },
-  purple: { text: "text-purple-600", border: "border-purple-600", bg: "bg-purple-600" },
-  black: { text: "text-gray-900", border: "border-gray-900", bg: "bg-gray-900" },
-  monochrome: { text: "text-black", border: "border-black", bg: "bg-black" },
-};
-
 export default function ModernMenu({ restaurant, categories }: ModernMenuProps) {
-  // Eğer renk seçilmemişse varsayılan olarak maviyi al
-  const theme = PALETTE_STYLES[restaurant.colorPalette || "blue"] || PALETTE_STYLES.blue;
+  // Tema rengini belirle (Varsayılan: Mavi)
+  const themeKey = restaurant.colorPalette || "blue";
+  const theme = PALETTE_STYLES[themeKey] || PALETTE_STYLES.blue;
+
+  // Para birimi formatlayıcı
+  const formatPrice = (price: number) => 
+    new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(price);
 
   return (
-    <div className="pb-20 bg-background min-h-screen font-sans">
-      {/* Header - Görsel Yok, Sadece Logo/İsim */}
-      <div 
-        className={`pt-12 pb-6 px-6 text-center shadow-sm sticky top-0 z-10 backdrop-blur-md bg-background/80 border-b-2 ${theme.border}`}
-      >
-        <h1 className={`text-3xl font-bold tracking-tight mb-2 ${theme.text}`}>
-          {restaurant.name}
-        </h1>
-        {restaurant.description && (
-          <p className="text-muted-foreground text-sm max-w-md mx-auto">{restaurant.description}</p>
-        )}
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-white/20 pb-24">
+      
+      {/* --- HEADER --- */}
+      <div className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-md mx-auto px-6 py-6 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
+              {restaurant.name}
+            </h1>
+            {restaurant.description && (
+              <p className="text-sm text-gray-400 font-light max-w-xs mx-auto leading-relaxed">
+                {restaurant.description}
+              </p>
+            )}
+        </div>
       </div>
 
-      <div className="max-w-md mx-auto px-6 mt-8 space-y-12">
+      {/* --- MENÜ İÇERİĞİ --- */}
+      <div className="max-w-md mx-auto px-6 mt-8 space-y-16">
         {categories.map((category) => (
           <div key={category.id} id={`category-${category.id}`} className="scroll-mt-32">
+            
             {/* Kategori Başlığı */}
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
-              <span 
-                className={`w-1.5 h-6 rounded-full ${theme.bg}`}
-              />
-              {category.name}
-            </h2>
+            <div className="flex items-center gap-4 mb-6 sticky top-[100px] py-2 bg-[#0a0a0a] z-30">
+              <span className={`h-8 w-1 rounded-full ${theme.bg} shadow-[0_0_15px_rgba(0,0,0,0.5)] ${theme.glow}`} />
+              <h2 className="text-xl font-bold text-white tracking-wide">
+                {category.name}
+              </h2>
+            </div>
 
             {/* Ürün Listesi */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {category.products.filter(p => p.isAvailable).map((product) => (
-                <div key={product.id} className="group flex flex-col w-full">
-                  <div className="flex items-baseline justify-between w-full">
-                    <h3 className={`font-medium text-lg leading-none transition-colors group-hover:${theme.text}`}>
+                <div key={product.id} className="group relative">
+                  
+                  {/* İsim - Çizgi - Fiyat Satırı */}
+                  <div className="flex items-baseline justify-between w-full relative z-10">
+                    <h3 className="text-[17px] font-medium text-gray-100 pr-2 bg-[#0a0a0a]">
                       {product.name}
                     </h3>
-                    
-                    {/* Fiyat ve Çizgi Efekti */}
-                    <div className="flex-1 mx-3 border-b border-dotted border-gray-300 relative top-[-4px] hidden sm:block opacity-50" />
-                    
-                    {/* 2. DÜZELTME: Fiyatı Number() içine aldık */}
-                    <span className={`font-bold text-lg whitespace-nowrap ${theme.text}`}>
-                      {Number(product.price)} ₺
-                    </span>
+
+                    {/* Noktalı Çizgi */}
+                    <div className="flex-grow mx-1 border-b border-dotted border-gray-700/60 relative -top-1.5 opacity-50" />
+
+                    <div className="pl-2 bg-[#0a0a0a]">
+                       <span className={`font-bold text-[17px] tracking-tight ${theme.text}`}>
+                         {formatPrice(Number(product.price))}
+                       </span>
+                    </div>
                   </div>
                   
+                  {/* Açıklama */}
                   {product.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mt-1 line-clamp-2">
-                      {product.description}
-                    </p>
+                    <div className="mt-1.5 pr-12">
+                      <p className="text-sm text-gray-500 font-light leading-relaxed line-clamp-2 group-hover:text-gray-400 transition-colors">
+                        {product.description}
+                      </p>
+                    </div>
                   )}
+
                 </div>
               ))}
             </div>
           </div>
         ))}
+
+        {categories.length === 0 && (
+            <div className="text-center py-20 text-gray-500">
+                Menü içeriği henüz eklenmemiş.
+            </div>
+        )}
       </div>
     </div>
   );
