@@ -28,12 +28,16 @@ export default function PdfDownloader({
       const opt = {
         margin:       [10, 10, 10, 10] as [number, number, number, number], 
         filename:     `${filename}.pdf`,
-        image:        { type: 'jpeg' as const, quality: 0.98 },
+        
+        // DÜZELTME BURADA: 'jpeg' yerine 'png' kullanıyoruz.
+        // PNG formatı şeffaflık sorununu ve siyah ekran hatasını çözer.
+        image:        { type: 'png' as const, quality: 0.98 },
+        
         html2canvas:  { 
             scale: 2, 
             useCORS: true, 
             scrollY: 0,
-            backgroundColor: "#ffffff" // 👈 KRİTİK DÜZELTME: Arka planı beyaz yap
+            backgroundColor: "#ffffff" // Arka planı beyaz yapmaya zorla
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
         pagebreak:    { mode: ['css', 'legacy'], avoid: '.avoid-break' } 
@@ -48,8 +52,8 @@ export default function PdfDownloader({
       }
     };
 
-    // Görsellerin yüklenmesi için 1.5 saniye bekle
-    const timer = setTimeout(generatePdf, 1500);
+    // Görsellerin tam yüklenmesi için süreyi biraz artırıyoruz (Garanti olsun)
+    const timer = setTimeout(generatePdf, 2000);
 
     return () => clearTimeout(timer);
   }, [elementId, filename]);
@@ -60,7 +64,7 @@ export default function PdfDownloader({
     <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center space-y-4">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
       <h2 className="text-xl font-bold text-gray-800">Menü PDF Hazırlanıyor...</h2>
-      <p className="text-gray-500">Lütfen bekleyin, düzenleniyor ve indiriliyor.</p>
+      <p className="text-gray-500">Lütfen bekleyin, siyah ekran sorunu düzeltiliyor.</p>
     </div>
   );
 }
