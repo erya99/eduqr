@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,15 +23,15 @@ model User {
 }
 
 model Restaurant {
-  id           String     @id @default(cuid())
-  name         String
-  description  String?    // 👈 YENİ EKLENDİ (Slogan/Açıklama için)
-  slug         String     @unique
-  logoUrl      String?
-  coverUrl     String?
-  isActive     Boolean    @default(true)
-  userId       String     @unique
-  template     String     @default("classic") // "classic" veya "modern"
+  id             String     @id @default(cuid())
+  name           String
+  description    String?    // Slogan/Açıklama
+  slug           String     @unique
+  logoUrl        String?
+  coverUrl       String?
+  isActive       Boolean    @default(true)
+  userId         String     @unique
+  template       String     @default("classic") // "classic" veya "modern"
   
   // Sosyal Medya
   instagramUrl String?
@@ -40,9 +43,9 @@ model Restaurant {
   viewCount    Int        @default(0)
 
   // --- ABONELİK SİSTEMİ ---
-  isSubscribed     Boolean   @default(false) 
-  subscriptionEnds DateTime?                 
-  payments         Payment[]                 
+  isSubscribed      Boolean    @default(false) 
+  subscriptionEnds DateTime?                  
+  payments          Payment[]                  
 
   // --- FATURA SİSTEMİ ---
   tempInvoiceRequests TempInvoiceRequest[] // Bekleyen fatura talepleri
@@ -50,6 +53,9 @@ model Restaurant {
 
   // --- OYUNLAŞTIRMA (ÇARKIFELEK) ---
   wheelItems   WheelItem[] 
+
+  // --- DEĞERLENDİRME (GİZLİ MÜŞTERİ) ---
+  reviews      Review[]    // <-- YENİ EKLENDİ
 
   colorPalette String     @default("blue") // blue, red, orange, green, purple
 
@@ -61,11 +67,11 @@ model Restaurant {
 }
 
 model Payment {
-  id           String     @id @default(cuid())
-  merchantOid  String     @unique 
-  amount       Decimal    
-  status       String     
-  createdAt    DateTime   @default(now())
+  id             String     @id @default(cuid())
+  merchantOid    String     @unique 
+  amount         Decimal    
+  status         String     
+  createdAt      DateTime   @default(now())
   
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
@@ -74,60 +80,75 @@ model Payment {
 // --- MENÜ YÖNETİMİ ---
 
 model Category {
-  id           String     @id @default(cuid())
-  name         String
-  imageUrl     String?    
-  order        Int        @default(0)
+  id             String     @id @default(cuid())
+  name           String
+  imageUrl       String?    
+  order          Int        @default(0)
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  products     Product[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  products       Product[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String?  // Bu zaten vardı, doğru.
-  price       Decimal
-  imageUrl    String?
+  id           String     @id @default(cuid())
+  name         String
+  description String?  
+  price        Decimal
+  imageUrl     String?
   isAvailable Boolean  @default(true)
-  order       Int      @default(0)
+  order        Int      @default(0)
 
-  allergens   String[] @default([])
+  allergens    String[] @default([])
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
 
   // Ürün Varyasyonları (Porsiyonlar)
-  variants    ProductVariant[]
+  variants     ProductVariant[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model ProductVariant {
-  id        String   @id @default(cuid())
-  name      String   // Örn: "1.5 Porsiyon", "200gr"
-  price     Decimal  // Örn: 300
+  id         String   @id @default(cuid())
+  name       String   // Örn: "1.5 Porsiyon", "200gr"
+  price      Decimal  // Örn: 300
   
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// --- DEĞERLENDİRME SİSTEMİ (YENİ) ---
+
+model Review {
+  id           String     @id @default(cuid())
+  rating       Int        // 1-5 arası puan
+  comment      String?    @db.Text // Müşteri yorumu
+  contactInfo  String?    // İsteğe bağlı ad/soyad veya telefon
+  createdAt    DateTime   @default(now())
+  
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
 }
 
 // --- FATURA YÖNETİMİ (KVKK UYUMLU) ---
 
 // 1. Hassas verilerin GEÇİCİ olarak tutulduğu tablo.
 model TempInvoiceRequest {
-  id           String   @id @default(cuid())
+  id             String   @id @default(cuid())
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   
   // Hassas Veriler
-  legalName    String   
-  taxNumber    String   
+  legalName    String    
+  taxNumber    String    
   taxOffice    String?  
-  address      String   
+  address      String    
   amount       Decimal  
   
   createdAt    DateTime @default(now())
@@ -135,12 +156,12 @@ model TempInvoiceRequest {
 
 // 2. Kalıcı ve GÜVENLİ log tablosu.
 model InvoiceLog {
-  id           String   @id @default(cuid())
+  id             String   @id @default(cuid())
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   
-  maskedName   String   
-  maskedTaxNo  String   
+  maskedName   String    
+  maskedTaxNo  String    
   amount       Decimal
   
   issuedAt     DateTime @default(now())
@@ -149,12 +170,12 @@ model InvoiceLog {
 // --- OYUNLAŞTIRMA (ÇARKIFELEK ÖDÜLLERİ) ---
 
 model WheelItem {
-  id           String     @id @default(cuid())
+  id             String     @id @default(cuid())
   restaurantId String
-  label        String     // Örn: "%10 İndirim", "Bedava İçecek"
-  color        String?    // Dilim Rengi (Opsiyonel)
-  percentage   Int        // Kazanma ihtimali (1-100 arası ağırlık)
-  isActive     Boolean    @default(true)
+  label          String     // Örn: "%10 İndirim", "Bedava İçecek"
+  color          String?    // Dilim Rengi (Opsiyonel)
+  percentage     Int        // Kazanma ihtimali (1-100 arası ağırlık)
+  isActive       Boolean    @default(true)
   
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   

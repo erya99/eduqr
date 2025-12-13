@@ -15,7 +15,8 @@ import {
   LogOut,
   Menu,
   QrCode,
-  Store
+  Store,
+  MessageSquare // <-- YENİ EKLENDİ
 } from "lucide-react";
 import {
   Sheet,
@@ -42,17 +43,20 @@ export default async function AdminLayout({
     restaurant?.subscriptionEnds && 
     restaurant.subscriptionEnds > new Date();
 
+  // --- MENÜ LİNKLERİ ---
   const sidebarLinks = [
     { href: "/admin", label: "Panel", icon: LayoutDashboard },
     { href: "/admin/products", label: "Ürünler", icon: UtensilsCrossed },
     { href: "/admin/categories", label: "Kategoriler", icon: ListChecks },
     { href: "/admin/marketing", label: "Kampanyalar (Çark)", icon: Gift, highlight: true },
+    { href: "/admin/reviews", label: "Değerlendirmeler", icon: MessageSquare }, // <-- YENİ EKLENDİ
     { href: "/admin/subscription", label: "Abonelik", icon: CreditCard },
     { href: "/admin/settings", label: "Ayarlar", icon: Settings },
   ];
 
   const NavContent = () => (
     <div className="flex flex-col h-full bg-muted/40 dark:bg-gray-900/50 border-r border-border">
+      {/* HEADER LOGO KISMI */}
       <div className="h-16 px-6 border-b border-border flex items-center justify-between bg-background/50 backdrop-blur-sm">
         <Link href="/admin" className="flex items-center gap-2 font-semibold hover:opacity-80 transition-opacity">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -65,6 +69,7 @@ export default async function AdminLayout({
         </div>
       </div>
       
+      {/* MENÜ LİSTESİ */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {sidebarLinks.map((link) => (
           <Link key={link.href} href={link.href}>
@@ -84,6 +89,7 @@ export default async function AdminLayout({
         ))}
       </nav>
 
+      {/* ÇIKIŞ BUTONU */}
       <div className="p-4 border-t border-border mt-auto bg-background/30">
         <SignOutButton redirectUrl="/">
           <Button variant="outline" className="w-full justify-start gap-2 border-red-200 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/10 dark:border-red-900/30 dark:bg-transparent">
@@ -96,7 +102,7 @@ export default async function AdminLayout({
   );
 
   return (
-    // DÜZELTME BURADA: 'grid' kaldırıldı, sadece flex yapısı kullanıldı.
+    // DÜZENLEME: 'grid' kaldırıldı, 'flex' yapısı kullanıldı.
     <div className="flex min-h-screen w-full bg-muted/10 dark:bg-black">
       
       {/* --- MASAÜSTÜ SIDEBAR (SABİT) --- */}
@@ -105,7 +111,7 @@ export default async function AdminLayout({
       </aside>
 
       {/* --- İÇERİK ALANI --- */}
-      {/* 'ml-[240px]' ile içerik sidebar'ın sağından başlar */}
+      {/* Sidebar genişliği kadar margin bırakıldı */}
       <div className="flex flex-col flex-1 w-full md:ml-[240px] transition-all duration-300"> 
         
         {/* MOBİL HEADER */}
