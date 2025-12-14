@@ -1,184 +1,258 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Gift } from "lucide-react";
-import confetti from "canvas-confetti"; 
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Gift, X, PartyPopper } from "lucide-react";
+import { createCoupon } from "@/actions/wheel-actions";
+import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
-// Veritabanından gelen veri tipi
+// 🎨 Modern ve Canlı Renk Paleti (Sırayla döner)
+const WHEEL_COLORS = [
+  "#F59E0B", // Amber (Turuncu)
+  "#EC4899", // Pink (Pembe)
+  "#8B5CF6", // Violet (Mor)
+  "#3B82F6", // Blue (Mavi)
+  "#10B981", // Emerald (Yeşil)
+  "#EF4444", // Red (Kırmızı)
+  "#06B6D4", // Cyan (Turkuaz)
+  "#6366F1", // Indigo
+];
+
 interface WheelItem {
   id: string;
   label: string;
-  percentage: number;
-  color?: string | null;
+  probability: number;
 }
 
 export default function SpinWheel({ items }: { items: WheelItem[] }) {
-  const [open, setOpen] = useState(false);
-  const [spinning, setSpinning] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
-  const [hasSpun, setHasSpun] = useState(true); 
-  const wheelRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [wonItem, setWonItem] = useState<WheelItem | null>(null);
+  const [hasSpun, setHasSpun] = useState(false);
 
-  const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F"];
-
+  // Yerel depolamadan kullanıcının daha önce çevirip çevirmediğini kontrol et
   useEffect(() => {
-    const lastSpinTime = localStorage.getItem("eduqr_last_spin_time");
-    
-    if (lastSpinTime) {
-      const now = new Date().getTime();
-      const hoursPassed = (now - parseInt(lastSpinTime)) / (1000 * 60 * 60);
-      
-      if (hoursPassed < 24) {
-        setHasSpun(true);
-      } else {
-        localStorage.removeItem("eduqr_last_spin_time");
-        setHasSpun(false);
-      }
-    } else {
-      setHasSpun(false);
-    }
+    const spun = localStorage.getItem("wheel_spun");
+    if (spun) setHasSpun(true);
   }, []);
 
-  const handleSpin = () => {
-    if (spinning || hasSpun || items.length === 0) return;
+  // Çark çevrildiğinde çalışacak fonksiyon
+  const handleSpin = async () => {
+    if (isSpinning || hasSpun) return;
 
-    setSpinning(true);
-    
-    const totalWeight = items.reduce((sum, item) => sum + item.percentage, 0);
-    let random = Math.random() * totalWeight;
-    let selectedIndex = 0;
-    
-    for (let i = 0; i < items.length; i++) {
-        random -= items[i].percentage;
-        if (random <= 0) {
-            selectedIndex = i;
-            break;
-        }
+    setIsSpinning(true);
+
+    // 1. Ödülü belirle (Backend simülasyonu: Probability'ye göre rastgele seç)
+    const totalProb = items.reduce((acc, item) => acc + item.probability, 0);
+    let random = Math.random() * totalProb;
+    let selectedItem = items[items.length - 1];
+
+    for (const item of items) {
+      if (random < item.probability) {
+        selectedItem = item;
+        break;
+      }
+      random -= item.probability;
     }
 
-    const segmentAngle = 360 / items.length;
-    const stopAngle = 360 * 5 + (360 - (selectedIndex * segmentAngle) - (segmentAngle / 2)); 
+    // 2. Dönüş açısını hesapla
+    // Her dilimin açısı
+    const sliceAngle = 360 / items.length;
+    const itemIndex = items.findIndex((i) => i.id === selectedItem.id);
+    
+    // Çarkın duracağı nokta: (Tur sayısı * 360) + (İlgili dilimin ters açısı)
+    // Biraz rastgelelik ekleyerek (sliceAngle / 2) dilimin tam ortasına gelmesini sağla
+    const spinCount = 5; // En az 5 tam tur
+    const targetRotation = rotation + (spinCount * 360) + (360 - (itemIndex * sliceAngle)) - (sliceAngle / 2); // -sliceAngle/2 ortalar
 
-    if (wheelRef.current) {
-        wheelRef.current.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
-        wheelRef.current.style.transform = `rotate(${stopAngle}deg)`;
-    }
+    setRotation(targetRotation);
 
-    setTimeout(() => {
-        setResult(items[selectedIndex].label);
-        setSpinning(false);
-        setHasSpun(true); // Artık bu satır bileşeni yok etmeyecek, sadece butonu gizleyecek
-        
-        localStorage.setItem("eduqr_last_spin_time", new Date().getTime().toString());
-        
-        confetti({
-            particleCount: 150,
-            spread: 80,
-            origin: { y: 0.6 },
-            colors: ['#FF6B6B', '#4ECDC4', '#F7DC6F']
-        });
+    // 3. Dönüş süresi kadar bekle (5 saniye)
+    setTimeout(async () => {
+      setWonItem(selectedItem);
+      setIsSpinning(false);
+      setHasSpun(true);
+      localStorage.setItem("wheel_spun", "true");
+      
+      // Konfetileri patlat
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
 
-    }, 4000); 
+      // Veritabanına kaydet
+      try {
+        await createCoupon(selectedItem.id);
+        toast.success("Tebrikler! Ödül kazandınız.");
+      } catch (error) {
+        console.error("Kupon oluşturulamadı", error);
+      }
+    }, 5000);
   };
 
-  const gradient = items.map((item, index) => {
-      const start = (index * 100) / items.length;
-      const end = ((index + 1) * 100) / items.length;
-      const color = item.color || colors[index % colors.length];
-      return `${color} ${start}% ${end}%`;
-  }).join(", ");
+  if (items.length === 0 || hasSpun && !isOpen) {
+    // Eğer ödül yoksa veya zaten çevrilmişse ve modal kapalıysa sadece minik butonu göster (veya gizle)
+     if(hasSpun) return null; // Zaten çevirdiyse hiç gösterme
+  }
 
-  // DÜZELTME 1: hasSpun kontrolünü buradan kaldırdık. Sadece item yoksa null dönüyoruz.
-  if (items.length === 0) return null;
+  // Çark Dilimlerinin Arka Planı (Conic Gradient)
+  const sliceAngle = 360 / items.length;
+  const gradientString = `conic-gradient(${items
+    .map(
+      (_, i) =>
+        `${WHEEL_COLORS[i % WHEEL_COLORS.length]} ${i * sliceAngle}deg ${(i + 1) * sliceAngle}deg`
+    )
+    .join(", ")})`;
 
   return (
     <>
-      {/* DÜZELTME 2: Butonu sadece hasSpun false ise gösteriyoruz */}
-      {!hasSpun && (
-        <div className="fixed bottom-24 right-4 z-40 animate-bounce">
-            <Button 
-                onClick={() => setOpen(true)} 
-                className="rounded-full w-16 h-16 bg-gradient-to-tr from-purple-600 via-pink-500 to-orange-400 shadow-xl border-4 border-white hover:scale-110 transition-transform p-0"
-            >
-                <Gift className="w-8 h-8 text-white" />
-            </Button>
-        </div>
+      {/* 1. Tetikleyici Buton (Hediye Paketi) - Sağ Altta Zıplayan */}
+      {!hasSpun && !isOpen && (
+        <motion.button
+          onClick={() => setIsOpen(true)}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          whileHover={{ scale: 1.1 }}
+          className="fixed bottom-24 right-4 z-40 bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-full shadow-2xl text-white cursor-pointer group"
+        >
+          <motion.div
+            animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 2, repeatDelay: 3 }}
+          >
+            <Gift size={32} strokeWidth={1.5} />
+          </motion.div>
+          
+          {/* Badge */}
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white animate-bounce">
+            1
+          </span>
+        </motion.button>
       )}
 
-      {/* Pop-up her zaman render ediliyor, açılıp kapanması 'open' state'ine bağlı */}
-      <Dialog open={open} onOpenChange={(val) => {
-          if (!spinning) setOpen(val);
-      }}>
-        <DialogContent className="sm:max-w-md overflow-hidden bg-white/95 backdrop-blur-xl border-0 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-center text-3xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent py-2">
-                {result ? "Tebrikler! 🎉" : "Şansını Dene!"}
-            </DialogTitle>
-          </DialogHeader>
+      {/* 2. Modal (Çark Ekranı) */}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            {/* Arka Plan Karartma */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isSpinning && setIsOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
 
-          <div className="flex flex-col items-center justify-center py-6 relative">
-            
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 drop-shadow-lg">
-                <div className="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[35px] border-t-gray-800"></div>
-            </div>
-
-            <div className="relative p-2 rounded-full border-4 border-gray-100 shadow-inner bg-white">
-                <div 
-                    ref={wheelRef}
-                    className="w-72 h-72 rounded-full border-8 border-white shadow-2xl relative overflow-hidden"
-                    style={{
-                        background: `conic-gradient(${gradient})`,
-                        transform: `rotate(0deg)` 
-                    }}
+            {/* Modal İçeriği */}
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              className="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-2xl overflow-hidden text-center"
+            >
+              {/* Kapat Butonu */}
+              {!isSpinning && (
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                 >
-                    {items.map((item, index) => {
-                        const angle = (360 / items.length) * index + (360 / items.length) / 2;
-                        return (
-                            <div 
-                                key={item.id}
-                                className="absolute top-1/2 left-1/2 w-full h-0 -translate-y-1/2 origin-left pl-8 z-10"
-                                style={{ transform: `rotate(${angle - 90}deg)` }} 
-                            >
-                               <div className="text-white font-bold text-sm drop-shadow-md whitespace-nowrap w-24 text-right transform rotate-90 origin-bottom-right translate-x-8">
-                                 {item.label.length > 15 ? item.label.substring(0, 12) + "..." : item.label}
-                               </div>
-                            </div>
-                        )
-                    })}
-                </div>
+                  <X size={24} />
+                </button>
+              )}
+
+              {/* Başlık */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                  Şansını Dene!
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Çarkı çevir, sürpriz hediyeyi kap.
+                </p>
+              </div>
+
+              {/* --- ÇARK ALANI --- */}
+              <div className="relative w-72 h-72 mx-auto mb-8">
                 
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md z-20"></div>
-            </div>
+                {/* Gösterge (Pointer) - En Üstte */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                   <div className="w-8 h-8 bg-white border-4 border-gray-800 rotate-45 transform translate-y-2 rounded-sm shadow-lg"></div>
+                </div>
 
-            <div className="mt-8 text-center w-full px-4 min-h-[80px] flex items-center justify-center">
-                {result ? (
-                    <div className="space-y-4 animate-in zoom-in w-full">
-                        <div className="p-4 bg-green-50 text-green-700 rounded-xl font-bold text-lg border border-green-200 shadow-sm flex flex-col gap-1">
-                            <span>🎁 Kazandığın Ödül:</span>
-                            <span className="text-2xl text-green-800">{result}</span>
-                        </div>
-                        <p className="text-xs text-gray-400">Ekran görüntüsü alarak garsona gösterebilirsin.</p>
-                        <Button onClick={() => setOpen(false)} variant="secondary" className="w-full">
-                            Kapat
-                        </Button>
-                    </div>
-                ) : (
-                    <Button 
-                        size="lg" 
-                        onClick={handleSpin} 
-                        disabled={spinning}
-                        className="w-full bg-gray-900 hover:bg-black text-white font-bold text-lg h-14 rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                {/* Dönen Kısım */}
+                <motion.div
+                  className="w-full h-full rounded-full relative border-[8px] border-white dark:border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+                  style={{
+                    background: gradientString, // CSS Gradient ile dilimler
+                  }}
+                  animate={{ rotate: rotation }}
+                  transition={{ duration: 5, ease: "circOut" }}
+                >
+                  {/* Dilim Yazıları */}
+                  {items.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="absolute top-0 left-1/2 w-1 h-[50%] origin-bottom"
+                      style={{
+                        transform: `translateX(-50%) rotate(${
+                          index * sliceAngle + sliceAngle / 2
+                        }deg)`,
+                      }}
                     >
-                        {spinning ? "Bol Şans..." : "ÇEVİR KAZAN"}
-                    </Button>
-                )}
-            </div>
+                      {/* Yazıyı Dışarı Doğru İtmek İçin */}
+                      <div className="pt-4 text-center">
+                         <span 
+                            className="block text-white font-bold text-xs uppercase tracking-wider drop-shadow-md" 
+                            style={{ 
+                                writingMode: 'vertical-rl', // Yazıyı dikey yap
+                                textOrientation: 'mixed',
+                                transform: 'rotate(180deg)', // Okunabilir yön
+                                maxHeight: '100px'
+                            }}
+                        >
+                            {item.label}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+                
+                {/* Orta Buton (Spin) */}
+                <button
+                  onClick={handleSpin}
+                  disabled={isSpinning || hasSpun}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full shadow-xl flex items-center justify-center border-4 border-purple-100 z-10 active:scale-95 transition-transform"
+                >
+                  <span className="font-bold text-purple-600 text-xs">
+                    {isSpinning ? "..." : "ÇEVİR"}
+                  </span>
+                </button>
+              </div>
 
+              {/* Kazandıktan Sonraki Mesaj */}
+              {wonItem && (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="text-center bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800"
+                >
+                  <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold mb-1">
+                    <PartyPopper size={20} />
+                    <span>Tebrikler!</span>
+                  </div>
+                  <p className="text-gray-800 dark:text-gray-200 font-medium">
+                    "{wonItem.label}" kazandınız!
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Garsona bu ekranı göstererek ödülünüzü alabilirsiniz.
+                  </p>
+                </motion.div>
+              )}
+            </motion.div>
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+      </AnimatePresence>
     </>
   );
 }

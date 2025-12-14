@@ -16,20 +16,20 @@ export async function createWheelItem(restaurantId: string, formData: FormData) 
       label,
       percentage: percentage || 10,
       color: "#" + Math.floor(Math.random()*16777215).toString(16),
-      isActive: true // Varsayılan olarak aktif
+      isActive: true
     }
   });
 
   revalidatePath("/admin/marketing");
 }
 
-// 2. Ödül Sil (Tamamen Kaldırır)
+// 2. Ödül Sil
 export async function deleteWheelItem(itemId: string) {
   await prisma.wheelItem.delete({ where: { id: itemId } });
   revalidatePath("/admin/marketing");
 }
 
-// 3. Durum Değiştir (YENİ ÖZELLİK: Aktif/Pasif Yapma)
+// 3. Durum Değiştir
 export async function toggleWheelItemStatus(itemId: string, currentStatus: boolean) {
   await prisma.wheelItem.update({
     where: { id: itemId },
@@ -44,11 +44,20 @@ export async function getWheelItems(slug: string) {
     where: { slug },
     include: { 
       wheelItems: {
-        where: { isActive: true }, // Sadece AKTİF olanları getir
+        where: { isActive: true },
         orderBy: { percentage: 'asc' }
       } 
     }
   });
   
   return restaurant?.wheelItems || [];
+}
+
+// 5. Kupon Oluştur (YENİ EKLENDİ - Hata Çözümü İçin)
+export async function createCoupon(wheelItemId: string) {
+  // Şimdilik sadece logluyoruz. 
+  // İleride veritabanına 'Coupon' modeli eklersek burayı güncelleriz.
+  console.log("Kupon Kazanıldı! Ödül ID:", wheelItemId);
+  
+  return { success: true };
 }
