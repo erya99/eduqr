@@ -34,6 +34,7 @@ model Restaurant {
   template       String     @default("classic") // "classic" veya "modern"
   
   // Sosyal Medya
+  googlePlaceUrl String? // <-- YENİ: Google Yorum Linki
   instagramUrl String?
   facebookUrl  String?
   twitterUrl   String?

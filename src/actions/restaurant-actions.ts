@@ -39,8 +39,9 @@ export async function updateRestaurant(
     facebookUrl?: string | null;
     twitterUrl?: string | null;
     websiteUrl?: string | null;
+    googlePlaceUrl?: string | null; // 👈 YENİ: Google Yorum Linki
     colorPalette?: string;
-    template?: string; // 👈 YENİ: Template alanı eklendi
+    template?: string; 
   }
 ) {
   const user = await currentUser();
@@ -77,8 +78,9 @@ export async function updateRestaurant(
         facebookUrl: data.facebookUrl || null,
         twitterUrl: data.twitterUrl || null,
         websiteUrl: data.websiteUrl || null,
+        googlePlaceUrl: data.googlePlaceUrl || null, // 👈 YENİ: Veritabanına kaydet
         colorPalette: data.colorPalette || "blue",
-        template: data.template || "classic", // 👈 YENİ: Veritabanına kaydet (varsayılan: classic)
+        template: data.template || "classic",
       },
     });
 

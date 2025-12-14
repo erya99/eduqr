@@ -30,7 +30,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   
-  // State tanımları (colorPalette ve template eklendi)
+  // State tanımları
   const [formData, setFormData] = useState({
     name: restaurant.name,
     slug: restaurant.slug,
@@ -40,8 +40,9 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
     facebookUrl: restaurant.facebookUrl || "",
     twitterUrl: restaurant.twitterUrl || "",
     websiteUrl: restaurant.websiteUrl || "",
+    googlePlaceUrl: restaurant.googlePlaceUrl || "", // 👈 YENİ: Google Linki
     colorPalette: restaurant.colorPalette || "blue",
-    template: restaurant.template || "classic", // 👈 YENİ: Tasarım seçimi
+    template: restaurant.template || "classic",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +70,6 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
       return;
     }
 
-    // formData içinde colorPalette ve template olduğu için updateRestaurant fonksiyonuna otomatik gidecek
     const result = await updateRestaurant(restaurant.id, formData);
 
     if (result.success) {
@@ -148,7 +148,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
         </div>
       </div>
 
-      {/* --- MENÜ TASARIMI SEÇİMİ (YENİ BÖLÜM) --- */}
+      {/* --- MENÜ TASARIMI SEÇİMİ --- */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Menü Tasarımı</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,6 +320,24 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
             <Label>Web Sitesi</Label>
             <Input name="websiteUrl" placeholder="https://siteniz.com" value={formData.websiteUrl} onChange={handleChange} className="dark:bg-gray-900 dark:border-gray-600"/>
           </div>
+        </div>
+
+        {/* 👈 YENİ: Google Yorum Linki Alanı */}
+        <div className="space-y-2 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-lg mt-4">
+            <Label className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
+            Google Haritalar / Yorum Linki
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold tracking-wide">ÖNERİLEN</span>
+            </Label>
+            <Input 
+                name="googlePlaceUrl" 
+                placeholder="https://g.page/r/..." 
+                value={formData.googlePlaceUrl} 
+                onChange={handleChange} 
+                className="dark:bg-gray-900 dark:border-gray-600 border-blue-200 focus:border-blue-500"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+                Google İşletme profilinizdeki "Yorum iste" butonundan aldığınız kısa linki buraya yapıştırın. Bu link, menünüzde müşterileri Google'da yorum yapmaya teşvik eden şık bir kart olarak görünecektir.
+            </p>
         </div>
       </div>
 
