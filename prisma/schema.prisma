@@ -101,6 +101,7 @@ model Product {
   order        Int      @default(0)
 
   allergens    String[] @default([])
+  priceLabel  String?  @default("Standart")
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])

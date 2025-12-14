@@ -42,13 +42,16 @@ export async function createProduct(formData: FormData) {
   const description = formData.get("description") as string;
   const imageUrl = formData.get("image") as string;
   
+  // YENİ: Porsiyon Adı (Eğer boşsa "Standart" olarak kaydeder)
+  const priceLabel = formData.get("priceLabel") as string;
+
   // Varsayılan olarak aktif (true), eğer formdan 'false' gelirse pasif olur
   const isAvailable = formData.get("isAvailable") ? (formData.get("isAvailable") === "true") : true;
 
   const variantsJson = formData.get("variants") as string;
   const variants: VariantInput[] = variantsJson ? JSON.parse(variantsJson) : [];
 
-  // 👇 YENİ: Alerjen verisini al ve parse et
+  // Alerjen verisini al ve parse et
   const allergensJson = formData.get("allergens") as string;
   const allergens: string[] = allergensJson ? JSON.parse(allergensJson) : [];
 
@@ -76,9 +79,10 @@ export async function createProduct(formData: FormData) {
       price, 
       description,
       imageUrl,
+      priceLabel: priceLabel || "Standart", // 👈 EKLENDİ
       categoryId: category.id,
-      isAvailable: isAvailable, // Durum bilgisi
-      allergens: allergens,     // 👈 YENİ: Veritabanına kaydet
+      isAvailable: isAvailable, 
+      allergens: allergens,    
       order: newOrder,
       variants: {
         create: variants.map(v => ({
@@ -108,13 +112,16 @@ export async function updateProduct(formData: FormData) {
   const description = formData.get("description") as string;
   const imageUrl = formData.get("image") as string;
   
+  // YENİ: Porsiyon Adı güncelleme
+  const priceLabel = formData.get("priceLabel") as string;
+
   const categoryName = formData.get("category") as string; // Yeni kategori adı
   const isAvailable = formData.get("isAvailable") === "true"; // Yeni durum
 
   const variantsJson = formData.get("variants") as string;
   const variants: VariantInput[] = variantsJson ? JSON.parse(variantsJson) : [];
 
-  // 👇 YENİ: Alerjen verisini al ve parse et
+  // Alerjen verisini al ve parse et
   const allergensJson = formData.get("allergens") as string;
   const allergens: string[] = allergensJson ? JSON.parse(allergensJson) : [];
 
@@ -140,9 +147,10 @@ export async function updateProduct(formData: FormData) {
           price,
           description,
           imageUrl,
-          categoryId: category.id, // Kategori güncellemesi
-          isAvailable: isAvailable, // Durum güncellemesi
-          allergens: allergens,     // 👈 YENİ: Alerjenleri güncelle
+          priceLabel: priceLabel || "Standart", // 👈 EKLENDİ
+          categoryId: category.id, 
+          isAvailable: isAvailable, 
+          allergens: allergens,     
           variants: {
             create: variants.map(v => ({
                 name: v.name,

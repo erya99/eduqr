@@ -64,6 +64,7 @@ interface ProductCardProps {
   imageUrl?: string | null;
   variants?: { name: string; price: number }[];
   allergens?: string[];
+  priceLabel?: string | null; // 👈 YENİ EKLENDİ
 }
 
 export default function ProductCard({ 
@@ -72,7 +73,8 @@ export default function ProductCard({
   price, 
   imageUrl, 
   variants = [], 
-  allergens = [] 
+  allergens = [],
+  priceLabel // 👈 YENİ EKLENDİ
 }: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const hasVariants = variants && variants.length > 0;
@@ -141,7 +143,8 @@ export default function ProductCard({
               
               <div className="space-y-3 mt-4">
                 <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-[var(--brand-primary)] transition-colors">
-                    <span className="font-medium">Standart Porsiyon</span>
+                    {/* 👇 BURASI GÜNCELLENDİ: Admin panelinden gelen isim veya 'Standart' */}
+                    <span className="font-medium">{priceLabel || "Standart"}</span>
                     <span className="font-bold text-[var(--brand-primary)]">{fmt(price)}</span>
                 </div>
 

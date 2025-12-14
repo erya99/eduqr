@@ -40,9 +40,8 @@ export default function ProductForm({ product, categories = [] }: { product?: an
   // --- Durum için State ---
   const [isAvailable, setIsAvailable] = useState(product?.isAvailable === false ? "false" : "true");
   
-  // --- YENİ: Alerjenler için State ---
+  // --- Alerjenler için State ---
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(product?.allergens || []);
-  // ----------------------------------
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -80,8 +79,7 @@ export default function ProductForm({ product, categories = [] }: { product?: an
             if (imageUrl) formData.set("image", imageUrl);
             if (variants.length > 0) formData.set("variants", JSON.stringify(variants));
             
-            // Gizli input yerine Select değerini manuel de ekleyebiliriz ama 
-            // aşağıda hidden input kullandığımız için formData otomatik alacaktır.
+            // formData inputlardan gelen verileri zaten içeriyor (name, price, priceLabel vb.)
             
             await action(formData);
             toast.success(product ? "Ürün güncellendi" : "Ürün oluşturuldu");
@@ -108,19 +106,34 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         />
       </div>
 
-      {/* --- FİYAT --- */}
-      <div className="grid gap-2">
-        <Label htmlFor="price" className="dark:text-gray-200">Varsayılan Fiyat (₺)</Label>
-        <Input 
-          id="price" 
-          name="price" 
-          type="number" 
-          step="0.01" 
-          defaultValue={product ? Number(product.price) : ""}
-          placeholder="0.00" 
-          required 
-          className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
-        />
+      {/* --- FİYAT VE PORSİYON ADI (GÜNCELLENEN KISIM) --- */}
+      <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="price" className="dark:text-gray-200">Varsayılan Fiyat (₺)</Label>
+            <Input 
+              id="price" 
+              name="price" 
+              type="number" 
+              step="0.01" 
+              defaultValue={product ? Number(product.price) : ""}
+              placeholder="0.00" 
+              required 
+              className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="priceLabel" className="dark:text-gray-200">Porsiyon Adı</Label>
+            <Input
+              id="priceLabel"
+              name="priceLabel"
+              type="text"
+              placeholder="Örn: Çeyrek Ekmek"
+              defaultValue={product?.priceLabel || ""}
+              className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+            />
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">Boş bırakılırsa "Standart" yazar.</p>
+          </div>
       </div>
 
       {/* --- KATEGORİ --- */}
@@ -148,12 +161,12 @@ export default function ProductForm({ product, categories = [] }: { product?: an
       <div className="grid gap-2">
         <Label className="dark:text-gray-200">Ürün Durumu</Label>
         
-        {/* State'i hidden input ile forma gömüyoruz (En güvenli yöntem) */}
+        {/* State'i hidden input ile forma gömüyoruz */}
         <input type="hidden" name="isAvailable" value={isAvailable} />
         
         <Select 
             value={isAvailable} 
-            onValueChange={setIsAvailable} // Değişikliği state'e yaz
+            onValueChange={setIsAvailable}
         >
           <SelectTrigger className="dark:bg-gray-900 dark:border-gray-700 dark:text-white">
             <SelectValue placeholder="Durum seçin" />
@@ -165,7 +178,7 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </Select>
       </div>
 
-      {/* --- ALERJEN SEÇİMİ (YENİ) --- */}
+      {/* --- ALERJEN SEÇİMİ --- */}
       <div className="grid gap-2 pt-2">
         <Label className="dark:text-gray-200">Alerjenler & Etiketler</Label>
         <div className="flex flex-wrap gap-2">
@@ -188,22 +201,24 @@ export default function ProductForm({ product, categories = [] }: { product?: an
             )
           })}
         </div>
-        {/* Seçilenleri sunucuya göndermek için gizli input */}
         <input type="hidden" name="allergens" value={JSON.stringify(selectedAllergens)} />
       </div>
 
       {/* --- VARYASYONLAR --- */}
       <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3 mt-2">
         <div className="flex justify-between items-center">
-            <Label className="font-semibold dark:text-gray-200">Porsiyon / Seçenekler</Label>
+            <Label className="font-semibold dark:text-gray-200">Diğer Seçenekler (Opsiyonel)</Label>
             <Button type="button" size="sm" variant="outline" onClick={addVariant} className="dark:bg-gray-800 dark:text-white dark:border-gray-600">
                 <Plus className="w-4 h-4 mr-1" /> Ekle
             </Button>
         </div>
+        {variants.length === 0 && (
+            <p className="text-xs text-gray-500 italic">Ekstra porsiyon veya seçenek eklemek için 'Ekle' butonuna basın.</p>
+        )}
         {variants.map((variant, index) => (
             <div key={index} className="flex gap-2 items-end">
                 <Input 
-                    placeholder="Örn: 1.5 Porsiyon" 
+                    placeholder="Örn: 1.5 Porsiyon / Yarım Ekmek" 
                     value={variant.name} 
                     onChange={(e) => updateVariant(index, "name", e.target.value)}
                     required
