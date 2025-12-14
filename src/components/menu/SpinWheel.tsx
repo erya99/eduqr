@@ -19,10 +19,12 @@ const WHEEL_COLORS = [
   "#6366F1", // Indigo
 ];
 
+// DÜZELTME: Veritabanı modeliyle uyumlu hale getirildi (percentage eklendi)
 interface WheelItem {
   id: string;
   label: string;
-  probability: number;
+  percentage: number; // probability -> percentage olarak değiştirildi
+  color?: string | null;
 }
 
 export default function SpinWheel({ items }: { items: WheelItem[] }) {
@@ -44,17 +46,17 @@ export default function SpinWheel({ items }: { items: WheelItem[] }) {
 
     setIsSpinning(true);
 
-    // 1. Ödülü belirle (Backend simülasyonu: Probability'ye göre rastgele seç)
-    const totalProb = items.reduce((acc, item) => acc + item.probability, 0);
+    // DÜZELTME: percentage kullanılıyor
+    const totalProb = items.reduce((acc, item) => acc + item.percentage, 0);
     let random = Math.random() * totalProb;
     let selectedItem = items[items.length - 1];
 
     for (const item of items) {
-      if (random < item.probability) {
+      if (random < item.percentage) { // DÜZELTME: probability -> percentage
         selectedItem = item;
         break;
       }
-      random -= item.probability;
+      random -= item.percentage; // DÜZELTME: probability -> percentage
     }
 
     // 2. Dönüş açısını hesapla
