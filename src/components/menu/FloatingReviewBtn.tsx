@@ -11,7 +11,7 @@ export default function FloatingReviewBtn({ url }: { url: string | null }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-24 right-4 z-[40] group flex items-center justify-center animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500"
+      className="fixed bottom-24 left-4 z-[40] group flex items-center justify-center animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500"
     >
       {/* Arkadaki Hareketli Işıltı Efekti (Pulse) */}
       <span className="absolute inset-0 rounded-full bg-yellow-400 opacity-40 group-hover:animate-ping duration-[2000ms]"></span>
