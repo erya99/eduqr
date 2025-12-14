@@ -1,3 +1,5 @@
+// Dosya: src/app/[slug]/page.tsx
+
 import { PrismaClient } from "@prisma/client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -10,7 +12,7 @@ import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
 import FeedbackButton from "@/components/menu/FeedbackButton";
 import PdfDownloader from "@/components/menu/PdfDownloader";
-import GoogleReviewCard from "@/components/menu/GoogleReviewCard"; // 👈 YENİ: Import edildi
+import FloatingReviewBtn from "@/components/menu/FloatingReviewBtn"; // 👈 YENİ: Import edildi
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -96,6 +98,9 @@ export default async function MenuPage({ params, searchParams }: Props) {
 
           <ViewTracker restaurantId={restaurant.id} />
           <SpinWheel items={wheelItems} />
+
+          {/* 👈 YENİ: Yüzen Google Butonu Buraya Eklendi */}
+          <FloatingReviewBtn url={restaurant.googlePlaceUrl} />
         </>
       )}
 
@@ -120,7 +125,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
 
         {!isPdfMode ? (
             isModernDesign ? (
-                // Modern Menü (İçerisinde kendi GoogleReviewCard entegrasyonu var varsayıyoruz veya oraya da prop geçilebilir)
+                // Modern Menü
                 <ModernMenu restaurant={restaurant} categories={restaurant.categories} />
             ) : (
                 <>
@@ -159,7 +164,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                     </header>
 
                     {/* KLASİK WEB İÇERİK */}
-                    <main className="container mx-auto px-4 mt-10 mb-20"> {/* mb-20 eklendi */}
+                    <main className="container mx-auto px-4 mt-10 mb-20">
                         {activeCategory ? (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -189,11 +194,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                             ))}
                         </div>
                         )}
-
-                        {/* 👈 YENİ: Google Review Card Entegrasyonu (Sadece Klasik Tema için buraya, Modern için ModernMenu içine) */}
-                        <div className="mt-12">
-                           <GoogleReviewCard url={restaurant.googlePlaceUrl} />
-                        </div>
                     </main>
                 </>
             )
