@@ -61,7 +61,9 @@ export default async function MenuPage({ params, searchParams }: Props) {
   return (
     <div 
       data-theme={restaurant.colorPalette || "blue"}
-      className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden bg-white dark:bg-black"
+      // DÜZELTME BURADA YAPILDI: "bg-white dark:bg-black" sınıfları kaldırıldı.
+      // Böylece alttaki z-[-1] katmanındaki renkli efektler görünecek.
+      className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
     >
       
       {isPdfMode && (
