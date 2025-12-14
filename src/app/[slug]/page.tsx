@@ -55,14 +55,17 @@ export default async function MenuPage({ params, searchParams }: Props) {
 
   const wheelItems = await getWheelItems(slug);
   const isModernDesign = restaurant.template === "modern";
+  
+  // YENİ EKLEME: Eğer tema "black" (veya monochrome) ise özel işlem yapacağız.
+  const isMonochrome = restaurant.colorPalette === "black" || restaurant.colorPalette === "monochrome";
+
   const activeCategory = cat ? restaurant.categories.find((c: any) => c.id === cat) : null;
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
 
   return (
     <div 
       data-theme={restaurant.colorPalette || "blue"}
-      // DÜZELTME BURADA YAPILDI: "bg-white dark:bg-black" sınıfları kaldırıldı.
-      // Böylece alttaki z-[-1] katmanındaki renkli efektler görünecek.
+      // Ana kapsayıcıdan arka plan renklerini sildik, alttaki fixed div yönetecek
       className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
     >
       
@@ -73,28 +76,38 @@ export default async function MenuPage({ params, searchParams }: Props) {
       {!isPdfMode && (
         <>
           <div className="fixed inset-0 z-[-1]">
-            <div className="absolute inset-0 bg-gray-50 dark:bg-[#0a0a0a]" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[100px] bg-[var(--brand-primary)] opacity-15 pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full blur-[120px] bg-[var(--brand-primary)] opacity-10 pointer-events-none" />
+            {/* DÜZENLEME BURADA: 
+                Eğer siyah tema (isMonochrome) ise: Tam Beyaz / Tam Siyah
+                Değilse (Turuncu vb.): Hafif Gri / Koyu Gri (#0a0a0a) 
+            */}
+            <div className={`absolute inset-0 ${isMonochrome ? "bg-white dark:bg-black" : "bg-gray-50 dark:bg-[#0a0a0a]"}`} />
+            
+            {/* Işıltı efektlerini sadece siyah tema DEĞİLSE gösteriyoruz.
+                Böylece siyah temada arka plan dümdüz ve net oluyor. 
+            */}
+            {!isMonochrome && (
+              <>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[100px] bg-[var(--brand-primary)] opacity-15 pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full blur-[120px] bg-[var(--brand-primary)] opacity-10 pointer-events-none" />
+              </>
+            )}
           </div>
+
           <ViewTracker restaurantId={restaurant.id} />
           <SpinWheel items={wheelItems} />
         </>
       )}
 
-      {/* --- MENU CONTAINER (PDF BURAYI ÇEKER) --- */}
+      {/* --- MENU CONTAINER --- */}
       <div 
         id="menu-container" 
-        // PDF Modunda genişliği A4 (794px) olarak sabitliyoruz ki taşma yapmasın
         className={isPdfMode ? "bg-white text-black mx-auto" : ""}
         style={isPdfMode ? { width: '794px', minHeight: '1123px', padding: '20px' } : {}}
       >
         
-        {/* PDF Header (Sadece PDF'te görünür) */}
         {isPdfMode && (
           <div className="text-center mb-8 border-b-2 border-black pb-6 avoid-break">
             {restaurant.logoUrl && (
-                // Logo varsa PDF tepesine ekleyelim
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-2 border-gray-200 relative">
                     <img src={restaurant.logoUrl} className="w-full h-full object-cover" alt="Logo" crossOrigin="anonymous"/>
                 </div>
@@ -104,9 +117,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
           </div>
         )}
 
-        {/* WEB MODU: Normal ModernMenu veya Klasik Tasarım 
-            PDF MODU: Özel "Güvenli" Liste Tasarımı (Aşağıda)
-        */}
         {!isPdfMode ? (
             isModernDesign ? (
                 <ModernMenu restaurant={restaurant} categories={restaurant.categories} />
@@ -181,50 +191,37 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 </>
             )
         ) : (
-            // ==========================================
-            // PDF MODU İÇİN ÖZEL GÜVENLİ TASARIM
-            // ==========================================
+            // PDF MODU TASARIMI
             <main className="mt-4">
-                {/* Tüm Kategorileri Alt Alta Listele */}
                 {nonEmptyCategories.map((category: any) => (
                     <div key={category.id} className="mb-8 w-full avoid-break">
-                        
-                        {/* Kategori Başlığı */}
                         <h2 className="text-xl font-bold border-b-2 border-black pb-1 mb-4 mt-2 text-black uppercase tracking-wider w-full">
                             {category.name}
                         </h2>
-
-                        {/* Ürünler Grid'i (Flex kullanarak yapıyoruz, Grid bazen PDF'te patlıyor) */}
                         <div className="flex flex-wrap gap-4">
                             {category.products.map((product: any) => (
                                 <div 
                                     key={product.id} 
-                                    // w-[48%] ile yan yana 2 tane sığdırıyoruz. 
-                                    // avoid-break sınıfı ürünün sayfa ortasında kesilmesini engeller.
                                     className="w-[48%] flex flex-col border border-gray-300 rounded-lg p-3 bg-white shadow-sm avoid-break"
                                     style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                                 >
-                                    {/* Görsel Alanı: Background Image Yöntemi (Sünmeyi Önler) */}
                                     {product.imageUrl && (
                                         <div 
                                             className="w-full h-44 mb-3 rounded border border-gray-200 bg-gray-100"
                                             style={{ 
                                                 backgroundImage: `url('${product.imageUrl}')`,
-                                                backgroundSize: 'cover', // Resmi kutuya doldur ama oranını bozma
+                                                backgroundSize: 'cover',
                                                 backgroundPosition: 'center center',
                                                 backgroundRepeat: 'no-repeat'
                                             }}
                                         />
                                     )}
-
-                                    {/* Ürün Bilgileri */}
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="font-bold text-base text-black leading-tight pr-2">{product.name}</span>
                                         <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 rounded">
                                             ₺{Number(product.price)}
                                         </span>
                                     </div>
-                                    
                                     {product.description && (
                                         <p className="text-xs text-gray-600 leading-snug mt-1 pt-1 border-t border-gray-100">
                                             {product.description}
@@ -239,7 +236,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </div>
 
-      {/* FOOTER (Normal Modda Görünür) */}
       {!isPdfMode && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
             <div className="container mx-auto flex items-center justify-between max-w-md">
@@ -252,7 +248,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 {restaurant.instagramUrl && <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500"><Instagram size={20} /></a>}
                 {restaurant.websiteUrl && <a href={restaurant.websiteUrl} target="_blank" className="text-gray-400 hover:text-green-500"><Globe size={20} /></a>}
             </div>
-
             <div className="flex items-center gap-4">
                 <FeedbackButton restaurantId={restaurant.id} />
                 <ThemeToggle />
