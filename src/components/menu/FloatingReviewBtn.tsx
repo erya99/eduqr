@@ -11,12 +11,10 @@ export default function FloatingReviewBtn({ url }: { url: string | null }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      // Sol tarafta (left-4) ve aşağıda (bottom-24) duruyor.
       className="fixed bottom-24 left-4 z-[40] group flex items-center justify-center animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500"
     >
-      {/* DÜZELTME YAPILDI:
-         1. 'duration-[2000ms]' sınıfı silindi (Tailwind uyarısını çözer).
-         2. style={{ animationDuration: '2s' }} eklendi (Ping efektini yavaşlatır).
+      {/* DÜZELTME: 'duration-[2000ms]' sınıfı KALDIRILDI. 
+         Yerine 'animationDuration' stili eklendi.
       */}
       <span 
         className="absolute inset-0 rounded-full bg-yellow-400 opacity-40 group-hover:animate-ping"
