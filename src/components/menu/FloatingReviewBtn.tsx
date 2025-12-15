@@ -11,10 +11,17 @@ export default function FloatingReviewBtn({ url }: { url: string | null }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      // Sol tarafta (left-4) ve aşağıda (bottom-24) duruyor.
       className="fixed bottom-24 left-4 z-[40] group flex items-center justify-center animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500"
     >
-      {/* Arkadaki Hareketli Işıltı Efekti (Pulse) */}
-      <span className="absolute inset-0 rounded-full bg-yellow-400 opacity-40 group-hover:animate-ping duration-[2000ms]"></span>
+      {/* DÜZELTME YAPILDI:
+         1. 'duration-[2000ms]' sınıfı silindi (Tailwind uyarısını çözer).
+         2. style={{ animationDuration: '2s' }} eklendi (Ping efektini yavaşlatır).
+      */}
+      <span 
+        className="absolute inset-0 rounded-full bg-yellow-400 opacity-40 group-hover:animate-ping"
+        style={{ animationDuration: '2s' }}
+      ></span>
       
       {/* Butonun Kendisi */}
       <div className="relative flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white pl-1 pr-4 py-1.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-yellow-400/30 transition-all duration-300 hover:scale-105 hover:shadow-yellow-400/20 backdrop-blur-sm">
