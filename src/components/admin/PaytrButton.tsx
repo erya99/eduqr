@@ -16,8 +16,15 @@ import { startSubscription } from "@/actions/payment-actions";
 import { createInvoiceRequest } from "@/actions/invoice-actions";
 import { Loader2 } from "lucide-react";
 
-// restaurantId prop olarak alınmalı
-export default function PaytrButton({ restaurantId }: { restaurantId?: string }) {
+// Props arayüzünü güncelledik: Artık planType ve price zorunlu
+interface PaytrButtonProps {
+  restaurantId?: string;
+  planType: "monthly" | "yearly"; 
+  price: number; 
+  label: string;
+}
+
+export default function PaytrButton({ restaurantId, planType, price, label }: PaytrButtonProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -39,21 +46,25 @@ export default function PaytrButton({ restaurantId }: { restaurantId?: string })
     
     setLoading(true);
     try {
-      // 1. ÖNCE: Fatura bilgilerini veritabanına kaydet
+      // 1. Fatura Talebi Oluştur (Dinamik fiyat ile)
       await createInvoiceRequest({
         restaurantId,
         legalName: formData.legalName,
         taxNumber: formData.taxNumber,
         taxOffice: formData.taxOffice,
         address: formData.address,
-        amount: 300 // Paket tutarı
+        amount: price // Props'tan gelen dinamik tutar
       });
 
-      // 2. SONRA: PayTR işlemini başlat (Form verilerini göndererek)
+      // 2. PayTR Başlat
+      // startSubscription fonksiyonuna artık planType'ı da gönderiyoruz
       const result = await startSubscription({
-        name: formData.legalName,
-        address: formData.address,
-        phone: formData.phone
+        billing: {
+          name: formData.legalName,
+          address: formData.address,
+          phone: formData.phone
+        },
+        planType: planType 
       });
       
       if (result.status === 'success' && result.iframe_token) {
@@ -78,14 +89,15 @@ export default function PaytrButton({ restaurantId }: { restaurantId?: string })
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-blue-600 hover:bg-blue-700">
-          Hemen Satın Al (250₺ + KDV)
+        {/* Yıllık plan ise buton mavi, değilse koyu renk olsun */}
+        <Button className={`w-full ${planType === 'yearly' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-900 hover:bg-slate-800'}`}>
+          {label} ({price}₺)
         </Button>
       </DialogTrigger>
       
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Fatura Bilgileri</DialogTitle>
+          <DialogTitle>Fatura Bilgileri ({planType === 'yearly' ? 'Yıllık' : 'Aylık'})</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handlePayment} className="grid gap-4 py-4">
