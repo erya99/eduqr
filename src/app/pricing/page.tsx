@@ -67,7 +67,8 @@ export default function PricingPage() {
 
               <div className="mt-10">
                 <Link href="/sign-up" className="block w-full">
-                  <Button className="w-full h-12 text-lg rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-lg">
+                  {/* GÜNCELLEME BURADA: Buton rengi mavi yapıldı */}
+                  <Button className="w-full h-12 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
                     Aylık Başla
                   </Button>
                 </Link>
