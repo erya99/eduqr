@@ -33,21 +33,21 @@ export default async function SubscriptionPage() {
 
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl w-full px-4">
         
-        {/* 1. AYLIK PLAN (MEVCUT) */}
-        <Card className="border-2 shadow-lg flex flex-col">
+        {/* 1. AYLIK PLAN (MAVİ KONSEPT) */}
+        <Card className="border-2 border-blue-600 shadow-lg flex flex-col transform hover:scale-105 transition-transform duration-300">
           <CardHeader>
-            <CardTitle className="text-2xl">Aylık Paket</CardTitle>
+            <CardTitle className="text-2xl text-blue-600">Aylık Paket</CardTitle>
             <CardDescription>Esnek ödeme, taahhüt yok.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            <div className="flex items-end gap-1 bg-blue-600">
+            <div className="flex items-end gap-1">
               <span className="text-4xl font-bold">250 ₺</span>
               <span className="text-muted-foreground mb-1">+ KDV / Ay</span>
             </div>
             <ul className="space-y-2 text-sm pt-4">
               {features.map((item) => (
                   <li key={item} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" /> {item}
+                      <Check className="w-4 h-4 text-blue-600" /> {item}
                   </li>
               ))}
             </ul>
@@ -66,8 +66,8 @@ export default async function SubscriptionPage() {
           </CardFooter>
         </Card>
 
-        {/* 2. YILLIK PLAN (YENİ KAMPANYALI) */}
-        <Card className="border-2 border-blue-600 shadow-xl relative flex flex-col transform md:scale-105">
+        {/* 2. YILLIK PLAN (KAMPANYALI) */}
+        <Card className="border-2 border-blue-600 shadow-xl relative flex flex-col transform md:scale-105 transition-transform duration-300 bg-blue-50/10">
           <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs px-3 py-1 rounded-bl-lg font-bold flex items-center gap-1">
              <Star className="w-3 h-3 fill-white" /> KAMPANYA
           </div>
@@ -80,7 +80,7 @@ export default async function SubscriptionPage() {
               <span className="text-4xl font-bold">2.500 ₺</span>
               <span className="text-muted-foreground mb-1">+ KDV / Yıl</span>
             </div>
-            <p className="text-xs text-blue-600 font-medium bg-blue-50 p-2 rounded-md inline-block">
+            <p className="text-xs text-blue-600 font-medium bg-blue-100 p-2 rounded-md inline-block">
               Avantajlı Paket!
             </p>
             <ul className="space-y-2 text-sm pt-4">
