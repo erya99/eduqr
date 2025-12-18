@@ -3,7 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 // Buraya kendi Clerk'e giriş yaptığın e-posta adresini yaz
 const SUPER_ADMINS = [
   "eraygumusbas7@gmail.com", 
-  "diger.ortak@adresin.com"
+  "esranildogan@gmail.com"
 ];
 
 export async function isSuperAdmin() {
