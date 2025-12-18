@@ -44,7 +44,7 @@ export default async function SubscriptionPage() {
               <span className="text-4xl font-bold">250 ₺</span>
               <span className="text-muted-foreground mb-1">+ KDV / Ay</span>
             </div>
-            <ul className="space-y-2 text-sm pt-4">
+            <ul className="space-y-2 text-sm pt-4 bg-blue-600">
               {features.map((item) => (
                   <li key={item} className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500" /> {item}
