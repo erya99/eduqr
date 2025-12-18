@@ -90,7 +90,7 @@ export default function PaytrButton({ restaurantId, planType, price, label }: Pa
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {/* Yıllık plan ise buton mavi, değilse koyu renk olsun */}
-        <Button className={`w-full ${planType === 'yearly' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-900 hover:bg-slate-800'}`}>
+        <Button className={`w-full ${planType === 'yearly' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-slate-800'}`}>
           {label} ({price}₺)
         </Button>
       </DialogTrigger>
