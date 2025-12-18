@@ -81,7 +81,7 @@ export default async function SubscriptionPage() {
               <span className="text-muted-foreground mb-1">+ KDV / Yıl</span>
             </div>
             <p className="text-xs text-blue-600 font-medium bg-blue-50 p-2 rounded-md inline-block">
-              Normalde 3.000₺ yerine 2.500₺! (500₺ Kazanç)
+              Avantajlı Paket!
             </p>
             <ul className="space-y-2 text-sm pt-4">
               {features.map((item) => (
