@@ -40,11 +40,11 @@ export default async function SubscriptionPage() {
             <CardDescription>Esnek ödeme, taahhüt yok.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            <div className="flex items-end gap-1">
+            <div className="flex items-end gap-1 bg-blue-600">
               <span className="text-4xl font-bold">250 ₺</span>
               <span className="text-muted-foreground mb-1">+ KDV / Ay</span>
             </div>
-            <ul className="space-y-2 text-sm pt-4 bg-blue-600">
+            <ul className="space-y-2 text-sm pt-4">
               {features.map((item) => (
                   <li key={item} className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500" /> {item}
