@@ -1,5 +1,3 @@
-// Dosya: src/app/[slug]/page.tsx
-
 import { PrismaClient } from "@prisma/client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -12,7 +10,7 @@ import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
 import FeedbackButton from "@/components/menu/FeedbackButton";
 import PdfDownloader from "@/components/menu/PdfDownloader";
-import FloatingReviewBtn from "@/components/menu/FloatingReviewBtn"; // 👈 YENİ: Import edildi
+import FloatingReviewBtn from "@/components/menu/FloatingReviewBtn";
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -59,7 +57,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
   const wheelItems = await getWheelItems(slug);
   const isModernDesign = restaurant.template === "modern";
   
-  // YENİ EKLEME: Eğer tema "black" (veya monochrome) ise özel işlem yapacağız.
   const isMonochrome = restaurant.colorPalette === "black" || restaurant.colorPalette === "monochrome";
 
   const activeCategory = cat ? restaurant.categories.find((c: any) => c.id === cat) : null;
@@ -68,7 +65,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
   return (
     <div 
       data-theme={restaurant.colorPalette || "blue"}
-      // Ana kapsayıcıdan arka plan renklerini sildik, alttaki fixed div yönetecek
       className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 pb-24 overflow-x-hidden"
     >
       
@@ -79,15 +75,8 @@ export default async function MenuPage({ params, searchParams }: Props) {
       {!isPdfMode && (
         <>
           <div className="fixed inset-0 z-[-1]">
-            {/* DÜZENLEME BURADA: 
-                Eğer siyah tema (isMonochrome) ise: Tam Beyaz / Tam Siyah
-                Değilse (Turuncu vb.): Hafif Gri / Koyu Gri (#0a0a0a) 
-            */}
             <div className={`absolute inset-0 ${isMonochrome ? "bg-white dark:bg-black" : "bg-gray-50 dark:bg-[#0a0a0a]"}`} />
             
-            {/* Işıltı efektlerini sadece siyah tema DEĞİLSE gösteriyoruz.
-                Böylece siyah temada arka plan dümdüz ve net oluyor. 
-            */}
             {!isMonochrome && (
               <>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[100px] bg-[var(--brand-primary)] opacity-15 pointer-events-none" />
@@ -99,7 +88,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
           <ViewTracker restaurantId={restaurant.id} />
           <SpinWheel items={wheelItems} />
 
-          {/* 👈 YENİ: Yüzen Google Butonu Buraya Eklendi */}
           <FloatingReviewBtn url={restaurant.googlePlaceUrl} />
         </>
       )}
@@ -115,7 +103,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
           <div className="text-center mb-8 border-b-2 border-black pb-6 avoid-break">
             {restaurant.logoUrl && (
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-2 border-gray-200 relative">
-                    <img src={restaurant.logoUrl} className="w-full h-full object-cover" alt="Logo" crossOrigin="anonymous"/>
+                  <img src={restaurant.logoUrl} className="w-full h-full object-cover" alt="Logo" crossOrigin="anonymous"/>
                 </div>
             )}
             <h1 className="text-4xl font-bold text-black mb-2 uppercase tracking-wider">{restaurant.name}</h1>
@@ -128,8 +116,8 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 // Modern Menü
                 <ModernMenu restaurant={restaurant} categories={restaurant.categories} />
             ) : (
+                // ... KLASİK MENÜ KODLARI BURADA (Değişiklik yok) ...
                 <>
-                    {/* KLASİK WEB HEADER */}
                     <header className="relative">
                         <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
                         {restaurant.coverUrl ? (
@@ -163,7 +151,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                         </div>
                     </header>
 
-                    {/* KLASİK WEB İÇERİK */}
                     <main className="container mx-auto px-4 mt-10 mb-20">
                         {activeCategory ? (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -198,7 +185,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 </>
             )
         ) : (
-            // PDF MODU TASARIMI
+            // --- PDF MODU TASARIMI (BURAYI GÜNCELLEDİM) ---
             <main className="mt-4">
                 {nonEmptyCategories.map((category: any) => (
                     <div key={category.id} className="mb-8 w-full avoid-break">
@@ -229,6 +216,19 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                             ₺{Number(product.price)}
                                         </span>
                                     </div>
+                                    
+                                    {/* --- DÜZELTME: VARYASYONLAR --- */}
+                                    {product.variants && product.variants.length > 0 && (
+                                        <div className="mb-2 mt-1">
+                                            {product.variants.map((v: any) => (
+                                                <div key={v.id} className="flex justify-between items-center text-xs text-gray-700 py-0.5 border-b border-gray-100 last:border-0">
+                                                    <span>{v.name}</span>
+                                                    <span className="font-semibold">₺{Number(v.price)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
                                     {product.description && (
                                         <p className="text-xs text-gray-600 leading-snug mt-1 pt-1 border-t border-gray-100">
                                             {product.description}
