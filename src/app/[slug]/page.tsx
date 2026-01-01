@@ -116,7 +116,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 // Modern Menü
                 <ModernMenu restaurant={restaurant} categories={restaurant.categories} />
             ) : (
-                // ... KLASİK MENÜ KODLARI BURADA (Değişiklik yok) ...
+                // ... KLASİK MENÜ KODLARI (Değişiklik yok) ...
                 <>
                     <header className="relative">
                         <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
@@ -194,7 +194,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                         </h2>
                         <div className="flex flex-wrap gap-4">
                             {category.products.map((product: any) => {
-                                // Varyasyon var mı kontrol et
+                                // Varyasyon var mı?
                                 const hasVariants = product.variants && product.variants.length > 0;
 
                                 return (
@@ -219,7 +219,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                             {/* Ürün Adı */}
                                             <span className="font-bold text-base text-black leading-tight pr-2">{product.name}</span>
                                             
-                                            {/* Fiyat SADECE varyasyon YOKSA burada gösterilecek */}
+                                            {/* Eğer varyasyon YOKSA fiyatı sağa koyuyoruz (Eski düzen) */}
                                             {!hasVariants && (
                                                 <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 rounded">
                                                     ₺{Number(product.price)}
@@ -227,9 +227,22 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                             )}
                                         </div>
                                         
-                                        {/* --- VARYASYON LİSTESİ --- */}
+                                        {/* --- FİYAT LİSTESİ (Varyasyon varsa) --- */}
                                         {hasVariants && (
                                             <div className="mt-2 flex flex-col gap-1.5">
+                                                
+                                                {/* 1. SIRA: Ana Ürün Fiyatı (Varyasyon gibi gösteriliyor) */}
+                                                <div className="flex justify-between items-center text-sm text-gray-800 border-b border-gray-100 pb-1">
+                                                    {/* priceLabel boşsa "Standart" yazsın */}
+                                                    <span className="font-medium text-gray-700">
+                                                        {product.priceLabel || "Standart"}
+                                                    </span>
+                                                    <span className="font-bold text-black bg-gray-50 px-1.5 py-0.5 rounded">
+                                                        ₺{Number(product.price)}
+                                                    </span>
+                                                </div>
+
+                                                {/* 2. SIRA ve Sonrası: Varyasyonlar */}
                                                 {product.variants.map((v: any) => (
                                                     <div key={v.id} className="flex justify-between items-center text-sm text-gray-800 border-b border-gray-100 pb-1 last:border-0 last:pb-0">
                                                         <span className="font-medium text-gray-700">{v.name}</span>
