@@ -185,7 +185,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 </>
             )
         ) : (
-            // --- PDF MODU TASARIMI (BURAYI GÜNCELLEDİM) ---
+            // --- PDF MODU TASARIMI (GÜNCELLENDİ) ---
             <main className="mt-4">
                 {nonEmptyCategories.map((category: any) => (
                     <div key={category.id} className="mb-8 w-full avoid-break">
@@ -193,49 +193,62 @@ export default async function MenuPage({ params, searchParams }: Props) {
                             {category.name}
                         </h2>
                         <div className="flex flex-wrap gap-4">
-                            {category.products.map((product: any) => (
-                                <div 
-                                    key={product.id} 
-                                    className="w-[48%] flex flex-col border border-gray-300 rounded-lg p-3 bg-white shadow-sm avoid-break"
-                                    style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-                                >
-                                    {product.imageUrl && (
-                                        <div 
-                                            className="w-full h-44 mb-3 rounded border border-gray-200 bg-gray-100"
-                                            style={{ 
-                                                backgroundImage: `url('${product.imageUrl}')`,
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center center',
-                                                backgroundRepeat: 'no-repeat'
-                                            }}
-                                        />
-                                    )}
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="font-bold text-base text-black leading-tight pr-2">{product.name}</span>
-                                        <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 rounded">
-                                            ₺{Number(product.price)}
-                                        </span>
-                                    </div>
-                                    
-                                    {/* --- DÜZELTME: VARYASYONLAR --- */}
-                                    {product.variants && product.variants.length > 0 && (
-                                        <div className="mb-2 mt-1">
-                                            {product.variants.map((v: any) => (
-                                                <div key={v.id} className="flex justify-between items-center text-xs text-gray-700 py-0.5 border-b border-gray-100 last:border-0">
-                                                    <span>{v.name}</span>
-                                                    <span className="font-semibold">₺{Number(v.price)}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                            {category.products.map((product: any) => {
+                                // Varyasyon var mı kontrol et
+                                const hasVariants = product.variants && product.variants.length > 0;
 
-                                    {product.description && (
-                                        <p className="text-xs text-gray-600 leading-snug mt-1 pt-1 border-t border-gray-100">
-                                            {product.description}
-                                        </p>
-                                    )}
-                                </div>
-                            ))}
+                                return (
+                                    <div 
+                                        key={product.id} 
+                                        className="w-[48%] flex flex-col border border-gray-300 rounded-lg p-3 bg-white shadow-sm avoid-break"
+                                        style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                                    >
+                                        {product.imageUrl && (
+                                            <div 
+                                                className="w-full h-44 mb-3 rounded border border-gray-200 bg-gray-100"
+                                                style={{ 
+                                                    backgroundImage: `url('${product.imageUrl}')`,
+                                                    backgroundSize: 'cover',
+                                                    backgroundPosition: 'center center',
+                                                    backgroundRepeat: 'no-repeat'
+                                                }}
+                                            />
+                                        )}
+                                        
+                                        <div className="flex justify-between items-start mb-1">
+                                            {/* Ürün Adı */}
+                                            <span className="font-bold text-base text-black leading-tight pr-2">{product.name}</span>
+                                            
+                                            {/* Fiyat SADECE varyasyon YOKSA burada gösterilecek */}
+                                            {!hasVariants && (
+                                                <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 rounded">
+                                                    ₺{Number(product.price)}
+                                                </span>
+                                            )}
+                                        </div>
+                                        
+                                        {/* --- VARYASYON LİSTESİ --- */}
+                                        {hasVariants && (
+                                            <div className="mt-2 flex flex-col gap-1.5">
+                                                {product.variants.map((v: any) => (
+                                                    <div key={v.id} className="flex justify-between items-center text-sm text-gray-800 border-b border-gray-100 pb-1 last:border-0 last:pb-0">
+                                                        <span className="font-medium text-gray-700">{v.name}</span>
+                                                        <span className="font-bold text-black bg-gray-50 px-1.5 py-0.5 rounded">
+                                                            ₺{Number(v.price)}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {product.description && (
+                                            <p className="text-xs text-gray-600 leading-snug mt-2 pt-1 border-t border-gray-100">
+                                                {product.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}
