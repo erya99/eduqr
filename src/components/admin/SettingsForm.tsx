@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Restaurant } from "@prisma/client";
+import { Restaurant } from "@prisma/client"; // Prisma client generate edildikten sonra tip güncellenir
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { updateRestaurant } from "@/actions/restaurant-actions";
-import { Loader2, Upload, ImageIcon, X, LayoutGrid, List } from "lucide-react";
+import { Loader2, Upload, ImageIcon, X, LayoutGrid, List, Smartphone } from "lucide-react";
 
 // Renk Paletleri Tanımları
 const COLOR_PALETTES = [
@@ -36,11 +36,12 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
     slug: restaurant.slug,
     logoUrl: restaurant.logoUrl || "",
     coverUrl: restaurant.coverUrl || "",
+    landingImageUrl: (restaurant as any).landingImageUrl || "", // 👈 YENİ: Dikey Görsel
     instagramUrl: restaurant.instagramUrl || "",
     facebookUrl: restaurant.facebookUrl || "",
     twitterUrl: restaurant.twitterUrl || "",
     websiteUrl: restaurant.websiteUrl || "",
-    googlePlaceUrl: restaurant.googlePlaceUrl || "", // 👈 YENİ: Google Linki
+    googlePlaceUrl: restaurant.googlePlaceUrl || "",
     colorPalette: restaurant.colorPalette || "blue",
     template: restaurant.template || "classic",
   });
@@ -49,13 +50,13 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpload = (result: any, field: "logoUrl" | "coverUrl") => {
+  const handleUpload = (result: any, field: "logoUrl" | "coverUrl" | "landingImageUrl") => {
     if (result.info && result.info.secure_url) {
         setFormData(prev => ({ ...prev, [field]: result.info.secure_url }));
     }
   };
 
-  const handleRemoveImage = (field: "logoUrl" | "coverUrl") => {
+  const handleRemoveImage = (field: "logoUrl" | "coverUrl" | "landingImageUrl") => {
     setFormData(prev => ({ ...prev, [field]: "" }));
   };
 
@@ -151,13 +152,13 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
       {/* --- MENÜ TASARIMI SEÇİMİ --- */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Menü Tasarımı</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
           {/* Klasik Tasarım Seçeneği */}
           <div 
             onClick={() => setFormData({ ...formData, template: 'classic' })}
             className={`
-              relative cursor-pointer border-2 rounded-xl p-4 flex items-center gap-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
+              relative cursor-pointer border-2 rounded-xl p-4 flex flex-col items-center gap-3 text-center transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
               ${formData.template === 'classic' || !formData.template
                 ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500' 
                 : 'border-gray-200 dark:border-gray-700'
@@ -171,11 +172,11 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
               <LayoutGrid size={24} />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Klasik Görünüm</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Görsel ağırlıklı, kart yapısı.</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Klasik</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Görsel ağırlıklı kartlar.</p>
             </div>
             {formData.template === 'classic' && (
-              <div className="absolute top-4 right-4 h-3 w-3 bg-blue-600 rounded-full animate-pulse" />
+              <div className="absolute top-3 right-3 h-2.5 w-2.5 bg-blue-600 rounded-full animate-pulse" />
             )}
           </div>
 
@@ -183,7 +184,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
           <div 
             onClick={() => setFormData({ ...formData, template: 'modern' })}
             className={`
-              relative cursor-pointer border-2 rounded-xl p-4 flex items-center gap-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
+              relative cursor-pointer border-2 rounded-xl p-4 flex flex-col items-center gap-3 text-center transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
               ${formData.template === 'modern' 
                 ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500' 
                 : 'border-gray-200 dark:border-gray-700'
@@ -197,11 +198,37 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
               <List size={24} />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Modern Liste</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Görselsiz, şık liste görünümü.</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Modern</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Sade liste görünümü.</p>
             </div>
             {formData.template === 'modern' && (
-              <div className="absolute top-4 right-4 h-3 w-3 bg-blue-600 rounded-full animate-pulse" />
+              <div className="absolute top-3 right-3 h-2.5 w-2.5 bg-blue-600 rounded-full animate-pulse" />
+            )}
+          </div>
+
+          {/* 👈 YENİ: Yeni Nesil (Landing Page) Tasarımı */}
+          <div 
+            onClick={() => setFormData({ ...formData, template: 'new-gen' })}
+            className={`
+              relative cursor-pointer border-2 rounded-xl p-4 flex flex-col items-center gap-3 text-center transition-all hover:bg-gray-50 dark:hover:bg-gray-900/50
+              ${formData.template === 'new-gen' 
+                ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500' 
+                : 'border-gray-200 dark:border-gray-700'
+              }
+            `}
+          >
+            <div className={`
+              h-12 w-12 rounded-lg flex items-center justify-center
+              ${formData.template === 'new-gen' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}
+            `}>
+              <Smartphone size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Yeni Nesil</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Açılış ekranlı (Landing).</p>
+            </div>
+            {formData.template === 'new-gen' && (
+              <div className="absolute top-3 right-3 h-2.5 w-2.5 bg-blue-600 rounded-full animate-pulse" />
             )}
           </div>
 
@@ -211,13 +238,15 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
       {/* --- Görseller --- */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Görseller</h3>
-        <div className="grid gap-8 md:grid-cols-2">
+        
+        {/* Görsel Grid Yapısı */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           
-          {/* Logo Yükleme */}
+          {/* 1. Logo Yükleme */}
           <div className="space-y-2">
             <Label>Restoran Logosu</Label>
-            <div className="flex items-start gap-4">
-              <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 shrink-0 group">
+            <div className="flex flex-col items-center gap-3 border border-gray-100 dark:border-gray-700 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-900/50">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-black shrink-0 group shadow-sm">
                 {formData.logoUrl ? (
                   <>
                     <Image src={formData.logoUrl} alt="Logo" fill className="object-cover" />
@@ -234,7 +263,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
                 )}
               </div>
               
-              <div className="flex flex-col gap-2 w-full">
+              <div className="w-full">
                  <CldUploadWidget
                     uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
                     onSuccess={(result) => handleUpload(result, "logoUrl")}
@@ -252,16 +281,16 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
                         </Button>
                     )}
                  </CldUploadWidget>
-                 <p className="text-xs text-gray-500 dark:text-gray-400">Kare (1:1) format önerilir.</p>
+                 <p className="text-xs text-gray-500 text-center mt-1">Kare (1:1)</p>
               </div>
             </div>
           </div>
 
-          {/* Kapak Görseli */}
+          {/* 2. Kapak Görseli (Yatay) */}
           <div className="space-y-2">
-            <Label>Kapak Görseli</Label>
-             <div className="flex flex-col gap-3">
-              <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 group">
+            <Label>Kapak Görseli (Yatay)</Label>
+             <div className="flex flex-col gap-3 border border-gray-100 dark:border-gray-700 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-900/50 h-full justify-between">
+              <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-black group">
                 {formData.coverUrl ? (
                   <>
                     <Image src={formData.coverUrl} alt="Kapak" fill className="object-cover" />
@@ -278,25 +307,80 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
                 )}
               </div>
               
-              <CldUploadWidget
-                uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-                onSuccess={(result) => handleUpload(result, "coverUrl")}
-              >
-                {({ open }) => (
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-600"
-                      onClick={() => open()}
-                    >
-                      <Upload className="w-4 h-4 mr-2"/> 
-                      {formData.coverUrl ? "Kapağı Değiştir" : "Kapak Yükle"}
-                    </Button>
-                )}
-              </CldUploadWidget>
+              <div>
+                <CldUploadWidget
+                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                    onSuccess={(result) => handleUpload(result, "coverUrl")}
+                >
+                    {({ open }) => (
+                        <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-600"
+                        onClick={() => open()}
+                        >
+                        <Upload className="w-4 h-4 mr-2"/> 
+                        {formData.coverUrl ? "Kapağı Değiştir" : "Kapak Yükle"}
+                        </Button>
+                    )}
+                </CldUploadWidget>
+                <p className="text-xs text-gray-500 text-center mt-1">Menü üst kısmı için.</p>
+              </div>
             </div>
           </div>
+
+          {/* 3. 👈 YENİ: Dikey Açılış Görseli */}
+          <div className="space-y-2">
+            <Label className={formData.template === 'new-gen' ? "text-blue-600 font-bold" : ""}>
+                Dikey Açılış Görseli
+                {formData.template === 'new-gen' && <span className="ml-2 text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">GEREKLİ</span>}
+            </Label>
+             <div className={`flex flex-col gap-3 border p-4 rounded-lg h-full justify-between ${formData.template === 'new-gen' ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100 bg-gray-50/50 dark:border-gray-700 dark:bg-gray-900/50'}`}>
+              <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-black group">
+                {/* Dikey görüntüleme simülasyonu için object-contain veya cover kullanılabilir */}
+                {formData.landingImageUrl ? (
+                  <>
+                    <Image src={formData.landingImageUrl} alt="Landing" fill className="object-cover" />
+                    <button 
+                        type="button"
+                        onClick={() => handleRemoveImage("landingImageUrl")}
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                    >
+                        <X size={24} />
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-1">
+                      <Smartphone className="w-6 h-6 opacity-50" />
+                      <span className="text-[10px]">Dikey (9:16)</span>
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <CldUploadWidget
+                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                    onSuccess={(result) => handleUpload(result, "landingImageUrl")}
+                >
+                    {({ open }) => (
+                        <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-600"
+                        onClick={() => open()}
+                        >
+                        <Upload className="w-4 h-4 mr-2"/> 
+                        {formData.landingImageUrl ? "Görseli Değiştir" : "Görsel Yükle"}
+                        </Button>
+                    )}
+                </CldUploadWidget>
+                <p className="text-xs text-gray-500 text-center mt-1">1080x1920 px önerilir.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -322,7 +406,7 @@ export default function SettingsForm({ restaurant }: SettingsFormProps) {
           </div>
         </div>
 
-        {/* 👈 YENİ: Google Yorum Linki Alanı */}
+        {/* Google Yorum Linki Alanı */}
         <div className="space-y-2 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-lg mt-4">
             <Label className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
             Google Haritalar / Yorum Linki

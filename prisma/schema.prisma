@@ -29,6 +29,7 @@ model Restaurant {
   slug           String     @unique
   logoUrl        String?
   coverUrl       String?
+  landingImageUrl String?  // <-- YENİ: Dikey Açılış Görseli
   isActive       Boolean    @default(true)
   userId         String     @unique
   template       String     @default("classic") // "classic" veya "modern"

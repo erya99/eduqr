@@ -19,7 +19,6 @@ export async function getRestaurantFromUser() {
 }
 
 // 2. Slug ile Restoran Getir (Müşteri Menüsü için)
-// Bu fonksiyon [slug]/page.tsx içinde kullanılıyor
 export async function getRestaurantBySlug(slug: string) {
   const restaurant = await prisma.restaurant.findUnique({
     where: { slug: slug },
@@ -35,11 +34,12 @@ export async function updateRestaurant(
     slug: string;
     logoUrl: string;
     coverUrl: string;
+    landingImageUrl?: string | null; // 👈 YENİ: Dikey Görsel Linki
     instagramUrl?: string | null;
     facebookUrl?: string | null;
     twitterUrl?: string | null;
     websiteUrl?: string | null;
-    googlePlaceUrl?: string | null; // 👈 YENİ: Google Yorum Linki
+    googlePlaceUrl?: string | null;
     colorPalette?: string;
     template?: string; 
   }
@@ -74,11 +74,12 @@ export async function updateRestaurant(
         slug: data.slug,
         logoUrl: data.logoUrl,
         coverUrl: data.coverUrl,
+        landingImageUrl: data.landingImageUrl || null, // 👈 YENİ: Veritabanına kaydet
         instagramUrl: data.instagramUrl || null,
         facebookUrl: data.facebookUrl || null,
         twitterUrl: data.twitterUrl || null,
         websiteUrl: data.websiteUrl || null,
-        googlePlaceUrl: data.googlePlaceUrl || null, // 👈 YENİ: Veritabanına kaydet
+        googlePlaceUrl: data.googlePlaceUrl || null,
         colorPalette: data.colorPalette || "blue",
         template: data.template || "classic",
       },

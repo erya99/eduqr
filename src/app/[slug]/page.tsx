@@ -8,6 +8,7 @@ import ProductCard from "@/components/menu/ProductCard";
 import ViewTracker from "@/components/menu/ViewTracker";
 import SpinWheel from "@/components/menu/SpinWheel";
 import ModernMenu from "@/components/menu/ModernMenu";
+import NewGenMenu from "@/components/menu/NewGenMenu"; // 👈 YENİ: Import edildi
 import FeedbackButton from "@/components/menu/FeedbackButton";
 import PdfDownloader from "@/components/menu/PdfDownloader";
 import FloatingReviewBtn from "@/components/menu/FloatingReviewBtn";
@@ -55,7 +56,10 @@ export default async function MenuPage({ params, searchParams }: Props) {
   }
 
   const wheelItems = await getWheelItems(slug);
+  
+  // Tasarım Kontrolleri
   const isModernDesign = restaurant.template === "modern";
+  const isNewGenDesign = restaurant.template === "new-gen"; // 👈 YENİ: Kontrol eklendi
   
   const isMonochrome = restaurant.colorPalette === "black" || restaurant.colorPalette === "monochrome";
 
@@ -86,9 +90,14 @@ export default async function MenuPage({ params, searchParams }: Props) {
           </div>
 
           <ViewTracker restaurantId={restaurant.id} />
-          <SpinWheel items={wheelItems} />
-
-          <FloatingReviewBtn url={restaurant.googlePlaceUrl} />
+          
+          {/* Yeni Nesil Tasarımda bu global butonları gizliyoruz çünkü kendi içinde var */}
+          {!isNewGenDesign && (
+             <>
+                <SpinWheel items={wheelItems} />
+                <FloatingReviewBtn url={restaurant.googlePlaceUrl} />
+             </>
+          )}
         </>
       )}
 
@@ -112,11 +121,19 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
 
         {!isPdfMode ? (
-            isModernDesign ? (
-                // Modern Menü
+            // --- TASARIM SEÇİM MANTIĞI ---
+            isNewGenDesign ? (
+                // 1. YENİ NESİL MENÜ (LANDING PAGE)
+                <NewGenMenu 
+                    restaurant={restaurant} 
+                    categories={restaurant.categories} 
+                    wheelItems={wheelItems}
+                />
+            ) : isModernDesign ? (
+                // 2. MODERN MENÜ
                 <ModernMenu restaurant={restaurant} categories={restaurant.categories} />
             ) : (
-                // ... KLASİK MENÜ KODLARI (Değişiklik yok) ...
+                // 3. KLASİK MENÜ (Varsayılan)
                 <>
                     <header className="relative">
                         <div className="relative h-56 md:h-80 w-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
@@ -185,7 +202,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                 </>
             )
         ) : (
-            // --- PDF MODU TASARIMI (GÜNCELLENDİ) ---
+            // --- PDF MODU TASARIMI ---
             <main className="mt-4">
                 {nonEmptyCategories.map((category: any) => (
                     <div key={category.id} className="mb-8 w-full avoid-break">
@@ -194,7 +211,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                         </h2>
                         <div className="flex flex-wrap gap-4">
                             {category.products.map((product: any) => {
-                                // Varyasyon var mı?
                                 const hasVariants = product.variants && product.variants.length > 0;
 
                                 return (
@@ -216,10 +232,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                         )}
                                         
                                         <div className="flex justify-between items-start mb-1">
-                                            {/* Ürün Adı */}
                                             <span className="font-bold text-base text-black leading-tight pr-2">{product.name}</span>
-                                            
-                                            {/* Eğer varyasyon YOKSA fiyatı sağa koyuyoruz (Eski düzen) */}
                                             {!hasVariants && (
                                                 <span className="font-bold text-lg text-black whitespace-nowrap bg-gray-100 px-2 rounded">
                                                     ₺{Number(product.price)}
@@ -227,13 +240,9 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                             )}
                                         </div>
                                         
-                                        {/* --- FİYAT LİSTESİ (Varyasyon varsa) --- */}
                                         {hasVariants && (
                                             <div className="mt-2 flex flex-col gap-1.5">
-                                                
-                                                {/* 1. SIRA: Ana Ürün Fiyatı (Varyasyon gibi gösteriliyor) */}
                                                 <div className="flex justify-between items-center text-sm text-gray-800 border-b border-gray-100 pb-1">
-                                                    {/* priceLabel boşsa "Standart" yazsın */}
                                                     <span className="font-medium text-gray-700">
                                                         {product.priceLabel || "Standart"}
                                                     </span>
@@ -242,7 +251,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
                                                     </span>
                                                 </div>
 
-                                                {/* 2. SIRA ve Sonrası: Varyasyonlar */}
                                                 {product.variants.map((v: any) => (
                                                     <div key={v.id} className="flex justify-between items-center text-sm text-gray-800 border-b border-gray-100 pb-1 last:border-0 last:pb-0">
                                                         <span className="font-medium text-gray-700">{v.name}</span>
@@ -269,20 +277,16 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </div>
 
-{/* ... kodun geri kalanı aynı ... */}
-
       {!isPdfMode && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
             <div className="container mx-auto flex items-center justify-between max-w-md">
             <div className="flex gap-5 items-center">
-                {/* Ana Sayfa / Sepet Linki */}
                 <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[var(--brand-primary)] dark:hover:text-blue-400 transition">
                     <div className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-blue-900/20 transition">
                         <ShoppingBag size={20} />
                     </div>
                 </Link>
 
-                {/* Sosyal Medya İkonları (Renklendirilmiş) */}
                 {restaurant.instagramUrl && (
                     <a href={restaurant.instagramUrl} target="_blank" className="text-[#E1306C] hover:opacity-80 transition-opacity" aria-label="Instagram">
                         <Instagram size={20} />
@@ -315,8 +319,6 @@ export default async function MenuPage({ params, searchParams }: Props) {
             </div>
         </footer>
       )}
-
-{/* ... dosyanın sonu ... */}
     </div>
   );
 }
