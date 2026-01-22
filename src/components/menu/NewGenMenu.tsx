@@ -134,7 +134,7 @@ export default function NewGenMenu({ restaurant, categories, wheelItems }: NewGe
                              <div className="p-2 bg-white/10 rounded-full">
                                 <MessageCircle className="w-5 h-5" />
                             </div>
-                            <span className="text-xs font-medium tracking-wide">Yorumlar</span>
+                            <span className="text-xs font-medium tracking-wide">Bizi Değerlendir</span>
                         </a>
                     )}
 
