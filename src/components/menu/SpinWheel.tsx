@@ -21,9 +21,14 @@ interface WheelItem {
 
 interface SpinWheelProps {
   items: WheelItem[];
-  initialOpen?: boolean; // YENİ: Başlangıçta açık olsun mu?
-  onClose?: () => void;  // YENİ: Kapanınca çalışacak fonksiyon
+  initialOpen?: boolean;
+  onClose?: () => void;
 }
+
+// 24 Saatlik Süre (Milisaniye cinsinden)
+// 24 saat * 60 dakika * 60 saniye * 1000 milisaniye
+const COOLDOWN_TIME = 24 * 60 * 60 * 1000; 
+const STORAGE_KEY = "wheel_last_spin_time_v1"; // Anahtar ismini değiştirdik ki eski kayıtlar sıfırlansın
 
 export default function SpinWheel({ items, initialOpen = false, onClose }: SpinWheelProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
@@ -31,13 +36,31 @@ export default function SpinWheel({ items, initialOpen = false, onClose }: SpinW
   const [rotation, setRotation] = useState(0);
   const [wonItem, setWonItem] = useState<WheelItem | null>(null);
   const [hasSpun, setHasSpun] = useState(false);
+  const [remainingTime, setRemainingTime] = useState<string>("");
 
   useEffect(() => {
-    const spun = localStorage.getItem("wheel_spun");
-    if (spun) setHasSpun(true);
+    // Sayfa yüklendiğinde son çevirme zamanını kontrol et
+    const lastSpinTime = localStorage.getItem(STORAGE_KEY);
+    
+    if (lastSpinTime) {
+      const timeDiff = Date.now() - parseInt(lastSpinTime);
+      
+      // Eğer 24 saat geçmediyse "Çevirdi" olarak işaretle
+      if (timeDiff < COOLDOWN_TIME) {
+        setHasSpun(true);
+        
+        // Kalan süreyi hesapla (kullanıcıya göstermek için opsiyonel)
+        const left = COOLDOWN_TIME - timeDiff;
+        const hours = Math.floor(left / (1000 * 60 * 60));
+        const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+        setRemainingTime(`${hours} sa ${minutes} dk`);
+      } else {
+        // 24 saat geçtiyse kilidi aç (ve eski kaydı temizleyebiliriz veya üzerine yazarız)
+        setHasSpun(false);
+      }
+    }
   }, []);
 
-  // initialOpen değişirse state'i güncelle (NewGenMenu'den tetiklemek için)
   useEffect(() => {
     if (initialOpen) setIsOpen(true);
   }, [initialOpen]);
@@ -75,7 +98,9 @@ export default function SpinWheel({ items, initialOpen = false, onClose }: SpinW
       setWonItem(selectedItem);
       setIsSpinning(false);
       setHasSpun(true);
-      localStorage.setItem("wheel_spun", "true");
+      
+      // ŞU ANKİ ZAMANI KAYDET (Date.now())
+      localStorage.setItem(STORAGE_KEY, Date.now().toString());
       
       confetti({
         particleCount: 100,
@@ -94,8 +119,7 @@ export default function SpinWheel({ items, initialOpen = false, onClose }: SpinW
 
   if (items.length === 0) return null;
 
-  // Eğer zaten çevirdiyse ve modal açık DEĞİLSE, butonu gizle.
-  // Ama modal açıksa (yani Fırsatlar'a basıldıysa) içeriği göster.
+  // Çevirme hakkı yoksa ve modal kapalıysa butonu gizle
   if (hasSpun && !isOpen) return null;
 
   const sliceAngle = 360 / items.length;
@@ -108,7 +132,7 @@ export default function SpinWheel({ items, initialOpen = false, onClose }: SpinW
 
   return (
     <>
-      {/* 1. Tetikleyici Buton (Sadece modal kapalıyken ve henüz çevrilmediyse) */}
+      {/* 1. Tetikleyici Buton */}
       {!hasSpun && !isOpen && !initialOpen && (
         <motion.button
           onClick={() => setIsOpen(true)}
@@ -236,11 +260,15 @@ export default function SpinWheel({ items, initialOpen = false, onClose }: SpinW
                   </p>
                 </motion.div>
               ) : hasSpun && !isSpinning ? (
-                  // Eğer daha önce çevirdiyse ve tekrar açtıysa bu mesajı göster
                   <div className="text-center bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                      <p className="text-gray-600 dark:text-gray-300 font-medium">
-                        Günlük şansınızı zaten kullandınız.
+                      <p className="text-gray-600 dark:text-gray-300 font-medium text-sm">
+                        Günlük şansınızı kullandınız.
                       </p>
+                      {remainingTime && (
+                         <p className="text-xs text-gray-400 mt-1">
+                            Tekrar çevirebilmek için: {remainingTime}
+                         </p>
+                      )}
                   </div>
               ) : null}
 
