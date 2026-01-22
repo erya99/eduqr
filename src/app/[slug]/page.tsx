@@ -269,18 +269,45 @@ export default async function MenuPage({ params, searchParams }: Props) {
         )}
       </div>
 
+{/* ... kodun geri kalanı aynı ... */}
+
       {!isPdfMode && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 py-3 z-50 safe-area-bottom">
             <div className="container mx-auto flex items-center justify-between max-w-md">
-            <div className="flex gap-6 items-center">
+            <div className="flex gap-5 items-center">
+                {/* Ana Sayfa / Sepet Linki */}
                 <Link href={`/${slug}`} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[var(--brand-primary)] dark:hover:text-blue-400 transition">
                     <div className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-blue-900/20 transition">
                         <ShoppingBag size={20} />
                     </div>
                 </Link>
-                {restaurant.instagramUrl && <a href={restaurant.instagramUrl} target="_blank" className="text-gray-400 hover:text-pink-500"><Instagram size={20} /></a>}
-                {restaurant.websiteUrl && <a href={restaurant.websiteUrl} target="_blank" className="text-gray-400 hover:text-green-500"><Globe size={20} /></a>}
+
+                {/* Sosyal Medya İkonları (Renklendirilmiş) */}
+                {restaurant.instagramUrl && (
+                    <a href={restaurant.instagramUrl} target="_blank" className="text-[#E1306C] hover:opacity-80 transition-opacity" aria-label="Instagram">
+                        <Instagram size={20} />
+                    </a>
+                )}
+                
+                {restaurant.facebookUrl && (
+                    <a href={restaurant.facebookUrl} target="_blank" className="text-[#1877F2] hover:opacity-80 transition-opacity" aria-label="Facebook">
+                        <Facebook size={20} />
+                    </a>
+                )}
+
+                {restaurant.twitterUrl && (
+                    <a href={restaurant.twitterUrl} target="_blank" className="text-[#1DA1F2] hover:opacity-80 transition-opacity" aria-label="Twitter">
+                        <Twitter size={20} />
+                    </a>
+                )}
+
+                {restaurant.websiteUrl && (
+                    <a href={restaurant.websiteUrl} target="_blank" className="text-blue-600 hover:opacity-80 transition-opacity" aria-label="Web Sitesi">
+                        <Globe size={20} />
+                    </a>
+                )}
             </div>
+            
             <div className="flex items-center gap-4">
                 <FeedbackButton restaurantId={restaurant.id} />
                 <ThemeToggle />
@@ -288,6 +315,8 @@ export default async function MenuPage({ params, searchParams }: Props) {
             </div>
         </footer>
       )}
+
+{/* ... dosyanın sonu ... */}
     </div>
   );
 }
