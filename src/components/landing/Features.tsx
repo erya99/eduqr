@@ -3,86 +3,107 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function Features() {
   return (
-    <section className="py-24 bg-white text-gray-900 space-y-24 lg:space-y-32">
-      
+    <section className="py-24 space-y-32">
+
       {/* BAŞLIK ALANI */}
       <div className="container mx-auto px-4 text-center max-w-3xl">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-          Dijital Menü & QR Kod Sistemi
+        <h2 className="text-4xl md:text-5xl font-bold text-[#0F1C36] mb-6">
+          Teknoloji Değil, <span className="text-blue-600">Konfor ve Kazanç</span> Satıyoruz
         </h2>
-        <p className="text-lg text-gray-600">
-          İşletmenize maliyet ve zaman tasarrufu sağlarken, aynı zamanda daha esnek ve güncel bir menü sunmanızı sağlar.
+        <p className="text-xl text-gray-500">
+          İşletmenizi yönetirken boğulmayın. EduQR size zaman kazandırır, müşterinize keyifli bir deneyim sunar.
         </p>
       </div>
 
-      {/* --- BÖLÜM 1: MEKAN GÖRSELİ (Sağda) --- */}
-      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        <div className="space-y-6">
-          <h3 className="text-3xl font-bold text-gray-900">
-            Müşterilerinizi Memnun Ederek Gelirinizi Arttırın
+      {/* --- BÖLÜM 1: PANEL GÖRSELİ (Müşteri için kolaylık) --- */}
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        <div className="space-y-8 lg:order-1 order-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 font-semibold text-sm">
+            🔥 Kolay Yönetim
+          </div>
+          <h3 className="text-3xl md:text-4xl font-bold text-[#0F1C36]">
+            Fiyatı Telefonundan Mesaj Atar Gibi Değiştir
           </h3>
-          <p className="text-lg text-gray-600 leading-relaxed">
-            Dijital menü kullanımı, işletmenizin esnekliğini ve hızını artırır. 
-            Örneğin, yeni bir ürün eklemek veya mevcut bir ürünün fiyatını değiştirmek istediğinizde, 
-            hemen yönetim paneline girerek bu değişiklikleri yapabilirsiniz.
+          <p className="text-xl text-gray-500 leading-relaxed">
+            Bilgisayar başına geçmene gerek yok. Pazara gittin, domatesin fiyatı mı artmış?
+            Hemen cebinden panelini aç, fiyatı güncelle. Saniyeler içinde tüm masalardaki menün değişsin.
           </p>
-          <ul className="space-y-3">
-            {["Anında Fiyat Güncelleme", "Ürün Fotoğrafları Ekleme", "Kategori Yönetimi"].map((item, i) => (
-              <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
-                <CheckCircle2 className="text-green-500 w-5 h-5" /> {item}
+          <ul className="space-y-4">
+            {["Anlık Güncelleme", "Her Yerden Erişim", "Kod Bilgisi Gerekmez"].map((item, i) => (
+              <li key={i} className="flex items-center gap-3 text-[#0F1C36] font-medium text-lg">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                {item}
               </li>
             ))}
           </ul>
         </div>
-        
-        {/* DÜZELTME 1: Mekan görseli için sabit yükseklik kaldırıldı. */}
-        {/* 'w-full h-auto' ile resim kendi orantısında büyüyüp küçülecek, kesilmeyecek. */}
-        <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
-           <Image 
-             src="/anasayfamekan.png" 
-             alt="Mekan Atmosferi"
-             width={800}  // Next.js'in en boy oranını anlaması için temsili değerler
-             height={600} 
-             className="w-full h-auto" // Kritik kısım burası: Genişliğe uyar, yüksekliği otomatik ayarlar.
-           />
+
+        <div className="relative lg:order-2 order-1">
+          {/* Decorative Blob */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/50 rounded-full blur-3xl -z-10" />
+
+          <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-900/10 border border-gray-100 bg-white p-2">
+            <Image
+              src="/anasayfapanel_optimized.jpg"
+              alt="Kolay Yönetim Paneli"
+              width={600}
+              height={900}
+              className="w-full h-auto rounded-3xl"
+            />
+          </div>
         </div>
       </div>
 
-      {/* --- BÖLÜM 2: PANEL GÖRSELİ (Solda - Esas Sorunlu Kısım) --- */}
-      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        
-        {/* DÜZELTME 2: Panel görseli için sabit yükseklik kaldırıldı. */}
-        <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200 bg-gray-50 order-2 lg:order-1 flex items-center justify-center p-2">
-           {/* Bu görsel uzun olduğu için height değerini width'ten büyük vererek orantıyı belirttik */}
-           <Image 
-             src="/anasayfapanel.png" 
-             alt="Yönetim Paneli"
-             width={600}
-             height={900} // Uzun bir görsel olduğunu belirttik
-             // 'w-full h-auto' sayesinde görselin tamamı gösterilecek, asla kesilmeyecek.
-             className="w-full h-auto drop-shadow-lg rounded-xl" 
-           />
+      {/* --- BÖLÜM 2: MEKAN GÖRSELİ (Satış Odaklı) --- */}
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+
+        <div className="relative order-1">
+          {/* Decorative Blob */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100/50 rounded-full blur-3xl -z-10" />
+
+          <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-900/10 border border-gray-100 bg-white p-2">
+            <Image
+              src="/anasayfamekan_optimized.jpg"
+              alt="İştah Kabartan Görseller"
+              width={800}
+              height={600}
+              className="w-full h-auto rounded-3xl"
+            />
+          </div>
         </div>
-        
-        <div className="space-y-6 order-1 lg:order-2">
-          <h3 className="text-3xl font-bold text-gray-900">
-            EduQR Dijital Menü ile Hizmetleriniz Kusursuz Olsun
+
+        <div className="space-y-8 order-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 font-semibold text-sm">
+            🚀 Satışları Arttır
+          </div>
+          <h3 className="text-3xl md:text-4xl font-bold text-[#0F1C36]">
+            İştah Kabartan Görsellerle Siparişleri %30 Artır
           </h3>
-          <p className="text-lg text-gray-600 leading-relaxed">
-            EduQR yönetim panelinde, ürünlerinizi kolaylıkla düzenleyebilirsiniz. 
-            Menünüzdeki ürünleri ekleyebilir, çıkarabilir, fiyatlarını güncelleyebilir 
-            ve görsellerini değiştirebilirsiniz.
+          <p className="text-xl text-gray-500 leading-relaxed">
+            İnsanlar gördükleri yemeği canı çeker. Menünüze profesyonel, iştah açıcı fotoğraflar yükleyin.
+            Müşteriniz "Adana Kebap" yazısını okuyup geçmesin, cızırdayan kebabı görüp sipariş versin.
           </p>
-          <ul className="space-y-3">
-            {["Mobil Uyumlu Tasarım", "QR Kod Oluşturucu", "Karanlık Mod Desteği"].map((item, i) => (
-              <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
-                <CheckCircle2 className="text-blue-500 w-5 h-5" /> {item}
+          <ul className="space-y-4">
+            {["Görsel Menü Desteği", "Sınırsız Fotoğraf Yükleme", "Kategori Bazlı Gösterim"].map((item, i) => (
+              <li key={i} className="flex items-center gap-3 text-[#0F1C36] font-medium text-lg">
+                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                {item}
               </li>
             ))}
           </ul>
         </div>
       </div>
 
+      {/* Organic Wave Separator (Bottom of Features) */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-0 opacity-30">
+        <svg className="relative block w-[calc(100%+1.3px)] h-[50px] md:h-[80px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M985.66,92.83C906.67,72,823.78,31,433.89,8c-301.69-17.92-334.4,40.48-433.89,0V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" fill="#D4A373" opacity="0.1"></path>
+        </svg>
+      </div>
     </section>
   );
 }
