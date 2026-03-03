@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider"; // next-themes ayarı
 import { Toaster } from "@/components/ui/sonner"; // Bildirimler için (Varsa)
+import CookieConsent from "@/components/landing/CookieConsent";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const font = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "EduQR",
@@ -18,20 +19,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // 1. En dışta Clerk (Kimlik Doğrulama)
     <ClerkProvider>
-      {/* suppressHydrationWarning: next-themes için gereklidir */}
       <html lang="tr" suppressHydrationWarning>
-        <body className={inter.className}>
+        <body className={font.className}>
           {/* 2. İçeride Tema Sağlayıcı (Dark Mode) */}
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark" // Varsayılan: Koyu Tema
-            enableSystem
+            defaultTheme="light"
+            forcedTheme="light"
+            enableSystem={false}
             disableTransitionOnChange
           >
             {children}
             <Toaster /> {/* Bildirim kutusu */}
+            <CookieConsent />
           </ThemeProvider>
         </body>
       </html>
