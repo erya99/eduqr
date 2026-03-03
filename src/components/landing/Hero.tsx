@@ -70,7 +70,7 @@ export default function Hero() {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#D4A373]/20 blur-[90px] rounded-full -z-10" />
 
               <Image
-                src="/anasayfatelefon.png"
+                src="/anasayfatelefon2.png"
                 alt="EduQR Mobil Uygulama Arayüzü"
                 fill
                 style={{ objectFit: 'contain' }}
