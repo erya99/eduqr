@@ -67,14 +67,14 @@ export default function MenuChatbot({ products }: { products: FilterableProduct[
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+        <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
 
-          <div className="relative w-full max-w-sm h-[80vh] sm:h-[600px] bg-white dark:bg-gray-900 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="relative w-full max-w-sm h-[80dvh] sm:h-[600px] bg-white dark:bg-gray-900 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-2">

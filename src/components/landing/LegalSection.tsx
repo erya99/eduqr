@@ -22,7 +22,7 @@ export default function LegalSection() {
               <span className="w-3 h-3 rounded-full bg-white/10" />
               <span className="w-3 h-3 rounded-full bg-white/10" />
             </div>
-            <p className="font-serif text-white/90 font-bold text-sm tracking-widest">Resmî Gazete</p>
+            <p className="font-serif text-white/90 font-bold text-sm tracking-widest">Gıda Yönetmelikleri</p>
             <p className="font-serif text-white/30 text-[10px] tracking-wider hidden sm:block">Pazartesi, Mart 2026</p>
           </div>
 
@@ -42,7 +42,7 @@ export default function LegalSection() {
             </span>
             <div className="overflow-hidden flex-1">
               <motion.p
-                className="text-[11px] font-semibold text-[#0F1C36]/65 whitespace-nowrap px-4 py-1.5"
+                className="text-[11px] font-semibold text-gray-800 whitespace-nowrap px-4 py-1.5"
                 animate={{ x: ["100%", "-100%"] }}
                 transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
               >
@@ -80,21 +80,21 @@ export default function LegalSection() {
                 ].map((item, i) => (
                   <div key={i} className="space-y-0.5">
                     <p className="font-serif text-[10px] font-black uppercase tracking-widest text-[#0F1C36]/30">{item.label}</p>
-                    <p className="font-serif text-sm text-[#0F1C36]/65 leading-relaxed">{item.text}</p>
+                    <p className="font-serif text-sm text-gray-800 leading-relaxed">{item.text}</p>
                     {i < 3 && <div className="pt-3 border-b border-[#0F1C36]/8" />}
                   </div>
                 ))}
 
                 <div className="bg-yellow-50 border border-yellow-200/60 rounded-lg p-3 space-y-2">
                   <p className="font-serif text-[10px] font-black uppercase tracking-widest text-[#0F1C36]/40">Uygulama Takvimi</p>
-                  <p className="font-serif text-xs text-[#0F1C36]/60 leading-relaxed">
-                    <span className="font-bold text-[#0F1C36]/80">1 Temmuz 2026</span> — Ulusal zincir restoranlar
+                  <p className="font-serif text-xs text-gray-800 leading-relaxed">
+                    <span className="font-bold text-gray-800">1 Temmuz 2026</span> — Ulusal zincir restoranlar
                   </p>
-                  <p className="font-serif text-xs text-[#0F1C36]/60 leading-relaxed">
-                    <span className="font-bold text-[#0F1C36]/80">31 Ara 2026</span> — 3+ şubeli işletmeler
+                  <p className="font-serif text-xs text-gray-800 leading-relaxed">
+                    <span className="font-bold text-gray-800">31 Ara 2026</span> — 3+ şubeli işletmeler
                   </p>
-                  <p className="font-serif text-xs text-[#0F1C36]/60 leading-relaxed">
-                    <span className="font-bold text-[#0F1C36]/80">31 Ara 2027</span> — Diğer tüm işletmeler
+                  <p className="font-serif text-xs text-gray-800 leading-relaxed">
+                    <span className="font-bold text-gray-800">31 Ara 2027</span> — Diğer tüm işletmeler
                   </p>
                 </div>
               </div>
@@ -117,15 +117,15 @@ export default function LegalSection() {
                   Menünüzdeki Sessizlik Bitiyor: Kalori ve İçerik Bildirimi Zorunlu Hale Geliyor
                 </h2>
 
-                <p className="font-serif text-sm text-[#0F1C36]/62 leading-relaxed">
+                <p className="font-serif text-sm text-gray-800 leading-relaxed">
                   Tarım ve Orman Bakanlığı tarafından güncellenen gıda etiketleme kılavuzuna göre restoran ve kafelerde servis edilen yiyecek-içeceklerin <mark className="bg-yellow-100 text-[#0F1C36] px-0.5">içerik ve kalori bilgileri</mark> tüketici tarafından açıkça görülebilecek şekilde sunulacak.
                 </p>
 
-                <p className="font-serif text-sm text-[#0F1C36]/62 leading-relaxed">
+                <p className="font-serif text-sm text-gray-800 leading-relaxed">
                   Yeni düzenleme kapsamında bilgilendirme; menüler, yazı tahtaları, broşürler, dijital ekranlar ve <mark className="bg-yellow-100 text-[#0F1C36] px-0.5">QR kod aracılığıyla</mark> yapılabilecek. QR kod kullanılması durumunda tüketicilere bilgilere nasıl ulaşabilecekleri açık şekilde belirtilecek.
                 </p>
 
-                <p className="font-serif text-sm text-[#0F1C36]/62 leading-relaxed">
+                <p className="font-serif text-sm text-gray-800 leading-relaxed">
                   Ayrıntılı menü zorunluluğu <mark className="bg-yellow-100 text-[#0F1C36] px-0.5">3 ay sonra uygulanmaya başlanacak.</mark> Uyum için işletme büyüklüğüne göre farklı geçiş süreleri tanındı.
                 </p>
 
@@ -135,7 +135,7 @@ export default function LegalSection() {
                       <span className="text-[9px] font-black text-[#0F1C36]/35">TC</span>
                     </div>
                     <div>
-                      <p className="text-[11px] font-bold text-[#0F1C36]/45">Resmî Gazete</p>
+                      <p className="text-[11px] font-bold text-[#0F1C36]/45">Tarım ve Orman Bakanlığı</p>
                       <p className="text-[10px] text-[#0F1C36]/28">Mart 2026</p>
                     </div>
                   </div>
@@ -162,7 +162,7 @@ export default function LegalSection() {
                   <h4 className="font-serif text-sm font-black text-[#0F1C36]/85 leading-snug">
                     Basılı Menü Çağı Kapanıyor
                   </h4>
-                  <p className="font-serif text-xs text-[#0F1C36]/50 leading-relaxed">
+                  <p className="font-serif text-xs text-gray-700 leading-relaxed">
                     Yıllık binlerce TL baskı maliyeti ve her güncellemede tekrarlanan masraf. Yeni yönetmelik bu döngüyü tamamen sona erdiriyor.
                   </p>
                   <p className="text-[10px] text-[#0F1C36]/28">Şubat 2026</p>
@@ -178,7 +178,7 @@ export default function LegalSection() {
                   <h4 className="font-serif text-sm font-black text-[#0F1C36]/85 leading-snug">
                     EduQR ile Denetimde Tam Güvence
                   </h4>
-                  <p className="font-serif text-xs text-[#0F1C36]/50 leading-relaxed">
+                  <p className="font-serif text-xs text-gray-700 leading-relaxed">
                     Türk Gıda Kodeksi'nin tüm zorunluluklarına otomatik uyum. Müfettiş geldiğinde eksiksiz, güncel, hazır.
                   </p>
                   <p className="text-[10px] text-[#0F1C36]/28">Ocak 2026</p>
