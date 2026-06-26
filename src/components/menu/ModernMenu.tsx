@@ -2,22 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Category, Product, Restaurant } from "@prisma/client";
-import { Playfair_Display, Lato } from "next/font/google";
-
-// --- 1. FONTLAR ---
-const playfair = Playfair_Display({ 
-  subsets: ["latin"], 
-  weight: ["400", "700"],
-  variable: "--font-playfair"
-});
-
-const lato = Lato({ 
-  subsets: ["latin"], 
-  weight: ["300", "400", "700"],
-  variable: "--font-lato"
-});
-
-// --- 2. ALERJEN HARİTASI (Verdiğin Liste) ---
+// --- 1. ALERJEN HARİTASI (Verdiğin Liste) ---
 const ALLERGEN_MAP: Record<string, { label: string; icon: string }> = {
   gluten: { label: "Gluten", icon: "🌾" },
   dairy: { label: "Süt Ürünleri", icon: "🥛" },
@@ -74,7 +59,7 @@ export default function ModernMenu({ restaurant, categories }: ModernMenuProps) 
     new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(price);
 
   return (
-    <div className={`${playfair.variable} ${lato.variable} min-h-screen bg-[#0c0c0c] text-[#e5e5e5]`}>
+    <div className="min-h-screen bg-[#0c0c0c] text-[#e5e5e5]">
       
       {/* --- BACKGROUND DEKORASYON --- */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0" 

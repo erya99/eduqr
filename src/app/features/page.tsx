@@ -7,16 +7,9 @@ export default function FeaturesPage() {
         <main className="min-h-screen relative overflow-hidden bg-[#F8FAFC]">
             {/* GLOBAL BACKGROUND MESH */}
             <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
-                {/* Top Right Blob (Blue/Navy) */}
                 <div className="absolute top-[-10%] right-[-10%] w-[900px] h-[900px] bg-[#0F1C36]/30 rounded-full blur-[120px]" />
-
-                {/* Middle Left Blob (Warm Gold/Bronze) */}
                 <div className="absolute top-[30%] left-[-10%] w-[700px] h-[700px] bg-[#D4A373]/35 rounded-full blur-[100px] mix-blend-multiply" />
-
-                {/* Bottom Right Blob (Blue) */}
                 <div className="absolute bottom-[-10%] right-[-5%] w-[800px] h-[800px] bg-blue-100/60 rounded-full blur-[120px]" />
-
-                {/* Additional Navy Accent */}
                 <div className="absolute top-[60%] right-[20%] w-[500px] h-[500px] bg-[#0F1C36]/25 rounded-full blur-[100px]" />
             </div>
 

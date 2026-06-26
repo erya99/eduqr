@@ -1,88 +1,71 @@
+"use client";
+
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+
+const faqs = [
+    { q: "QR menü nasıl yapılır?", a: "Üye olduktan sonra menü ürünlerinizi, fiyatlarınızı ve varsa fotoğraflarını sisteme giriyorsunuz. Sistem size özel bir QR kod oluşturuyor. Bu kodu masalara yapıştırmanız yeterli." },
+    { q: "Bakanlık denetimine uygun mu?", a: "Evet. Tarım ve Orman Bakanlığı'nın yeni menü etiketleme yönetmeliğine göre kalori ve 14 alerjen bildirimi zorunlu. EduQR bu bilgileri menünüze otomatik olarak entegre eder." },
+    { q: "İnternetim çekmezse ne olur?", a: "EduQR bulut tabanlıdır ve düşük internet hızlarında da çalışacak şekilde optimize edilmiştir. Müşterilerinizin telefonunda internet bağlantısı olması yeterlidir." },
+    { q: "Fiyatları değiştirmek zor mu?", a: "Telefonunuzdan yönetim paneline girip saniyeler içinde fiyat güncelleyebilirsiniz. Değişiklik anında menüye yansır." },
+    { q: "Ücretlendirme nasıl çalışıyor?", a: "EduQR yıllık 2.500 TL + KDV abonelikle çalışır. İlk ayınız ücretsiz — kredi kartı gerekmez, istediğiniz zaman iptal edebilirsiniz." },
+    { q: "Kaç ürün ekleyebilirim?", a: "Sınırsız. İstediğiniz kadar kategori ve ürün ekleyebilirsiniz." },
+    { q: "Kurulum ne kadar sürer?", a: "Üye olduktan sonra menünüzü 15-30 dakika içinde hazırlayabilirsiniz. Teknik bilgiye gerek yok." },
+];
 
 export default function FAQ() {
+    const sectionRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "start start"] });
+    const cardY = useTransform(scrollYProgress, [0, 1], ["80px", "0px"]);
+
     return (
-        <section className="py-24 relative overflow-hidden bg-transparent">
-            {/* Global background handles the visuals now */}
-
-            <div className="container mx-auto px-4 max-w-3xl relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-center text-[#0F1C36] mb-12">
-                    Aklınıza Takılanlar
-                </h2>
-
-                <Accordion type="single" collapsible className="w-full space-y-4">
-
-                    <AccordionItem value="item-1" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            QR menü nasıl yapılır?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            Çok basit! Üye olduktan sonra menü ürünlerinizi, fiyatlarını ve varsa fotoğraflarını sisteme giriyorsunuz. Sistem size özel bir QR kod oluşturuyor. Bu kodu masalara yapıştırmanız yeterli. Müşterileriniz kamerayı okutarak menünüze ulaşıyor.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="item-2" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            Bakanlık denetimine uygun mu?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            Kesinlikle! Ticaret Bakanlığı'nın Fiyat Etiketi Yönetmeliği'ne göre dijital menü kullanımı yasaldır ve geçerlidir. Önemli olan fiyatların tüketici tarafından kolayca görülebilir olmasıdır. EduQR ile fiyatlarınız her zaman güncel ve erişilebilir olur.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="item-3" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            İnternetim çekmezse ne olur?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            EduQR bulut tabanlı bir sistemdir ve çok düşük internet hızlarında bile hızlıca açılacak şekilde optimize edilmiştir. Müşterilerinizin telefonunda internet olması yeterlidir.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="item-4" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            Fiyatları değiştirmek zor mu?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            Hayır, WhatsApp'tan mesaj atar gibi kolaydır. Telefonunuzdan yönetim paneline girip saniyeler içinde fiyatı güncelleyebilirsiniz. Anında menüye yansır.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="item-5" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            Aylık ücret var mı?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            Evet, eduQR abonelik bazlı çalışır. Farklı paketlerimiz var ve ihtiyacınıza göre seçim yapabilirsiniz. Detaylı fiyatlandırma için Fiyatlandırma sayfamızı ziyaret edebilir veya bizimle iletişime geçebilirsiniz.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="item-6" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            Kaç ürün ekleyebilirim?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            Sınırsız! İstediğiniz kadar kategori ve ürün ekleyebilirsiniz. Küçük bir kafeden büyük bir restorana kadar her işletme boyutuna uygun çözümlerimiz var.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="item-7" className="border border-gray-100 rounded-[1.5rem] px-6 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-                        <AccordionTrigger className="text-lg font-semibold text-[#0F1C36] hover:text-blue-600 hover:no-underline py-6">
-                            Kurulum ne kadar sürer?
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-500 text-base pb-6 leading-relaxed">
-                            Çok hızlı! Üye olduktan sonra menünüzü 15-30 dakika içinde hazırlayabilir ve QR kodunuzu oluşturabilirsiniz. Aynı gün kullanmaya başlayabilirsiniz. Teknik bilgiye gerek yok, her şey kullanıcı dostu arayüzümüzle çok basit.
-                        </AccordionContent>
-                    </AccordionItem>
-
-                </Accordion>
-            </div>
+        <section ref={sectionRef} className="bg-[#F5F0E8] pb-10 px-3 md:px-5">
+            <motion.div
+                style={{ y: cardY }}
+                className="rounded-[1.5rem] md:rounded-[2rem] bg-[#0F1C36] overflow-hidden py-24"
+            >
+                <div className="container mx-auto px-4 max-w-3xl relative z-10">
+                    <motion.h2
+                        className="font-serif text-3xl md:text-4xl font-bold text-left md:text-center text-white mb-12"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-80px" }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                    >
+                        Aklınıza Takılanlar
+                    </motion.h2>
+                    <Accordion type="single" collapsible className="w-full space-y-4">
+                        {faqs.map((faq, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-40px" }}
+                                transition={{ duration: 0.5, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                                whileHover={{ x: 4, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                            >
+                            <AccordionItem
+                                value={`item-${i}`}
+                                className="border border-white/10 rounded-[1.5rem] px-6 bg-white/5 hover:bg-white/10 transition-colors duration-200"
+                            >
+                                <AccordionTrigger className="text-lg font-semibold text-white hover:text-blue-300 hover:no-underline py-6">
+                                    {faq.q}
+                                </AccordionTrigger>
+                                <AccordionContent className="text-white/60 text-base pb-6 leading-relaxed">
+                                    {faq.a}
+                                </AccordionContent>
+                            </AccordionItem>
+                            </motion.div>
+                        ))}
+                    </Accordion>
+                </div>
+            </motion.div>
         </section>
     );
 }
-

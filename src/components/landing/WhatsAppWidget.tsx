@@ -10,10 +10,10 @@ export default function WhatsAppWidget() {
 
     useEffect(() => {
         setIsMounted(true);
-        // Auto open after 1 second
+        // Auto open after 30 seconds
         const timer = setTimeout(() => {
             setIsOpen(true);
-        }, 1000);
+        }, 30000);
         return () => clearTimeout(timer);
     }, []);
 

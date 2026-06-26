@@ -17,6 +17,7 @@ import { Plus, Trash2, X, Image as ImageIcon, Loader2, Upload } from "lucide-rea
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { toast } from "sonner";
+import { findCalories } from "@/lib/calories-db";
 
 // Alerjen Seçenekleri Sabiti
 const ALLERGEN_OPTIONS = [
@@ -29,7 +30,7 @@ const ALLERGEN_OPTIONS = [
   { id: "sea", label: "Deniz Ürünü", icon: "🐟" },
 ];
 
-export default function ProductForm({ product, categories = [] }: { product?: any, categories?: any[] }) {
+export default function ProductForm({ product, categories = [], products = [] }: { product?: any, categories?: any[], products?: any[] }) {
   const action = product ? updateProduct : createProduct;
   
   const [imageUrl, setImageUrl] = useState(product?.imageUrl || "");
@@ -44,6 +45,22 @@ export default function ProductForm({ product, categories = [] }: { product?: an
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(product?.allergens || []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCrossSells, setSelectedCrossSells] = useState<string[]>(product?.crossSellIds || []);
+
+  const toggleCrossSell = (id: string) => {
+    setSelectedCrossSells((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const otherProducts = products.filter((p) => p.id !== product?.id);
+  const [calories, setCalories] = useState<string>(product?.calories?.toString() ?? "");
+  const [calorieSuggestion, setCalorieSuggestion] = useState<number | null>(null);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const suggestion = findCalories(e.target.value);
+    setCalorieSuggestion(suggestion);
+  };
 
   // --- VARYASYON FONKSİYONLARI ---
   const addVariant = () => setVariants([...variants, { name: "", price: "" }]);
@@ -97,11 +114,12 @@ export default function ProductForm({ product, categories = [] }: { product?: an
       {/* --- ÜRÜN ADI --- */}
       <div className="grid gap-2">
         <Label htmlFor="name" className="dark:text-gray-200">Ürün Adı</Label>
-        <Input 
-          id="name" 
-          name="name" 
-          defaultValue={product?.name} 
-          required 
+        <Input
+          id="name"
+          name="name"
+          defaultValue={product?.name}
+          required
+          onChange={handleNameChange}
           className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
         />
       </div>
@@ -178,6 +196,33 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </Select>
       </div>
 
+      {/* --- KALORİ --- */}
+      <div className="grid gap-2">
+        <Label htmlFor="calories" className="dark:text-gray-200">Kalori (kcal)</Label>
+        <div className="flex gap-2">
+          <Input
+            id="calories"
+            name="calories"
+            type="number"
+            min="0"
+            placeholder="Örn: 450"
+            value={calories}
+            onChange={(e) => setCalories(e.target.value)}
+            className="dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+          />
+          {calorieSuggestion && calories === "" && (
+            <button
+              type="button"
+              onClick={() => setCalories(calorieSuggestion.toString())}
+              className="shrink-0 px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300"
+            >
+              🔥 {calorieSuggestion} kcal?
+            </button>
+          )}
+        </div>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400">Boş bırakılırsa menüde gösterilmez.</p>
+      </div>
+
       {/* --- ALERJEN SEÇİMİ --- */}
       <div className="grid gap-2 pt-2">
         <Label className="dark:text-gray-200">Alerjenler & Etiketler</Label>
@@ -203,6 +248,34 @@ export default function ProductForm({ product, categories = [] }: { product?: an
         </div>
         <input type="hidden" name="allergens" value={JSON.stringify(selectedAllergens)} />
       </div>
+
+      {/* --- ÇAPRAZ SATIŞ --- */}
+      {otherProducts.length > 0 && (
+        <div className="grid gap-2 pt-2">
+          <Label className="dark:text-gray-200">Çapraz Satış Önerileri</Label>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Bu ürün açıldığında müşteriye önerilecek ürünler.</p>
+          <div className="flex flex-wrap gap-2">
+            {otherProducts.map((p) => {
+              const isSelected = selectedCrossSells.includes(p.id);
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => toggleCrossSell(p.id)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm border transition-all ${
+                    isSelected
+                      ? "bg-green-100 border-green-500 text-green-700 dark:bg-green-900/40 dark:text-green-300 dark:border-green-500"
+                      : "bg-gray-50 border-gray-200 text-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {isSelected ? "✓ " : ""}{p.name}
+                </button>
+              );
+            })}
+          </div>
+          <input type="hidden" name="crossSellIds" value={JSON.stringify(selectedCrossSells)} />
+        </div>
+      )}
 
       {/* --- VARYASYONLAR --- */}
       <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 space-y-3 mt-2">

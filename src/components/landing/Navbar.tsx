@@ -1,119 +1,112 @@
-"use client"; // State kullanacağımız için Client Component yaptık
+"use client";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-// import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs"; // Clerk iptal
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react"; // İkonlar
+import { Menu, X, Home, Star, CreditCard, Info, Phone } from "lucide-react";
+import { LimelightNav } from "@/components/ui/limelight-nav";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navItems = [
+    { id: "home", icon: <Home />, label: "Ana Sayfa", href: "/" },
+    { id: "features", icon: <Star />, label: "Özellikler", href: "/#features" },
+    { id: "pricing", icon: <CreditCard />, label: "Fiyatlandırma", href: "/pricing" },
+    { id: "about", icon: <Info />, label: "Hakkımızda", href: "/about" },
+    { id: "contact", icon: <Phone />, label: "İletişim", href: "/contact" },
+  ];
+
+  const activeIndex = navItems.findIndex((i) => i.href === pathname);
+  const defaultIndex = activeIndex === -1 ? 0 : activeIndex;
+
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/80 backdrop-blur-md border-b border-gray-100 py-2 shadow-sm" : "bg-transparent py-4"}`}>
+    <nav
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[#F5F0E8]/90 backdrop-blur-md border-b border-[#0F1C36]/8 py-2 shadow-sm"
+          : "bg-[#F5F0E8] py-4"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-
-        {/* --- SOL TARAF (Logo + PC Menü) --- */}
-        <div className="flex items-center h-full">
-
-          {/* Logo */}
-          <Link href="/" className="relative block h-full flex-shrink-0 mr-8 md:mr-12">
+        {/* Sol: Logo + Menü */}
+        <div className="flex items-center gap-12 h-full flex-1">
+          <Link href="/" className="flex-shrink-0">
             <Image
               src="/eduqrlogo3.png"
               alt="EduQR Logo"
               width={0}
               height={0}
               sizes="100vw"
-              className="h-full w-auto object-contain py-2" // Removed brightness-0 invert
+              className="h-16 w-auto object-contain"
               priority
             />
           </Link>
-
-          {/* PC MENÜ (Mobilde Gizli) */}
-          <div className="hidden md:flex items-center gap-8 h-full">
-            <Link href="/" className="text-gray-600 hover:text-[#0F1C36] font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
-              Ana Sayfa
-            </Link>
-            <Link href="/features" className="text-gray-600 hover:text-[#0F1C36] font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
-              Özellikler
-            </Link>
-            <Link href="/pricing" className="text-gray-600 hover:text-[#0F1C36] font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
-              Fiyatlandırma
-            </Link>
-            <Link href="/about" className="text-gray-600 hover:text-[#0F1C36] font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
-              Hakkımızda
-            </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-[#0F1C36] font-medium text-lg transition-colors h-full flex items-center border-b-2 border-transparent hover:border-blue-600">
-              İletişim
-            </Link>
+          <div className="hidden lg:flex items-center h-full">
+            <LimelightNav
+              items={navItems}
+              defaultActiveIndex={defaultIndex}
+              className="h-14 border-none shadow-none bg-transparent"
+              iconContainerClassName="px-4 hover:bg-[#0F1C36]/5 text-[#0F1C36]"
+            />
           </div>
-
         </div>
 
-        {/* --- SAĞ TARAF (Butonlar + Mobil Menü İkonu) --- */}
-        <div className="flex items-center gap-3 md:gap-8">
-
-          {/* PC BUTONLARI (Mobilde Gizli) */}
-          <div className="hidden md:flex items-center gap-4">
-            {/* SignedOut Durumu (Varsayılan) */}
+        {/* Sağ: Butonlar */}
+        <div className="flex items-center gap-3 md:gap-6">
+          <div className="hidden md:flex items-center gap-3">
             <Link href="/sign-in">
-              <Button variant="ghost" className="text-gray-600 hover:text-[#0F1C36] hover:bg-gray-50 font-medium text-lg h-12 px-6">
+              <Button
+                variant="ghost"
+                className="text-[#0F1C36] hover:text-[#0F1C36] hover:bg-[#0F1C36]/8 font-medium text-base h-11 px-5 rounded-full"
+              >
                 Giriş Yap
               </Button>
             </Link>
             <Link href="/sign-up">
-              <Button className="bg-[#0F1C36] hover:bg-blue-900 text-white border-0 px-9 text-lg h-14 rounded-full shadow-lg font-bold transition-transform hover:scale-105">
+              <Button className="bg-[#0F1C36] hover:bg-[#1a2d52] text-[#F5F0E8] font-bold text-base h-11 px-7 rounded-full shadow-md transition-all hover:scale-105">
                 Hemen Dene
               </Button>
             </Link>
           </div>
-
-          {/* MOBİL MENÜ BUTONU (Sadece Mobilde Görünür) */}
           <button
-            className="md:hidden text-gray-800 p-2"
+            className="md:hidden text-[#0F1C36] p-2"
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
+            {isOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
-
         </div>
       </div>
 
-      {/* --- MOBİL MENÜ İÇERİĞİ (Açılır/Kapanır) --- */}
+      {/* Mobil menü */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-5">
-          <Link href="/" className="text-gray-700 font-medium text-lg py-2 border-b border-gray-100" onClick={() => setIsOpen(false)}>
-            Ana Sayfa
-          </Link>
-          <Link href="/features" className="text-gray-700 font-medium text-lg py-2 border-b border-gray-100" onClick={() => setIsOpen(false)}>
-            Özellikler
-          </Link>
-          <Link href="/pricing" className="text-gray-700 font-medium text-lg py-2 border-b border-gray-100" onClick={() => setIsOpen(false)}>
-            Fiyatlandırma
-          </Link>
-          <Link href="/about" className="text-gray-700 font-medium text-lg py-2 border-b border-gray-100" onClick={() => setIsOpen(false)}>
-            Hakkımızda
-          </Link>
-          <Link href="/contact" className="text-gray-700 font-medium text-lg py-2 border-b border-gray-100" onClick={() => setIsOpen(false)}>
-            İletişim
-          </Link>
-
-          <div className="flex flex-col gap-3 mt-2">
+        <div className="md:hidden absolute top-full left-0 w-full bg-[#F5F0E8] border-b border-[#0F1C36]/10 shadow-lg py-4 px-4 flex flex-col gap-3 animate-in slide-in-from-top-5">
+          {navItems.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className="text-[#0F1C36] font-medium text-base py-2 border-b border-[#0F1C36]/10"
+              onClick={() => setIsOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+          <div className="flex flex-col gap-2 mt-2">
             <Link href="/sign-in" onClick={() => setIsOpen(false)}>
-              <Button variant="outline" className="w-full justify-center h-12 text-base border-gray-300 text-gray-700 hover:bg-gray-50">Giriş Yap</Button>
+              <Button variant="outline" className="w-full h-11 border-[#0F1C36]/20 text-[#0F1C36]">Giriş Yap</Button>
             </Link>
             <Link href="/sign-up" onClick={() => setIsOpen(false)}>
-              <Button className="w-full justify-center bg-[#0F1C36] hover:bg-blue-900 text-white h-12 text-base font-bold">Hemen Dene</Button>
+              <Button className="w-full h-11 bg-[#0F1C36] text-[#F5F0E8] font-bold">Hemen Dene</Button>
             </Link>
           </div>
         </div>

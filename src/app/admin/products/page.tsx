@@ -58,7 +58,7 @@ export default async function AdminProductsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Ürünler ({products.length})</h1>
         
-        <ProductAddButton categories={categories} />
+        <ProductAddButton categories={categories} products={products} />
       </div>
 
       {/* ESKİ <Table> KODLARINI SİLDİK VE BUNU EKLEDİK: */}

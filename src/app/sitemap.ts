@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = "https://eduqr.com"; // Domain değişirse burayı güncelle
+    const baseUrl = "https://eduqr.tr"; // Domain değişirse burayı güncelle
 
     return [
         {

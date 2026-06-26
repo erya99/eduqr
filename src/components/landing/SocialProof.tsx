@@ -1,52 +1,159 @@
-import { ShieldCheck, Clock, Zap } from "lucide-react";
+"use client";
+
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+
+function useCountUp(target: number, duration: number, active: boolean) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    let start: number | null = null;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [active, target, duration]);
+  return count;
+}
+
+const stats = [
+  { value: 14,   suffix: "",    label: "Zorunlu Alerjen" },
+  { value: 100,  suffix: "%",   label: "Baskı Tasarrufu" },
+  { value: 10,   suffix: "sn",  label: "Fiyat Güncelleme" },
+  { value: 7,    suffix: "/24", label: "Kesintisiz Hizmet" },
+];
+
+function StatItem({ value, suffix, label, delay, inView }: {
+  value: number; suffix: string; label: string; delay: number; inView: boolean;
+}) {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    if (!inView) return;
+    const t = setTimeout(() => setActive(true), delay);
+    return () => clearTimeout(t);
+  }, [inView, delay]);
+  const count = useCountUp(value, 1600, active);
+
+  return (
+    <motion.div
+      className="flex flex-col gap-1"
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: delay / 1000 }}
+    >
+      <p className="text-4xl md:text-5xl font-bold text-white tabular-nums tracking-tight">
+        {count}{suffix}
+      </p>
+      <p className="text-sm text-white/35 font-semibold uppercase tracking-widest">
+        {label}
+      </p>
+    </motion.div>
+  );
+}
 
 export default function SocialProof() {
-    return (
-        <section className="py-24 relative bg-transparent">
-            {/* Global background handles the visuals now */}
+  const sectionRef = useRef(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(statsRef, { once: true, margin: "-80px" });
 
-            <div className="container mx-auto px-4 max-w-6xl relative z-10">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-[#0F1C36]">
-                        Neden Bize <span className="text-blue-600">Güvenmelisiniz?</span>
-                    </h2>
-                    <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "start start"] });
+  const cardY = useTransform(scrollYProgress, [0, 1], ["80px", "0px"]);
 
-                    </p>
-                </div>
+  return (
+    <section ref={sectionRef} className="bg-[#F5F0E8] pb-10 px-3 md:px-5">
+      <motion.div
+        style={{ y: cardY }}
+        className="rounded-[1.5rem] md:rounded-[2rem] bg-[#0F1C36] overflow-hidden relative"
+      >
+        {/* İçerik */}
+        <div className="relative z-10 px-5 md:px-16 lg:px-20 pt-12 md:pt-20 pb-0">
+          {/* Başlık */}
+          <motion.div
+            className="max-w-4xl mb-8 md:mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-bold leading-snug">
+              <span className="text-white">Restoranlar EduQR ile büyüyor.</span>{" "}
+              <span className="hidden md:inline text-white/30">
+                Menü maliyetini sıfırlayan, denetimden çekinmeyen, müşterisini kaybetmeyen işletmeler EduQR seçiyor.
+              </span>
+            </h2>
+          </motion.div>
 
-                <div className="grid md:grid-cols-3 gap-8 text-center">
-                    <div className="p-10 rounded-[2rem] bg-white border border-gray-100 shadow-xl shadow-blue-900/5 hover:-translate-y-2 transition-all duration-300 group">
-                        <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto text-blue-600 mb-6 group-hover:scale-110 transition-transform duration-500">
-                            <Zap className="w-10 h-10" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-[#0F1C36] mb-4">Işık Hızında</h3>
-                        <p className="text-gray-500 text-lg leading-relaxed">
-                            Bulut tabanlı altyapımız sayesinde menünüz her zaman yayında. QR kodlarınız milisaniyeler içinde açılır.
-                        </p>
-                    </div>
+          {/* Sayılar */}
+          <div
+            ref={statsRef}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-16 pb-12 md:pb-20"
+          >
+            {stats.map((s, i) => (
+              <StatItem key={s.label} {...s} delay={i * 150} inView={inView} />
+            ))}
+          </div>
+        </div>
 
-                    <div className="p-10 rounded-[2rem] bg-white border border-gray-100 shadow-xl shadow-blue-900/5 hover:-translate-y-2 transition-all duration-300 group">
-                        <div className="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center mx-auto text-green-600 mb-6 group-hover:scale-110 transition-transform duration-500">
-                            <Clock className="w-10 h-10" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-[#0F1C36] mb-4">7/24 Destek</h3>
-                        <p className="text-gray-500 text-lg leading-relaxed">
-                            Teknolojiyle aranız iyi olmayabilir. Sorun değil! WhatsApp destek hattımızdan bize her an ulaşabilirsiniz.
-                        </p>
-                    </div>
-
-                    <div className="p-10 rounded-[2rem] bg-white border border-gray-100 shadow-xl shadow-blue-900/5 hover:-translate-y-2 transition-all duration-300 group">
-                        <div className="w-20 h-20 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto text-purple-600 mb-6 group-hover:scale-110 transition-transform duration-500">
-                            <ShieldCheck className="w-10 h-10" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-[#0F1C36] mb-4">%100 Yasal</h3>
-                        <p className="text-gray-500 text-lg leading-relaxed">
-                            Sistemimiz Ticaret Bakanlığı'nın Fiyat Etiketi Yönetmeliği'ne tam uyumludur. Gönül rahatlığıyla kullanın.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
+        {/* Yükselen mavi çizgi */}
+        <div className="relative w-full h-40 md:h-56 overflow-hidden">
+          <svg
+            viewBox="0 0 1440 220"
+            preserveAspectRatio="none"
+            className="absolute inset-0 w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                <stop offset="60%" stopColor="#3b82f6" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#60a5fa" stopOpacity="1" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="6" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            {/* Dolgu alanı */}
+            <motion.path
+              d="M0,220 L1440,40 L1440,220 Z"
+              fill="url(#lineGrad)"
+              fillOpacity="0.07"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+            />
+            {/* Ana çizgi */}
+            <motion.line
+              x1="0" y1="218" x2="1440" y2="38"
+              stroke="url(#lineGrad)"
+              strokeWidth="2.5"
+              filter="url(#glow)"
+              initial={{ pathLength: 0, opacity: 0 }}
+              whileInView={{ pathLength: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            />
+            {/* Parlayan nokta (sağ üst) */}
+            <motion.circle
+              cx="1430" cy="42" r="5"
+              fill="#60a5fa"
+              filter="url(#glow)"
+              initial={{ opacity: 0, scale: 0 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 1.4 }}
+            />
+          </svg>
+        </div>
+      </motion.div>
+    </section>
+  );
 }

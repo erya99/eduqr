@@ -120,7 +120,7 @@ export default function BlogPage() {
 
                                         {/* Read More Link */}
                                         <Link
-                                            href={`/blog/${post.slug}`}
+                                            href="/contact"
                                             className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:gap-3 transition-all"
                                         >
                                             Devamını Oku

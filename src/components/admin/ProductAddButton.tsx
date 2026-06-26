@@ -12,7 +12,7 @@ import {
 import ProductForm from "./ProductForm";
 
 // categories prop'unu karşılıyoruz
-export default function ProductAddButton({ categories }: { categories: any[] }) {
+export default function ProductAddButton({ categories, products = [] }: { categories: any[], products?: any[] }) {
   return (
     <Sheet modal={false}>
       <SheetTrigger asChild>
@@ -30,7 +30,7 @@ export default function ProductAddButton({ categories }: { categories: any[] }) 
         </SheetHeader>
         <div className="mt-4">
           {/* Listeyi Forma iletiyoruz */}
-          <ProductForm categories={categories} />
+          <ProductForm categories={categories} products={products} />
         </div>
       </SheetContent>
     </Sheet>

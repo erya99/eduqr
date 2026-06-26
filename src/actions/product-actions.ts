@@ -55,6 +55,12 @@ export async function createProduct(formData: FormData) {
   const allergensJson = formData.get("allergens") as string;
   const allergens: string[] = allergensJson ? JSON.parse(allergensJson) : [];
 
+  const caloriesRaw = formData.get("calories") as string;
+  const calories = caloriesRaw ? parseInt(caloriesRaw) : null;
+
+  const crossSellJson = formData.get("crossSellIds") as string;
+  const crossSellIds: string[] = crossSellJson ? JSON.parse(crossSellJson) : [];
+
   let category = await prisma.category.findFirst({
     where: { name: categoryName, restaurantId: restaurant.id }
   });
@@ -81,8 +87,10 @@ export async function createProduct(formData: FormData) {
       imageUrl,
       priceLabel: priceLabel || "Standart", // 👈 EKLENDİ
       categoryId: category.id,
-      isAvailable: isAvailable, 
-      allergens: allergens,    
+      isAvailable: isAvailable,
+      allergens: allergens,
+      calories: calories,
+      crossSellIds: crossSellIds,
       order: newOrder,
       variants: {
         create: variants.map(v => ({
@@ -125,6 +133,12 @@ export async function updateProduct(formData: FormData) {
   const allergensJson = formData.get("allergens") as string;
   const allergens: string[] = allergensJson ? JSON.parse(allergensJson) : [];
 
+  const caloriesRaw = formData.get("calories") as string;
+  const calories = caloriesRaw ? parseInt(caloriesRaw) : null;
+
+  const crossSellJson = formData.get("crossSellIds") as string;
+  const crossSellIds: string[] = crossSellJson ? JSON.parse(crossSellJson) : [];
+
   // Kategoriyi bul (Değiştirilmişse yeni kategoriyi bulur)
   let category = await prisma.category.findFirst({
     where: { name: categoryName, restaurantId: restaurant.id }
@@ -148,9 +162,11 @@ export async function updateProduct(formData: FormData) {
           description,
           imageUrl,
           priceLabel: priceLabel || "Standart", // 👈 EKLENDİ
-          categoryId: category.id, 
-          isAvailable: isAvailable, 
-          allergens: allergens,     
+          categoryId: category.id,
+          isAvailable: isAvailable,
+          allergens: allergens,
+          calories: calories,
+          crossSellIds: crossSellIds,
           variants: {
             create: variants.map(v => ({
                 name: v.name,

@@ -103,6 +103,8 @@ model Product {
   order        Int      @default(0)
 
   allergens    String[] @default([])
+  calories     Int?
+  crossSellIds String[] @default([])
   priceLabel  String?  @default("Standart")
   
   categoryId  String

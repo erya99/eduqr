@@ -12,6 +12,7 @@ import NewGenMenu from "@/components/menu/NewGenMenu"; // 👈 YENİ: Import edi
 import FeedbackButton from "@/components/menu/FeedbackButton";
 import PdfDownloader from "@/components/menu/PdfDownloader";
 import FloatingReviewBtn from "@/components/menu/FloatingReviewBtn";
+import MenuChatbot from "@/components/menu/MenuChatbot";
 import { getWheelItems } from "@/actions/wheel-actions";
 
 const prisma = new PrismaClient();
@@ -65,6 +66,23 @@ export default async function MenuPage({ params, searchParams }: Props) {
 
   const activeCategory = cat ? restaurant.categories.find((c: any) => c.id === cat) : null;
   const nonEmptyCategories = restaurant.categories.filter((c: any) => c.products.length > 0);
+  const allProducts = restaurant.categories.flatMap((c: any) =>
+    c.products.map((p: any) => ({ id: p.id, name: p.name, price: Number(p.price), imageUrl: p.imageUrl }))
+  );
+
+  const allProductsFull = restaurant.categories.flatMap((c: any) =>
+    c.products.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      price: Number(p.price),
+      imageUrl: p.imageUrl,
+      description: p.description,
+      allergens: p.allergens || [],
+      calories: p.calories || null,
+      priceLabel: p.priceLabel,
+      categoryName: c.name,
+    }))
+  );
 
   return (
     <div 
@@ -96,6 +114,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
              <>
                 <SpinWheel items={wheelItems} />
                 <FloatingReviewBtn url={restaurant.googlePlaceUrl} />
+                <MenuChatbot products={allProductsFull} />
              </>
           )}
         </>
@@ -177,7 +196,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {activeCategory.products.map((product: any) => (
-                                <ProductCard key={product.id} {...product} price={Number(product.price)} />
+                                <ProductCard key={product.id} {...product} price={Number(product.price)} allProducts={allProducts} />
                             ))}
                             </div>
                         </div>

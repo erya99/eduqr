@@ -1,116 +1,136 @@
+'use client';
+
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
+  const imgUrl = "/hero-bg.jpg";
+  const containerRef = useRef(null);
+  const prefersReduced = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  // Kart: scroll'da küçülür ve aşağı kayar
+  const scale = useTransform(scrollYProgress, [0, 1], prefersReduced ? [1, 1] : [1, 0.90]);
+  const cardY = useTransform(scrollYProgress, [0, 1], prefersReduced ? [0, 0] : [0, 80]);
+  // Arka plan görseli: kart'tan daha yavaş hareket eder → gerçek parallax derinliği
+  const imgY = useTransform(scrollYProgress, [0, 1], prefersReduced ? [0, 0] : [0, -120]);
+
   return (
-    <section className="relative overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-32">
-      {/* Background Blobs (Navy/Blue Soft Gradients) */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-[#0F1C36]/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+    <section ref={containerRef} className="relative pt-[72px] md:pt-[88px] pb-0 px-3 md:px-5 bg-[#F5F0E8]">
+      {/* Yuvarlak kart — neredeyse tam genişlik */}
+      <motion.div
+        style={{ scale, y: cardY, height: "min(91vh, 860px)", minHeight: "560px" }}
+        className="relative w-full mx-auto overflow-hidden rounded-[1.5rem] md:rounded-[2rem] shadow-2xl"
+      >
+        {/* Görsel — parallax: karttan daha yavaş kayar */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <motion.img
+          src={imgUrl}
+          alt="EduQR Hero"
+          style={{ y: imgY }}
+          className="absolute inset-0 w-full h-[115%] object-cover"
+        />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
-          {/* TEXT CONTENT */}
-          <div className="lg:col-span-7 space-y-8 animate-in slide-in-from-left-10 duration-1000">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-sm font-medium text-blue-800">
-              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-              Dakikalar İçinde Hazır, Riskten Uzak
-            </div>
+        {/* Çok minimal overlay — metin okunabilirliği için sadece merkez hafif karartma */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse 80% 70% at 50% 58%, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.08) 100%)",
+          }}
+        />
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-[#0F1C36] leading-[1.1]">
-              T.C. Ticaret Bakanlığı Uyumlu <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-[#0F1C36]">
-                Dijital Menü Sistemi.
-              </span>
-            </h1>
+        {/* İçerik */}
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-sm font-medium mb-7"
+          >
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            Dijital Menü Platformu
+          </motion.div>
 
-            <p className="text-xl text-gray-600 max-w-xl leading-relaxed">
-              Menünüzü dakikalar içinde oluşturun, fiyatlarınızı anında güncelleyin. Mevzuata %100 uyumlu altyapı ile hem hız kazanın hem de işletmenizi koruyun.
-            </p>
+          {/* Başlık */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-5 md:mb-6 max-w-4xl px-2"
+          >
+            Menünüz Artık
+            <br />
+            <span className="italic text-[#c8d8f0]">Sizin İçin Çalışıyor.</span>
+          </motion.h1>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          {/* Alt yazı */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="text-base md:text-xl text-white/80 max-w-2xl mb-8 md:mb-10 leading-relaxed px-2"
+          >
+            Fiyatlarınızı anında güncelleyin, yasal yükümlülüklerinizi otomatik karşılayın,
+            müşteri deneyimini yükseltin. EduQR ile restoranınızı yönetmek değil,{" "}
+            <em className="not-italic font-semibold text-white">büyütmek</em> için zaman ayırın.
+          </motion.p>
+
+          {/* Butonlar */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="flex flex-col sm:flex-row gap-4 mb-8"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
               <Link href="/sign-up">
-                <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-[#0F1C36] hover:bg-blue-900 text-white font-bold shadow-lg shadow-blue-900/10 transition-transform hover:scale-105 active:scale-95">
-                  Hemen Başla
+                <Button
+                  size="lg"
+                  className="h-13 px-8 text-base rounded-full bg-white text-[#0F1C36] font-bold hover:bg-white/90 shadow-lg transition-colors"
+                >
+                  Ücretsiz Deneyin
                 </Button>
               </Link>
-
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
               <Link href="/ornekmenu1" target="_blank">
                 <Button
-                  variant="outline"
                   size="lg"
-                  className="h-14 px-8 text-lg rounded-full border border-gray-200 bg-white text-[#0F1C36] hover:bg-gray-50 transition-transform hover:scale-105 active:scale-95 shadow-sm"
+                  variant="outline"
+                  className="h-13 px-8 text-base rounded-full border-white/40 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors"
                 >
-                  Canlı Demo
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  Demo İzleyin <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-            </div>
+            </motion.div>
+          </motion.div>
 
-            {/* TRUST BADGE for Legal Compliance */}
-            <div className="pt-2 flex flex-col gap-3">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50/50 rounded-lg border border-blue-100 w-fit">
-                <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">✓</div>
-                <span className="text-sm font-semibold text-blue-900">1 Ocak 2024 Fiyat Etiketi Yönetmeliği ile Tam Uyumludur</span>
-              </div>
-
-              <div className="flex items-center gap-6 text-sm text-gray-500 font-medium pl-1">
-                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Ceza Riski Yok</span>
-                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Anında Kurulum</span>
-              </div>
-            </div>
-          </div>
-
-          {/* IMAGE CONTENT */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-in fade-in zoom-in duration-1000 delay-200">
-            <div className="relative w-[300px] md:w-[350px] lg:w-[800px] h-[600px] md:h-[700px] lg:h-[850px] lg:-mr-32">
-              {/* Gold/Bronze Glow behind phone (The "Brownness") */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#D4A373]/20 blur-[90px] rounded-full -z-10" />
-
-              <Image
-                src="/anasayfatelefon2.png"
-                alt="EduQR Mobil Uygulama Arayüzü"
-                fill
-                style={{ objectFit: 'contain' }}
-                priority
-                className="drop-shadow-2xl animate-float"
-              />
-
-              {/* Floating Badge 1 (Cost) */}
-              <div className="absolute top-20 left-0 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl animate-bounce delay-1000 border border-white/50 hidden md:block">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold">₺</div>
-                  <div>
-                    <p className="text-xs text-gray-500">Matbaa Masrafı</p>
-                    <p className="text-sm font-bold text-[#0F1C36]">Yok</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Badge 2 (Satisfaction) */}
-              <div className="absolute bottom-40 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl animate-pulse delay-700 border border-white/50 hidden md:block">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">★</div>
-                  <div>
-                    <p className="text-xs text-gray-500">Müşteri Memnuniyeti</p>
-                    <p className="text-sm font-bold text-[#0F1C36]">%100 Artış</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Güven satırı */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.65 }}
+            className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/60 font-medium"
+          >
+            <span className="flex items-center gap-1.5"><span className="text-green-400">✓</span> Ticaret Bakanlığı Yönetmeliği&apos;ne tam uyumlu</span>
+            <span className="hidden sm:block text-white/30">|</span>
+            <span className="flex items-center gap-1.5"><span className="text-green-400">✓</span> Kurulum 10 dakika</span>
+            <span className="hidden sm:block text-white/30">|</span>
+            <span className="flex items-center gap-1.5"><span className="text-green-400">✓</span> Teknik bilgi gerekmez</span>
+          </motion.div>
         </div>
-      </div>
 
-      {/* Organic Wave Separator (Bottom of Hero) */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20">
-        <svg className="relative block w-[calc(100%+1.3px)] h-[60px] md:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,2.97V0H0V0.58C0,0.58,0,0.58,0,0.58A602.4,602.4,0,0,0,321.39,56.44Z" fill="transparent"></path>
-          <path d="M985.66,92.83C906.67,72,823.78,31,433.89,8c-301.69-17.92-334.4,40.48-433.89,0V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" fill="#F8FAFC" opacity="0.4"></path>
-        </svg>
-      </div>
+        {/* Alt krem fade — card altını sayfayla birleştirir */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#F5F0E8] via-[#F5F0E8]/80 to-transparent" />
+      </motion.div>
     </section>
   );
 }

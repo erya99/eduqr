@@ -15,6 +15,7 @@ interface SortableProductListProps {
 }
 
 export default function SortableProductList({ products: initialProducts, categories }: SortableProductListProps) {
+  const allProducts = initialProducts;
   const [products, setProducts] = useState(initialProducts);
 
   useEffect(() => {
@@ -115,7 +116,7 @@ export default function SortableProductList({ products: initialProducts, categor
                         {/* -------------------------------------- */}
 
                         <TableCell className="text-right">
-                          <ProductActions product={product} categories={categories} />
+                          <ProductActions product={product} categories={categories} products={allProducts} />
                         </TableCell>
                       </TableRow>
                     )}

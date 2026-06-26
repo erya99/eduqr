@@ -14,7 +14,7 @@ import ProductForm from "./ProductForm";
 import { useState } from "react";
 
 // categories prop'unu karşılıyoruz
-export default function ProductActions({ product, categories }: { product: any, categories: any[] }) {
+export default function ProductActions({ product, categories, products = [] }: { product: any, categories: any[], products?: any[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -35,7 +35,7 @@ export default function ProductActions({ product, categories }: { product: any, 
           </SheetHeader>
           <div className="mt-4">
              {/* Listeyi Forma iletiyoruz */}
-            <ProductForm product={product} categories={categories} />
+            <ProductForm product={product} categories={categories} products={products} />
           </div>
         </SheetContent>
       </Sheet>

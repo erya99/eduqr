@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: "/",
             disallow: ["/admin/", "/super-admin/"], // Yönetim panellerini gizle
         },
-        sitemap: "https://eduqr.com/sitemap.xml", // Domain değişirse burayı güncelle
+        sitemap: "https://eduqr.tr/sitemap.xml",
     };
 }
