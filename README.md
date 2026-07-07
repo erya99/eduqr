@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EduQR
 
-## Getting Started
+Restoranlar ve kafeler için QR kodlu dijital menü platformu. Müşteriler QR kodu okutarak menüye anında ulaşır, işletmeler ise tek panelden menülerini, kampanyalarını ve müşteri geri bildirimlerini yönetir.
 
-First, run the development server:
+## Özellikler
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **QR menü** — fiziksel menü basmadan, anlık güncellenebilir dijital menü
+- **Yönetim paneli** — kategori/ürün ekleme, sıralama, fiyat güncelleme
+- **Müşteri etkileşimi** — çark çevirme (SpinWheel) ile kampanya, akıllı menü asistanı (anahtar kelime tabanlı filtreleme — alerjen, fiyat, kalori), geri bildirim toplama
+- **Google yorum entegrasyonu** — müşterileri işletme yorumuna yönlendirme
+- **PDF menü ve otomatik yazdırma** desteği
+- **Abonelik ve ödeme yönetimi** — PayTR entegrasyonu ile restoran aboneliklerinin faturalandırılması
+- **Süper admin paneli** — birden fazla restoranı tek yerden yönetme, fatura takibi
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Teknolojiler
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Next.js (App Router) · TypeScript · Prisma + PostgreSQL · Clerk (kimlik doğrulama) · PayTR (ödeme) · Tailwind CSS
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Durum
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Aktif geliştirilen bir SaaS ürünü, gerçek işletme müşterileriyle kullanımda.
